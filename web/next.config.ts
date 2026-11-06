@@ -4,8 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
-  // Lessons are read from disk; ship them with server functions that may render on demand.
-  outputFileTracingIncludes: { "/s1/[lessonId]": ["./content/**/*.json"] },
+  // Lessons are read from disk at request time too (the room bar makes every page dynamic):
+  // ship content/ with every server function, not only the lesson route.
+  outputFileTracingIncludes: { "/**": ["./content/**/*.json"] },
   turbopack: {
     rules: {
       "*.css": {
