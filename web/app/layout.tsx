@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Lexend } from "next/font/google";
 import "./globals.css";
 import { ExpositionExit, ExpositionShortcut } from "@/components/exposition";
 import { Providers } from "@/components/providers";
+import { RoomBar } from "@/components/room-bar";
 import { SiteHeader } from "@/components/site-header";
 import { site } from "@/lib/site";
 import { expositionInitScript } from "@/lib/exposition";
 import { themeInitScript } from "@/lib/theme";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Lexend: rounded geometric shapes, designed to make reading easier (Learnify-like voice).
+const lexend = Lexend({
+  variable: "--font-lexend",
   subsets: ["latin"],
 });
 
@@ -29,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="es"
       // The theme script changes the class before hydration.
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${lexend.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript + expositionInitScript }} />
@@ -45,6 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <ExpositionShortcut />
           <ExpositionExit />
           <SiteHeader />
+          <RoomBar />
           <div id="contenido" className="flex flex-1 flex-col">
             {children}
           </div>
