@@ -88,7 +88,7 @@ gantt
 | PA-36 | Story | Etapas Teoría → Práctica → Quiz | E1 | 2 | Por hacer | 26 |
 | PA-37 | Story | Recorrido «¿Dónde ocurre?» | E1 | 5 | Por hacer | 27 |
 | PA-38 | Story | Quiz en modo práctica calificado en servidor | E1 | 3 | Por hacer | 29 |
-| PA-9 | Story | Lección modelo: módulo 1 «Mapa del sistema» | E4 | 3 | Por hacer | 16, 26 |
+| PA-9 | Story | Lección modelo: módulo 1 «Mapa del sistema» | E4 | 3 | Hecho | 16, 26 |
 | PA-12 | Task | Preguntas abiertas al docente | E7 | 1 | Por hacer | — |
 
 ## Sprint 2 · Sáb 7 nov · "Ranking y módulos 2–3" — 31 SP (sobre capacidad; ver regla de recorte)

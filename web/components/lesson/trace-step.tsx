@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type Ref } from "react";
-import { ArrowRight, Check, Database, FileCode2, FileKey2, X } from "lucide-react";
+import { ArrowRight, Check, Database, FileCode2, FileKey2, Network, X } from "lucide-react";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { CodeView } from "@/components/code/code-view";
@@ -17,7 +17,7 @@ import {
   type TraceStep as TraceStepData,
 } from "@/lib/trace";
 
-const kindIcon = { file: FileKey2, class: FileCode2, db: Database } as const;
+const kindIcon = { file: FileKey2, class: FileCode2, network: Network, db: Database } as const;
 
 /**
  * «¿Dónde ocurre?» (REQ-27): chronological events, one decision per screen.
@@ -85,7 +85,7 @@ export function TraceStep({
 
       <div className="grid gap-6 md:grid-cols-[15rem_1fr]">
         {/* Timeline */}
-        <nav aria-label="Línea de tiempo del recorrido" className="md:border-r md:pr-4">
+        <nav aria-label="Línea de tiempo del recorrido" className="min-w-0 md:border-r md:pr-4">
           <ol className="flex gap-1.5 overflow-x-auto pb-1 md:flex-col md:gap-0 md:overflow-visible">
             {step.events.map((item, i) => {
               const done = isEventSolved(item, picks[i]);
@@ -156,7 +156,7 @@ export function TraceStep({
               <p className="text-sm text-muted-foreground tabular-nums">
                 Momento {view + 1} de {total} · {event.moment}
               </p>
-              <h3 id={`${id}-event`} ref={eventHeading} tabIndex={-1} className="text-xl font-semibold focus:outline-none">
+              <h3 id={`${id}-event`} ref={eventHeading} tabIndex={-1} className="text-xl font-semibold [overflow-wrap:anywhere] focus:outline-none">
                 {event.description}
               </h3>
             </div>
@@ -232,7 +232,7 @@ export function TraceStep({
           </section>
         ) : (
           <section aria-labelledby={`${id}-summary`} className="min-w-0 space-y-4">
-            <h3 id={`${id}-summary`} ref={eventHeading} tabIndex={-1} className="text-xl font-semibold focus:outline-none">
+            <h3 id={`${id}-summary`} ref={eventHeading} tabIndex={-1} className="text-xl font-semibold [overflow-wrap:anywhere] focus:outline-none">
               Resumen: el recorrido completo
             </h3>
             <div className="overflow-x-auto rounded-lg border">

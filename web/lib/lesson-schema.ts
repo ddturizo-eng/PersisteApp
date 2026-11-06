@@ -171,11 +171,11 @@ const fillCode = z
 
 const codeStep = z.discriminatedUnion("mode", [readCode, pickLineCode, orderCode, fillCode]);
 
-/** Where something happens in the app: a file, a class or the database (REQ-27). */
+/** Where something happens in the app: a file, a class, the network or the database (REQ-27). */
 const traceLocation = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/, "id en minúsculas, números y guiones"),
   label: text,
-  kind: z.enum(["file", "class", "db"]),
+  kind: z.enum(["file", "class", "network", "db"]),
 });
 
 /**

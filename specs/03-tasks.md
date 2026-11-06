@@ -35,7 +35,7 @@ Para que quepa en el plazo, pasan al backlog: buscador Ctrl K y Referencia (T-23
 | T-37 | Paso `trace` «¿Dónde ocurre?» con pruebas; reemplaza el ordenar del módulo 4 | REQ-27 | 2 h | ✅ |
 | T-45 | Calidad de preguntas: `context`, selector en huecos, control de longitud en build, opciones barajadas; módulo 4 reescrito | REQ-04 CA7, REQ-32 | 0.75 h | ✅ |
 | T-38 | Paso `quiz` en modo práctica, calificado por Server Action sin exponer respuestas | REQ-29 CA1–CA4 | 1.5 h | ✅ |
-| T-09 | **Lección modelo: módulo 1 «Mapa del sistema»** (teoría → recorrido → quiz) | REQ-16, 26 | 1.5 h | ⬜ |
+| T-09 | **Lección modelo: módulo 1 «Mapa del sistema»** (teoría → recorrido → quiz) | REQ-16, 26 | 1.5 h | ✅ |
 | T-12 | Enviar preguntas abiertas al docente | — | 0.1 h | ⬜ |
 
 **Salida del viernes:** módulo 1 completo y desplegado, con teoría, recorrido y quiz en modo práctica.
