@@ -35,6 +35,8 @@ Como estudiante, quiero practicar con fragmentos Java sin escribir un programa c
 - **CA2.** Cada fragmento debe mostrar pestañas Oracle / PostgreSQL cuando el código difiera entre motores.
 - **CA3.** Todo resultado de estas prácticas debe rotularse como `Simulación` (ver REQ-07).
 - **CA4.** Las interacciones deben poder completarse solo con teclado.
+- **CA5.** Ningún ejercicio debe dejar al estudiante bloqueado: tras cada intento fallido el sistema debe mostrar la siguiente pista, y tras 2 intentos fallidos debe ofrecer «Ver solución». *(Agregado el 6 nov 2026 tras revisión de contenido: riesgo de abandono en el ejercicio de ordenar.)*
+- **CA6.** Después de comprobar, el ejercicio de ordenar debe marcar qué bloques ya están en su lugar.
 
 ### REQ-05 · Modo Exposición — **M**
 - **CA1.** Cuando se activa (tecla `P` o botón), el sistema debe ocultar navegación secundaria y aumentar tipografía para proyector.

@@ -97,3 +97,14 @@ export function checkGaps(
 
 /** True for code steps that must be solved before Continue (everything except `read`). */
 export const isExercise = (step: Step) => step.kind === "code" && step.mode !== "read";
+
+/** Failed checks after which «Ver solución» appears (REQ-04 CA5). */
+export const SOLUTION_AFTER_FAILURES = 2;
+
+export const canShowSolution = (failures: number) => failures >= SOLUTION_AFTER_FAILURES;
+
+/** Hint to show after `failures` failed checks: one more hint per failure, the last one repeats. */
+export function hintFor(hints: string[] | undefined, failures: number): string | undefined {
+  if (!hints?.length || failures < 1) return undefined;
+  return hints[Math.min(failures, hints.length) - 1];
+}

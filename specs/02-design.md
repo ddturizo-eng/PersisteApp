@@ -98,6 +98,8 @@ type SimId = 'pool' | 'injection' | 'mirror' | 'system-map' | 'request-tracer';
 - Teclado: `→`/`Enter` avanzar, `←` retroceder, `P` modo exposición, `Ctrl K` buscador. Atajos ignorados si el foco está en un input.
 - `ExpositionProvider` (contexto + `localStorage`) añade clase `data-exposition` al `<html>`: escala tipográfica ×1.35, oculta barra lateral y pie.
 - Transición entre pasos: fundido de 150 ms; se anula con `prefers-reduced-motion`.
+- **Ningún callejón sin salida (REQ-04 CA5):** cada ejercicio `order` y `fill` acepta `hints[]`; cada intento fallido muestra la siguiente pista y, desde el 2.º fallo, aparece «Ver solución». La solución mostrada desbloquea Continuar igual que resolverlo; el objetivo es que nadie abandone la clase en un paso.
+- **Contenido para el público real:** ejercicios de ordenar con 4–6 bloques como máximo, sin anidar `try`, precedidos por un paso de texto que nombra las partes que se van a ordenar.
 
 ## 5. Simuladores (REQ-10..14)
 

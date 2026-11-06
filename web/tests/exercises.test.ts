@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { checkGaps, checkOrder, move, orderPool, seededShuffle, toSentinels } from "@/lib/exercises";
+import {
+  canShowSolution,
+  checkGaps,
+  checkOrder,
+  hintFor,
+  move,
+  orderPool,
+  seededShuffle,
+  toSentinels,
+} from "@/lib/exercises";
 
 describe("seededShuffle", () => {
   it("is deterministic for the same seed", () => {
@@ -69,5 +78,21 @@ describe("checkGaps", () => {
 describe("toSentinels", () => {
   it("turns {{n}} into identifiers the highlighter keeps intact", () => {
     expect(toSentinels("ps.{{2}}(1, x)")).toBe("ps.__GAP_2__(1, x)");
+  });
+});
+
+describe("hints and solution", () => {
+  it("shows one more hint per failure and repeats the last", () => {
+    const hints = ["uno", "dos"];
+    expect(hintFor(hints, 0)).toBeUndefined();
+    expect(hintFor(hints, 1)).toBe("uno");
+    expect(hintFor(hints, 2)).toBe("dos");
+    expect(hintFor(hints, 5)).toBe("dos");
+    expect(hintFor(undefined, 3)).toBeUndefined();
+  });
+
+  it("offers the solution from the second failure", () => {
+    expect(canShowSolution(1)).toBe(false);
+    expect(canShowSolution(2)).toBe(true);
   });
 });

@@ -100,6 +100,8 @@ const orderCode = z.object({
   prompt: text,
   /** Blocks in the correct order; the player shuffles them. */
   blocks: z.array(text).min(3, "necesita al menos 3 bloques"),
+  /** Shown one per failed check; after 2 failures «Ver solución» appears (REQ-04 CA5). */
+  hints: z.array(text).optional(),
   distractors: z.array(text).optional(),
 });
 
@@ -110,6 +112,8 @@ const fillCode = z
     ...codeBase,
     mode: z.literal("fill"),
     prompt: text,
+    /** Shown one per failed check; after 2 failures «Ver solución» appears (REQ-04 CA5). */
+    hints: z.array(text).optional(),
     /** Gaps are written as {{n}} inside the code variants. */
     gaps: z
       .array(

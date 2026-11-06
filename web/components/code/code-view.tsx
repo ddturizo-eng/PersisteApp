@@ -52,7 +52,12 @@ export function CodeView({
     : renderText(fallback, "plain");
 
   if (inline) {
-    return <code className={cn("font-mono text-sm whitespace-pre text-code-foreground", className)}>{body}</code>;
+    // Inline code wraps instead of scrolling so a whole line is readable on a phone.
+    return (
+      <code className={cn("font-mono text-sm whitespace-pre-wrap text-code-foreground [overflow-wrap:anywhere]", className)}>
+        {body}
+      </code>
+    );
   }
 
   return (

@@ -69,6 +69,12 @@
       ]
     },
     {
+      "kind": "text",
+      "stage": "write",
+      "title": "Los cuatro pasos de una consulta segura",
+      "body": "Toda consulta con PreparedStatement sigue el mismo orden. Apréndelo una vez y sirve para cualquier tabla.\n\n1. Escribir el SQL con un signo ? en el lugar de cada dato.\n\n2. Preparar la sentencia: connection.prepareStatement(sql).\n\n3. Asignar cada valor: ps.setString(posición, valor). La posición 1 es el primer ?.\n\n4. Ejecutar: ps.executeQuery() devuelve las filas encontradas."
+    },
+    {
       "kind": "code",
       "stage": "write",
       "mode": "pick-line",
@@ -101,23 +107,22 @@
       "stage": "write",
       "mode": "order",
       "language": "java",
-      "title": "Ordena el método",
-      "prompt": "Ordena las líneas para que el método abra, use y cierre los recursos correctamente.",
+      "title": "Ordena los cuatro pasos",
+      "prompt": "Pon las líneas en el orden de los cuatro pasos que acabas de ver. El paso 3 usa dos líneas, una por cada ?.",
       "variants": {
         "java": "public boolean login(String user, String password) throws SQLException { ... }"
       },
       "blocks": [
         "String sql = \"SELECT id FROM users WHERE name = ? AND password = ?\";",
-        "try (PreparedStatement ps = connection.prepareStatement(sql)) {",
-        "    ps.setString(1, user);",
-        "    ps.setString(2, password);",
-        "    try (ResultSet rs = ps.executeQuery()) {",
-        "        return rs.next();",
-        "    }",
-        "}"
+        "PreparedStatement ps = connection.prepareStatement(sql);",
+        "ps.setString(1, user);",
+        "ps.setString(2, password);",
+        "ResultSet rs = ps.executeQuery();"
       ],
-      "distractors": [
-        "    Statement st = connection.createStatement();"
+      "hints": [
+        "Empieza por el texto SQL: sin él no hay nada que preparar.",
+        "Los valores se asignan después de preparar la sentencia y antes de ejecutarla.",
+        "El usuario va en la posición 1 porque es el primer ? de la consulta."
       ]
     },
     {
@@ -147,6 +152,10 @@
           ],
           "hint": "set + el tipo Java del valor."
         }
+      ],
+      "hints": [
+        "Los dos métodos aparecen en el paso «Los cuatro pasos de una consulta segura».",
+        "Hueco 1 es el paso 2 (preparar); hueco 2 es el paso 3 (asignar un texto)."
       ]
     },
     {
