@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { LessonPlayerFromUrl } from "@/components/lesson/lesson-player";
 import { findLesson, lessonsForSession } from "@/lib/content";
+import { highlightLesson } from "@/lib/highlight-server";
 
 /** Every session 1 lesson is prerendered at build time. */
 export function generateStaticParams() {
@@ -28,5 +29,6 @@ async function Lesson({ params }: Pick<PageProps<"/s1/[lessonId]">, "params">) {
   if (!lesson || lesson.session !== 1) notFound();
 
   // ?step= is read on the client; the static HTML starts at step 1.
-  return <LessonPlayerFromUrl lesson={lesson} />;
+  const highlights = await highlightLesson(lesson);
+  return <LessonPlayerFromUrl lesson={lesson} highlights={highlights} />;
 }

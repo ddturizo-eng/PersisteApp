@@ -1,3 +1,4 @@
+import { isExercise } from "@/lib/exercises";
 import { stages, type Lesson, type Stage, type Step } from "@/lib/lesson-schema";
 
 /**
@@ -31,10 +32,23 @@ export function isSolved(step: Step, picked: number[] = []): boolean {
   return correct === undefined || picked.includes(correct);
 }
 
-/** Continue stays disabled until the question is answered correctly (REQ-02 CA4, REQ-03 CA2). */
-export function canAdvance(lesson: Lesson, index: number, attempts: Attempts): boolean {
+/** Code exercises the student solved, per step index. */
+export type SolvedExercises = Record<number, boolean>;
+
+/**
+ * Continue stays disabled until the question is answered correctly or the code exercise
+ * is solved (REQ-02 CA4, REQ-03 CA2, REQ-04).
+ */
+export function canAdvance(
+  lesson: Lesson,
+  index: number,
+  attempts: Attempts,
+  solved: SolvedExercises = {}
+): boolean {
   const step = lesson.steps[index];
-  return step !== undefined && index < lesson.steps.length - 1 && isSolved(step, attempts[index]);
+  if (step === undefined || index >= lesson.steps.length - 1) return false;
+  if (isExercise(step)) return solved[index] === true;
+  return isSolved(step, attempts[index]);
 }
 
 export type StageState = "complete" | "current" | "upcoming";

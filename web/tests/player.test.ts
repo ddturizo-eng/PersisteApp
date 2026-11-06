@@ -21,9 +21,10 @@ const lesson = {
         { text: "sí", correct: true, explanation: "e" },
       ],
     },
+    { kind: "code", stage: "write", mode: "pick-line", language: "java", prompt: "p", variants: { java: "x" }, options: [] },
     { kind: "text", stage: "explain", body: "b" },
   ],
-} as Lesson;
+} as unknown as Lesson;
 
 describe("stepIndexFromParam", () => {
   it("maps 1-based ?step= to a clamped 0-based index", () => {
@@ -46,8 +47,13 @@ describe("canAdvance", () => {
     expect(canAdvance(lesson, 1, { 1: [0, 1] })).toBe(true);
   });
 
-  it("never advances past the last step", () => {
+  it("blocks a code exercise until it is solved", () => {
     expect(canAdvance(lesson, 2, {})).toBe(false);
+    expect(canAdvance(lesson, 2, {}, { 2: true })).toBe(true);
+  });
+
+  it("never advances past the last step", () => {
+    expect(canAdvance(lesson, 3, {})).toBe(false);
   });
 });
 

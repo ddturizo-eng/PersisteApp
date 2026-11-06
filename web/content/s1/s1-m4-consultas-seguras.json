@@ -27,10 +27,23 @@
       }
     },
     {
+      "kind": "code",
+      "stage": "problem",
+      "mode": "read",
+      "language": "sql",
+      "title": "La tabla users en cada motor",
+      "variants": {
+        "postgresql": "CREATE TABLE users (\n    id       INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    name     VARCHAR(50)  NOT NULL UNIQUE,\n    password VARCHAR(100) NOT NULL\n);",
+        "oracle": "CREATE TABLE users (\n    id       NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    name     VARCHAR2(50)  NOT NULL UNIQUE,\n    password VARCHAR2(100) NOT NULL\n);"
+      }
+    },
+    {
       "kind": "visual",
       "stage": "visualize",
       "component": "injection",
-      "props": { "mode": "vulnerable" },
+      "props": {
+        "mode": "vulnerable"
+      },
       "caption": "Escribe en el usuario y mira cómo cambia la consulta que llega a la base de datos."
     },
     {
@@ -58,6 +71,58 @@
     {
       "kind": "code",
       "stage": "write",
+      "mode": "pick-line",
+      "language": "java",
+      "title": "Elige la consulta segura",
+      "prompt": "¿Qué línea debe reemplazar a la concatenación?",
+      "variants": {
+        "java": "String sql = /* aquí va la línea */;\ntry (PreparedStatement ps = connection.prepareStatement(sql)) { ... }"
+      },
+      "options": [
+        {
+          "line": "String sql = \"SELECT id FROM users WHERE name = '\" + user + \"'\";",
+          "correct": false,
+          "explanation": "Sigue concatenando: cambiar Statement por PreparedStatement no basta si el valor viaja dentro del texto SQL."
+        },
+        {
+          "line": "String sql = \"SELECT id FROM users WHERE name = ? AND password = ?\";",
+          "correct": true,
+          "explanation": "Los signos ? reservan el lugar de cada dato; el driver los envía por separado del SQL."
+        },
+        {
+          "line": "String sql = String.format(\"SELECT id FROM users WHERE name = %s\", user);",
+          "correct": false,
+          "explanation": "String.format también arma el SQL con el texto del usuario; es concatenación con otra sintaxis."
+        }
+      ]
+    },
+    {
+      "kind": "code",
+      "stage": "write",
+      "mode": "order",
+      "language": "java",
+      "title": "Ordena el método",
+      "prompt": "Ordena las líneas para que el método abra, use y cierre los recursos correctamente.",
+      "variants": {
+        "java": "public boolean login(String user, String password) throws SQLException { ... }"
+      },
+      "blocks": [
+        "String sql = \"SELECT id FROM users WHERE name = ? AND password = ?\";",
+        "try (PreparedStatement ps = connection.prepareStatement(sql)) {",
+        "    ps.setString(1, user);",
+        "    ps.setString(2, password);",
+        "    try (ResultSet rs = ps.executeQuery()) {",
+        "        return rs.next();",
+        "    }",
+        "}"
+      ],
+      "distractors": [
+        "    Statement st = connection.createStatement();"
+      ]
+    },
+    {
+      "kind": "code",
+      "stage": "write",
       "mode": "fill",
       "language": "java",
       "title": "Corrige el repositorio",
@@ -69,13 +134,17 @@
         {
           "id": 1,
           "label": "Método que crea la sentencia preparada",
-          "answers": ["prepareStatement"],
+          "answers": [
+            "prepareStatement"
+          ],
           "hint": "Es un método de Connection que recibe el SQL con signos ?."
         },
         {
           "id": 2,
           "label": "Método que asigna un parámetro de texto",
-          "answers": ["setString"],
+          "answers": [
+            "setString"
+          ],
           "hint": "set + el tipo Java del valor."
         }
       ]
@@ -84,7 +153,9 @@
       "kind": "visual",
       "stage": "run",
       "component": "injection",
-      "props": { "mode": "safe" },
+      "props": {
+        "mode": "safe"
+      },
       "caption": "Repite el ataque con la versión parametrizada: el texto viaja como dato y el login falla."
     },
     {

@@ -142,6 +142,10 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Shiki dual theme: tokens carry --shiki-dark; switch with the .dark class. */
+  .dark [data-token] {
+    color: var(--shiki-dark) !important;
+  }
   html.theme-switching *,
   html.theme-switching *::before,
   html.theme-switching *::after {

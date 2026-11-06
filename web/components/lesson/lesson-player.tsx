@@ -6,6 +6,7 @@ import { Button, LinkButton } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { StageIndicator } from "@/components/lesson/stage-indicator";
 import { CodeStep, QuestionStep, TextStep, VisualStep } from "@/components/lesson/steps";
+import type { Highlights } from "@/lib/highlight";
 import type { Lesson } from "@/lib/lesson-schema";
 import {
   canAdvance,
@@ -14,6 +15,7 @@ import {
   stageStates,
   stepIndexFromParam,
   type Attempts,
+  type SolvedExercises,
 } from "@/lib/player";
 
 const subscribeToNothing = () => () => {};
@@ -23,23 +25,34 @@ const readStepParam = () => new URLSearchParams(window.location.search).get("ste
  * Mounts the player at ?step= (1-based). The server and the first client render use step 1;
  * once the URL is known the player remounts at the requested step.
  */
-export function LessonPlayerFromUrl({ lesson }: { lesson: Lesson }) {
+export function LessonPlayerFromUrl({ lesson, highlights }: { lesson: Lesson; highlights: Highlights }) {
   const stepParam = useSyncExternalStore(subscribeToNothing, readStepParam, () => null);
   const initialIndex = stepIndexFromParam(stepParam, lesson.steps.length);
-  return <LessonPlayer key={stepParam ?? "server"} lesson={lesson} initialIndex={initialIndex} />;
+  return (
+    <LessonPlayer key={stepParam ?? "server"} lesson={lesson} highlights={highlights} initialIndex={initialIndex} />
+  );
 }
 
 /** One idea per screen with Continue/Back and ← → shortcuts (REQ-02, REQ-03). */
-export function LessonPlayer({ lesson, initialIndex = 0 }: { lesson: Lesson; initialIndex?: number }) {
+export function LessonPlayer({
+  lesson,
+  highlights,
+  initialIndex = 0,
+}: {
+  lesson: Lesson;
+  highlights: Highlights;
+  initialIndex?: number;
+}) {
   const total = lesson.steps.length;
   const [index, setIndex] = useState(initialIndex);
   const [attempts, setAttempts] = useState<Attempts>({});
+  const [solved, setSolved] = useState<SolvedExercises>({});
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
 
   const step = lesson.steps[index];
   const isLast = index === total - 1;
-  const advanceAllowed = canAdvance(lesson, index, attempts);
+  const advanceAllowed = canAdvance(lesson, index, attempts, solved);
 
   const goTo = useCallback(
     (next: number) => {
@@ -111,7 +124,17 @@ export function LessonPlayer({ lesson, initialIndex = 0 }: { lesson: Lesson; ini
         {step.kind === "question" && (
           <QuestionStep key={index} step={step} picked={attempts[index] ?? []} onPick={pick} headingRef={headingRef} />
         )}
-        {step.kind === "code" && <CodeStep key={index} step={step} headingRef={headingRef} />}
+        {step.kind === "code" && (
+          <CodeStep
+            key={index}
+            step={step}
+            stepKey={`${lesson.id}-${index}`}
+            highlights={highlights}
+            solved={solved[index] === true}
+            onSolved={() => setSolved((current) => ({ ...current, [index]: true }))}
+            headingRef={headingRef}
+          />
+        )}
       </section>
 
       <footer className="sticky bottom-0 -mx-4 border-t bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6">
@@ -135,7 +158,9 @@ export function LessonPlayer({ lesson, initialIndex = 0 }: { lesson: Lesson; ini
               </Button>
             )}
             {!advanceAllowed && !isLast && (
-              <p className="text-xs text-muted-foreground">Responde correctamente para continuar</p>
+              <p className="text-xs text-muted-foreground">
+                {step.kind === "code" ? "Resuelve el ejercicio para continuar" : "Responde correctamente para continuar"}
+              </p>
             )}
           </div>
         </div>

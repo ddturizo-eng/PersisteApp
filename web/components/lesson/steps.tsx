@@ -3,7 +3,13 @@
 import { useId, type Ref } from "react";
 import { Check, X } from "lucide-react";
 import { cn } from "cn";
+import { CodeView } from "@/components/code/code-view";
+import { useEngine } from "@/components/code/engine";
+import { EngineTabs } from "@/components/code/engine-tabs";
+import { FillGaps, OrderBlocks, PickLine } from "@/components/code/exercises";
 import { ExecutionBadge } from "@/components/ui/execution-badge";
+import { codeFor, toSentinels } from "@/lib/exercises";
+import { highlightKey, type Highlights } from "@/lib/highlight";
 import { stageLabels, type Step } from "@/lib/lesson-schema";
 import { correctOptionIndex } from "@/lib/player";
 
@@ -162,23 +168,65 @@ export function QuestionStep({
   );
 }
 
-/** Code step, read-only until PA-7 adds engine tabs and the interactive exercises. */
-export function CodeStep({ step, headingRef }: { step: StepOf<"code">; headingRef: Ref<HTMLHeadingElement> }) {
-  const code = (step.variants.java ?? step.variants.postgresql ?? step.variants.oracle ?? "").replace(
-    /\{\{(\d+)\}\}/g,
-    "____"
-  );
+/**
+ * Code step (REQ-04): Shiki-highlighted code, engine tabs when the step has Oracle and
+ * PostgreSQL variants, and the pick-line / order / fill exercises. The execution result
+ * shows once the exercise is solved (or always for read-only code).
+ */
+export function CodeStep({
+  step,
+  stepKey,
+  highlights,
+  solved,
+  onSolved,
+  headingRef,
+}: {
+  step: StepOf<"code">;
+  stepKey: string;
+  highlights: Highlights;
+  solved: boolean;
+  onSolved: () => void;
+  headingRef: Ref<HTMLHeadingElement>;
+}) {
+  const [engine, setEngine] = useEngine();
+  const lookup = (code: string) => highlights[highlightKey(step.language, toSentinels(code))];
+  const { code } = codeFor(step, engine);
+  const hasEngineTabs = Boolean(step.variants.oracle && step.variants.postgresql);
+  const wrapTabs = (content: React.ReactNode) =>
+    hasEngineTabs ? (
+      <EngineTabs engine={engine} onChange={setEngine}>
+        {content}
+      </EngineTabs>
+    ) : (
+      content
+    );
+
   return (
     <div className="space-y-6">
       <p className="text-sm font-medium text-muted-foreground">{stageLabels[step.stage]}</p>
       <StepHeading headingRef={headingRef}>{step.title ?? "Código"}</StepHeading>
-      {"prompt" in step && <Paragraphs text={step.prompt} />}
-      <pre className="overflow-x-auto rounded-lg bg-code p-4 font-mono text-sm leading-relaxed text-code-foreground">
-        <code>{code}</code>
-      </pre>
-      {step.result && (
+
+      {step.mode === "read" && wrapTabs(<CodeView lines={lookup(code)} fallback={code} />)}
+      {step.mode === "pick-line" && (
+        <>
+          {wrapTabs(<CodeView lines={lookup(code)} fallback={code} />)}
+          <PickLine step={step} lookup={lookup} solved={solved} onSolved={onSolved} />
+        </>
+      )}
+      {step.mode === "order" && (
+        <OrderBlocks step={step} stepKey={stepKey} lookup={lookup} solved={solved} onSolved={onSolved} />
+      )}
+      {step.mode === "fill" &&
+        wrapTabs(
+          <FillGaps key={code} step={step} code={code} lookup={lookup} solved={solved} onSolved={onSolved} />
+        )}
+
+      {step.result && (step.mode === "read" || solved) && (
         <div className="space-y-2">
-          <ExecutionBadge kind={step.result.kind} />
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-medium">Resultado</p>
+            <ExecutionBadge kind={step.result.kind} />
+          </div>
           <pre className="overflow-x-auto rounded-lg border p-4 font-mono text-sm">{step.result.output}</pre>
         </div>
       )}
