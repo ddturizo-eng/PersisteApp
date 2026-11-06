@@ -6,16 +6,14 @@ import { z } from "zod";
  */
 
 export const engines = ["oracle", "postgresql"] as const;
-export const stages = ["problem", "visualize", "predict", "write", "run", "explain"] as const;
+/** Theory first, then practice, then the scored quiz (constitution P6, REQ-26). */
+export const stages = ["theory", "practice", "quiz"] as const;
 export const simulators = ["pool", "injection", "mirror", "system-map", "request-tracer"] as const;
 
 export const stageLabels: Record<(typeof stages)[number], string> = {
-  problem: "Problema",
-  visualize: "Visualizar",
-  predict: "Predecir",
-  write: "Escribir",
-  run: "Ejecutar",
-  explain: "Explicar",
+  theory: "Teoría",
+  practice: "Práctica",
+  quiz: "Quiz",
 };
 
 const text = z.string().trim().min(1, "no puede estar vacío");
@@ -140,7 +138,83 @@ const fillCode = z
 
 const codeStep = z.discriminatedUnion("mode", [readCode, pickLineCode, orderCode, fillCode]);
 
-export const stepSchema = z.union([textStep, visualStep, questionStep, codeStep]);
+/** Where something happens in the app: a file, a class or the database (REQ-27). */
+const traceLocation = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/, "id en minúsculas, números y guiones"),
+  label: text,
+  kind: z.enum(["file", "class", "db"]),
+});
+
+/**
+ * «¿Dónde ocurre?» walkthrough (REQ-27): chronological events, one decision per screen.
+ */
+const traceStep = z
+  .object({
+    kind: z.literal("trace"),
+    stage,
+    title: text,
+    intro: text,
+    locations: z.array(traceLocation).min(3, "necesita al menos 3 lugares"),
+    events: z
+      .array(
+        z.object({
+          moment: text,
+          description: text,
+          options: z.array(z.string()).min(3, "entre 3 y 4 opciones").max(4, "entre 3 y 4 opciones"),
+          answer: z.string(),
+          /** Why each wrong option is not the place. */
+          why: z.record(z.string(), text),
+          explanation: text,
+          code: z
+            .object({ language: z.enum(["java", "sql", "properties"]), source: text })
+            .optional(),
+        })
+      )
+      .min(3, "necesita al menos 3 eventos"),
+  })
+  .superRefine((step, ctx) => {
+    const ids = new Set(step.locations.map((l) => l.id));
+    step.events.forEach((event, i) => {
+      for (const option of event.options) {
+        if (!ids.has(option)) ctx.addIssue({ code: "custom", path: ["events", i, "options"], message: `lugar desconocido: ${option}` });
+      }
+      if (!event.options.includes(event.answer)) {
+        ctx.addIssue({ code: "custom", path: ["events", i, "answer"], message: "la respuesta debe estar entre las opciones" });
+      }
+      for (const option of event.options) {
+        if (option !== event.answer && !event.why[option]) {
+          ctx.addIssue({ code: "custom", path: ["events", i, "why"], message: `falta explicar por qué no es ${option}` });
+        }
+      }
+    });
+  });
+
+/** Scored quiz (REQ-29). Correct answers stay on the server; see toPublicQuiz. */
+const quizStep = z
+  .object({
+    kind: z.literal("quiz"),
+    stage: z.literal("quiz"),
+    title: text.optional(),
+    questions: z
+      .array(
+        z.object({
+          id: z.string().regex(/^[a-z0-9-]+$/, "id en minúsculas, números y guiones"),
+          prompt: text,
+          options: z
+            .array(choice)
+            .min(2, "necesita al menos 2 opciones")
+            .refine(exactlyOneCorrect, "debe tener exactamente una opción correcta"),
+        })
+      )
+      .min(3, "entre 3 y 8 preguntas")
+      .max(8, "entre 3 y 8 preguntas"),
+  })
+  .refine((step) => new Set(step.questions.map((q) => q.id)).size === step.questions.length, {
+    message: "los id de las preguntas deben ser únicos",
+    path: ["questions"],
+  });
+
+export const stepSchema = z.union([textStep, visualStep, questionStep, codeStep, traceStep, quizStep]);
 
 export const lessonSchema = z
   .object({
@@ -157,7 +231,7 @@ export const lessonSchema = z
     steps: z.array(stepSchema).min(1, "necesita al menos 1 paso"),
   })
   .superRefine((lesson, ctx) => {
-    // Stages must move forward: Problema → … → Explicar (constitution P6).
+    // Stages must move forward: Teoría → Práctica → Quiz (constitution P6, REQ-26).
     let last = -1;
     lesson.steps.forEach((step, index) => {
       const position = stages.indexOf(step.stage);
@@ -170,7 +244,7 @@ export const lessonSchema = z
       }
       last = Math.max(last, position);
     });
-    // Core lessons must cover all six stages (REQ-16 CA2).
+    // Core lessons must cover the three stages (REQ-26 CA1).
     if (!lesson.optional) {
       const covered = new Set(lesson.steps.map((step) => step.stage));
       const missing = stages.filter((s) => !covered.has(s));

@@ -11,18 +11,18 @@ const lesson = {
   estimatedMinutes: 5,
   source: { label: "x", url: "https://example.com" },
   steps: [
-    { kind: "text", stage: "problem", body: "a" },
+    { kind: "text", stage: "theory", body: "a" },
     {
       kind: "question",
-      stage: "predict",
+      stage: "theory",
       prompt: "p",
       options: [
         { text: "no", correct: false, explanation: "e" },
         { text: "sí", correct: true, explanation: "e" },
       ],
     },
-    { kind: "code", stage: "write", mode: "pick-line", language: "java", prompt: "p", variants: { java: "x" }, options: [] },
-    { kind: "text", stage: "explain", body: "b" },
+    { kind: "code", stage: "practice", mode: "pick-line", language: "java", prompt: "p", variants: { java: "x" }, options: [] },
+    { kind: "text", stage: "quiz", body: "b" },
   ],
 } as unknown as Lesson;
 
@@ -59,15 +59,8 @@ describe("canAdvance", () => {
 
 describe("stageStates", () => {
   it("marks earlier stages complete and the step's stage current", () => {
-    const states = stageStates(lesson, 1);
-    expect(states.map((s) => s.state)).toEqual([
-      "complete",
-      "complete",
-      "current",
-      "upcoming",
-      "upcoming",
-      "upcoming",
-    ]);
+    const states = stageStates(lesson, 2);
+    expect(states.map((s) => s.state)).toEqual(["complete", "current", "upcoming"]);
   });
 });
 

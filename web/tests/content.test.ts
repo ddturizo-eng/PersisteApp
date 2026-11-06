@@ -22,11 +22,11 @@ const validLesson = {
   estimatedMinutes: 5,
   source: { label: "JDBC", url: "https://docs.oracle.com/javase/tutorial/jdbc/" },
   steps: [
-    { kind: "text", stage: "problem", body: "a" },
-    { kind: "visual", stage: "visualize", component: "pool", caption: "b" },
+    { kind: "text", stage: "theory", body: "a" },
+    { kind: "visual", stage: "theory", component: "pool", caption: "b" },
     {
       kind: "question",
-      stage: "predict",
+      stage: "theory",
       prompt: "c",
       options: [
         { text: "sí", correct: true, explanation: "x" },
@@ -35,7 +35,7 @@ const validLesson = {
     },
     {
       kind: "code",
-      stage: "write",
+      stage: "practice",
       mode: "order",
       language: "java",
       prompt: "ordena",
@@ -44,33 +44,42 @@ const validLesson = {
     },
     {
       kind: "code",
-      stage: "run",
+      stage: "practice",
       mode: "read",
       language: "sql",
       variants: { oracle: "SELECT 1 FROM dual", postgresql: "SELECT 1" },
       result: { kind: "simulated", output: "1" },
     },
-    { kind: "text", stage: "explain", body: "d", reflection: true },
+    { kind: "text", stage: "practice", body: "d", reflection: true },
+    {
+      kind: "quiz",
+      stage: "quiz",
+      questions: [
+        { id: "q1", prompt: "uno", options: [{ text: "a", correct: true, explanation: "x" }, { text: "b", correct: false, explanation: "y" }] },
+        { id: "q2", prompt: "dos", options: [{ text: "a", correct: true, explanation: "x" }, { text: "b", correct: false, explanation: "y" }] },
+        { id: "q3", prompt: "tres", options: [{ text: "a", correct: true, explanation: "x" }, { text: "b", correct: false, explanation: "y" }] },
+      ],
+    },
   ],
 };
 
 const clone = () => structuredClone(validLesson) as Record<string, unknown> & typeof validLesson;
 
 describe("lessonSchema", () => {
-  it("accepts a lesson covering the six stages", () => {
+  it("accepts a lesson covering the three stages", () => {
     expect(lessonSchema.safeParse(validLesson).success).toBe(true);
   });
 
   it("rejects stages that go backwards", () => {
     const lesson = clone();
-    lesson.steps[1].stage = "explain";
+    lesson.steps[1].stage = "quiz";
     const result = lessonSchema.safeParse(lesson);
     expect(result.success).toBe(false);
   });
 
   it("rejects a core lesson missing a stage", () => {
     const lesson = clone();
-    lesson.steps = lesson.steps.filter((s) => s.stage !== "predict");
+    lesson.steps = lesson.steps.filter((s) => s.stage !== "practice");
     expect(lessonSchema.safeParse(lesson).success).toBe(false);
   });
 
@@ -90,7 +99,7 @@ describe("lessonSchema", () => {
     const lesson = clone();
     lesson.steps[3] = {
       kind: "code",
-      stage: "write",
+      stage: "practice",
       mode: "fill",
       language: "java",
       prompt: "completa",

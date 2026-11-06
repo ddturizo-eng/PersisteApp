@@ -7,6 +7,7 @@ import { Kbd } from "@/components/ui/kbd";
 import { ExpositionTimer, ExpositionToggle } from "@/components/exposition";
 import { StageIndicator } from "@/components/lesson/stage-indicator";
 import { StepOverview } from "@/components/lesson/step-overview";
+import { TraceStep } from "@/components/lesson/trace-step";
 import { CodeStep, QuestionStep, TextStep, VisualStep } from "@/components/lesson/steps";
 import type { Highlights } from "@/lib/highlight";
 import type { Lesson } from "@/lib/lesson-schema";
@@ -152,6 +153,27 @@ export function LessonPlayer({
             headingRef={headingRef}
           />
         )}
+        {step.kind === "trace" && (
+          <TraceStep
+            key={index}
+            step={step}
+            highlights={highlights}
+            solved={solved[index] === true}
+            onSolved={() => setSolved((current) => ({ ...current, [index]: true }))}
+            headingRef={headingRef}
+          />
+        )}
+        {step.kind === "quiz" && (
+          <div key={index} className="space-y-4">
+            <p className="text-sm font-medium text-muted-foreground">Quiz</p>
+            <h2 ref={headingRef} tabIndex={-1} className="text-2xl font-semibold tracking-tight focus:outline-none">
+              {step.title ?? "Quiz del módulo"}
+            </h2>
+            <p className="text-muted-foreground">
+              {step.questions.length} preguntas. El quiz calificado llega en la siguiente tarea (T-38).
+            </p>
+          </div>
+        )}
       </section>
 
       <footer className="sticky bottom-0 -mx-4 border-t bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 exposition:py-2">
@@ -181,7 +203,9 @@ export function LessonPlayer({
             )}
             {!advanceAllowed && !isLast && (
               <p className="text-xs text-muted-foreground">
-                {step.kind === "code" ? "Resuelve el ejercicio para continuar" : "Responde correctamente para continuar"}
+                {step.kind === "code" || step.kind === "trace"
+                  ? "Resuelve el ejercicio para continuar"
+                  : "Responde correctamente para continuar"}
               </p>
             )}
           </div>

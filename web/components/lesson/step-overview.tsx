@@ -8,6 +8,8 @@ function stepTitle(step: Step): string {
   if (step.kind === "question") return step.prompt;
   if (step.kind === "visual") return step.caption;
   if (step.kind === "code") return step.title ?? "Código";
+  if (step.kind === "trace") return step.title;
+  if (step.kind === "quiz") return step.title ?? "Quiz";
   return step.title ?? stageLabels[step.stage];
 }
 

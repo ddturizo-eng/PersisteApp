@@ -7,10 +7,18 @@ import type { Lesson } from "@/lib/lesson-schema";
 
 const themes = { light: "github-light-default", dark: "github-dark-default" } as const;
 
-/** Every code string a lesson shows: variants, pick-line options and order blocks. */
-function codeStrings(lesson: Lesson): { language: "java" | "sql"; code: string }[] {
-  const found: { language: "java" | "sql"; code: string }[] = [];
+/** Every code string a lesson shows: variants, pick-line options, order blocks and trace snippets. */
+type Language = "java" | "sql" | "properties";
+
+function codeStrings(lesson: Lesson): { language: Language; code: string }[] {
+  const found: { language: Language; code: string }[] = [];
   for (const step of lesson.steps) {
+    if (step.kind === "trace") {
+      for (const event of step.events) {
+        if (event.code) found.push({ language: event.code.language, code: event.code.source });
+      }
+      continue;
+    }
     if (step.kind !== "code") continue;
     const add = (code: string | undefined) => code && found.push({ language: step.language, code: toSentinels(code) });
     add(step.variants.java);

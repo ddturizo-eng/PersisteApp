@@ -4,7 +4,7 @@
   "module": 4,
   "title": "Por qué tu login deja entrar a cualquiera",
   "summary": "Del SQL concatenado a PreparedStatement: cómo una comilla abre la puerta y cómo cerrarla.",
-  "estimatedMinutes": 15,
+  "estimatedMinutes": 20,
   "source": {
     "label": "The Java Tutorials · Using Prepared Statements",
     "url": "https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html"
@@ -12,13 +12,13 @@
   "steps": [
     {
       "kind": "text",
-      "stage": "problem",
+      "stage": "theory",
       "title": "Un login que parece correcto",
       "body": "Este repositorio arma la consulta pegando lo que escribe el usuario. Funciona con datos normales, por eso el fallo pasa desapercibido en la revisión."
     },
     {
       "kind": "code",
-      "stage": "problem",
+      "stage": "theory",
       "mode": "read",
       "language": "java",
       "title": "UserRepository, versión v0",
@@ -28,7 +28,7 @@
     },
     {
       "kind": "code",
-      "stage": "problem",
+      "stage": "theory",
       "mode": "read",
       "language": "sql",
       "title": "La tabla users en cada motor",
@@ -39,7 +39,7 @@
     },
     {
       "kind": "visual",
-      "stage": "visualize",
+      "stage": "theory",
       "component": "injection",
       "props": {
         "mode": "vulnerable"
@@ -48,8 +48,8 @@
     },
     {
       "kind": "question",
-      "stage": "predict",
-      "prompt": "Si el usuario escribe  ' OR '1'='1  en ambos campos, ¿qué devuelve login?",
+      "stage": "theory",
+      "prompt": "Repaso: Si el usuario escribe  ' OR '1'='1  en ambos campos, ¿qué devuelve login?",
       "options": [
         {
           "text": "false, porque ese usuario no existe",
@@ -70,13 +70,13 @@
     },
     {
       "kind": "text",
-      "stage": "write",
+      "stage": "theory",
       "title": "Los cuatro pasos de una consulta segura",
       "body": "Toda consulta con PreparedStatement sigue el mismo orden. Apréndelo una vez y sirve para cualquier tabla.\n\n1. Escribir el SQL con un signo ? en el lugar de cada dato.\n\n2. Preparar la sentencia: connection.prepareStatement(sql).\n\n3. Asignar cada valor: ps.setString(posición, valor). La posición 1 es el primer ?.\n\n4. Ejecutar: ps.executeQuery() devuelve las filas encontradas."
     },
     {
       "kind": "code",
-      "stage": "write",
+      "stage": "practice",
       "mode": "pick-line",
       "language": "java",
       "title": "Elige la consulta segura",
@@ -103,31 +103,221 @@
       ]
     },
     {
-      "kind": "code",
-      "stage": "write",
-      "mode": "order",
-      "language": "java",
-      "title": "Ordena los cuatro pasos",
-      "prompt": "Pon las líneas en el orden de los cuatro pasos que acabas de ver. El paso 3 usa dos líneas, una por cada ?.",
-      "variants": {
-        "java": "public boolean login(String user, String password) throws SQLException { ... }"
-      },
-      "blocks": [
-        "String sql = \"SELECT id FROM users WHERE name = ? AND password = ?\";",
-        "PreparedStatement ps = connection.prepareStatement(sql);",
-        "ps.setString(1, user);",
-        "ps.setString(2, password);",
-        "ResultSet rs = ps.executeQuery();"
+      "kind": "trace",
+      "stage": "practice",
+      "title": "¿Dónde ocurre? Un login de principio a fin",
+      "intro": "Sigue un login desde antes de arrancar la app hasta que la conexión vuelve al pool. En cada momento, elige en qué archivo o clase pasa.",
+      "locations": [
+        {
+          "id": "env",
+          "label": "Variables de entorno (.env)",
+          "kind": "file"
+        },
+        {
+          "id": "main",
+          "label": "Main.java",
+          "kind": "class"
+        },
+        {
+          "id": "pool",
+          "label": "ConnectionPool.java",
+          "kind": "class"
+        },
+        {
+          "id": "ui",
+          "label": "LoginMenu.java",
+          "kind": "class"
+        },
+        {
+          "id": "service",
+          "label": "LoginService.java",
+          "kind": "class"
+        },
+        {
+          "id": "repo",
+          "label": "UserRepository.java",
+          "kind": "class"
+        },
+        {
+          "id": "db",
+          "label": "PostgreSQL",
+          "kind": "db"
+        }
       ],
-      "hints": [
-        "Empieza por el texto SQL: sin él no hay nada que preparar.",
-        "Los valores se asignan después de preparar la sentencia y antes de ejecutarla.",
-        "El usuario va en la posición 1 porque es el primer ? de la consulta."
+      "events": [
+        {
+          "moment": "Antes de arrancar",
+          "description": "Se definen la URL de la base, el usuario y la clave.",
+          "options": [
+            "env",
+            "main",
+            "repo",
+            "db"
+          ],
+          "answer": "env",
+          "why": {
+            "main": "Si la clave estuviera escrita en Main.java, quedaría guardada en Git y cualquiera con el repositorio la vería.",
+            "repo": "El repositorio usa la conexión, pero no debe conocer las credenciales.",
+            "db": "La base de datos valida la clave, pero no le dice a la app cuál usar."
+          },
+          "explanation": "Las credenciales viven fuera del código, en variables de entorno. Cambiar de base o de clave no exige recompilar.",
+          "code": {
+            "language": "properties",
+            "source": "DB_URL=jdbc:postgresql://localhost:5432/tienda\nDB_USER=app_user\nDB_PASSWORD=cambia-esta-clave"
+          }
+        },
+        {
+          "moment": "La app arranca",
+          "description": "Se leen DB_URL, DB_USER y DB_PASSWORD y se crea el pool de conexiones.",
+          "options": [
+            "main",
+            "pool",
+            "repo",
+            "ui"
+          ],
+          "answer": "pool",
+          "why": {
+            "main": "Main solo pide el pool; los detalles de configurarlo están en una clase dedicada.",
+            "repo": "Si cada repositorio creara su propio pool, abrirías conexiones de más.",
+            "ui": "La interfaz nunca debe saber cómo se conecta la app a la base."
+          },
+          "explanation": "ConnectionPool lee las variables con System.getenv y crea un único pool (HikariCP) que comparte toda la app.",
+          "code": {
+            "language": "java",
+            "source": "HikariConfig config = new HikariConfig();\nconfig.setJdbcUrl(System.getenv(\"DB_URL\"));\nconfig.setUsername(System.getenv(\"DB_USER\"));\nconfig.setPassword(System.getenv(\"DB_PASSWORD\"));\nDataSource dataSource = new HikariDataSource(config);"
+          }
+        },
+        {
+          "moment": "La app arranca",
+          "description": "Se crea el repositorio y se le entrega el pool.",
+          "options": [
+            "main",
+            "repo",
+            "service",
+            "pool"
+          ],
+          "answer": "main",
+          "why": {
+            "repo": "El repositorio recibe el pool; no lo busca ni lo crea por su cuenta.",
+            "service": "El servicio recibe el repositorio ya armado; no decide cómo se conecta.",
+            "pool": "El pool no conoce a quién va a servir; solo presta conexiones."
+          },
+          "explanation": "Main arma las piezas una sola vez y las inyecta por constructor: pool → repositorio → servicio → interfaz.",
+          "code": {
+            "language": "java",
+            "source": "DataSource dataSource = ConnectionPool.create();\nUserRepository users = new UserRepository(dataSource);\nLoginService login = new LoginService(users);\nnew LoginMenu(login).show();"
+          }
+        },
+        {
+          "moment": "El usuario pulsa Entrar",
+          "description": "Se reciben el usuario y la clave que escribió la persona.",
+          "options": [
+            "ui",
+            "service",
+            "repo",
+            "db"
+          ],
+          "answer": "ui",
+          "why": {
+            "service": "El servicio recibe los datos ya leídos; no habla con la persona.",
+            "repo": "El repositorio no sabe que existe una pantalla.",
+            "db": "La base solo recibe datos cuando el repositorio ejecuta la consulta."
+          },
+          "explanation": "La interfaz lee lo que escribe la persona y se lo pasa al servicio, sin tocar SQL.",
+          "code": {
+            "language": "java",
+            "source": "String user = scanner.nextLine();\nString password = scanner.nextLine();\nboolean ok = login.authenticate(user, password);"
+          }
+        },
+        {
+          "moment": "Se valida el login",
+          "description": "Se pide una conexión prestada al pool.",
+          "options": [
+            "repo",
+            "service",
+            "main",
+            "db"
+          ],
+          "answer": "repo",
+          "why": {
+            "service": "El servicio decide reglas (por ejemplo, bloquear tras 3 intentos), pero no toca JDBC.",
+            "main": "Main ya terminó su trabajo al arrancar.",
+            "db": "La base no reparte conexiones; el pool lo hace del lado de la app."
+          },
+          "explanation": "Solo el repositorio habla con la base. Pide una conexión al pool dentro de un try-with-resources.",
+          "code": {
+            "language": "java",
+            "source": "try (Connection connection = dataSource.getConnection()) {\n    // aquí se arma y se ejecuta la consulta\n}"
+          }
+        },
+        {
+          "moment": "Se valida el login",
+          "description": "Se arma la consulta con signos ? y se asignan el usuario y la clave.",
+          "options": [
+            "repo",
+            "service",
+            "ui",
+            "db"
+          ],
+          "answer": "repo",
+          "why": {
+            "service": "Si el servicio armara SQL, el SQL quedaría repartido por la app.",
+            "ui": "SQL en la interfaz es justo el error de los proyectos revisados.",
+            "db": "La base recibe la consulta y los valores por separado; no los arma."
+          },
+          "explanation": "El repositorio es el único lugar con SQL: prepara la sentencia y asigna cada valor por posición.",
+          "code": {
+            "language": "java",
+            "source": "PreparedStatement ps = connection.prepareStatement(\n    \"SELECT id FROM users WHERE name = ? AND password = ?\");\nps.setString(1, user);\nps.setString(2, password);"
+          }
+        },
+        {
+          "moment": "Se ejecuta la consulta",
+          "description": "Se buscan las filas cuyo nombre y clave coinciden.",
+          "options": [
+            "db",
+            "repo",
+            "pool",
+            "service"
+          ],
+          "answer": "db",
+          "why": {
+            "repo": "El repositorio envía la consulta, pero la búsqueda la hace el motor.",
+            "pool": "El pool solo presta la conexión por la que viaja la consulta.",
+            "service": "El servicio solo recibe el resultado: true o false."
+          },
+          "explanation": "PostgreSQL ejecuta la consulta con los valores como datos, nunca como parte del SQL.",
+          "code": {
+            "language": "sql",
+            "source": "SELECT id FROM users WHERE name = $1 AND password = $2;"
+          }
+        },
+        {
+          "moment": "Termina el método",
+          "description": "La conexión vuelve al pool para que otra petición la use.",
+          "options": [
+            "repo",
+            "pool",
+            "db",
+            "main"
+          ],
+          "answer": "repo",
+          "why": {
+            "pool": "El pool la recibe, pero quien la devuelve es el código que la pidió.",
+            "db": "La base no cierra nada: la conexión sigue abierta y lista para reutilizarse.",
+            "main": "Main no participa en cada consulta."
+          },
+          "explanation": "Al salir del try-with-resources, el repositorio llama close(). Con un pool, close() no corta la conexión: la devuelve.",
+          "code": {
+            "language": "java",
+            "source": "try (Connection connection = dataSource.getConnection()) {\n    ...\n} // close() → la conexión vuelve al pool"
+          }
+        }
       ]
     },
     {
       "kind": "code",
-      "stage": "write",
+      "stage": "practice",
       "mode": "fill",
       "language": "java",
       "title": "Corrige el repositorio",
@@ -160,7 +350,7 @@
     },
     {
       "kind": "visual",
-      "stage": "run",
+      "stage": "practice",
       "component": "injection",
       "props": {
         "mode": "safe"
@@ -169,10 +359,122 @@
     },
     {
       "kind": "text",
-      "stage": "explain",
+      "stage": "practice",
       "title": "Explícalo con tus palabras",
       "body": "Registra en la bitácora por qué PreparedStatement evita la inyección, aunque el usuario escriba comillas.",
       "reflection": true
+    },
+    {
+      "kind": "quiz",
+      "stage": "quiz",
+      "title": "Quiz del módulo 4",
+      "questions": [
+        {
+          "id": "m4-q1",
+          "prompt": "Si el usuario escribe ' OR '1'='1 en un login con SQL concatenado, ¿qué pasa?",
+          "options": [
+            {
+              "text": "La app entra aunque el usuario no exista",
+              "correct": true,
+              "explanation": "La comilla cierra el texto y OR '1'='1' es verdadero para todas las filas."
+            },
+            {
+              "text": "La base lanza un error de sintaxis",
+              "correct": false,
+              "explanation": "La consulta resultante es SQL válido; por eso el ataque no se nota."
+            },
+            {
+              "text": "No pasa nada: el texto se guarda como dato",
+              "correct": false,
+              "explanation": "Eso solo ocurre con consultas parametrizadas."
+            }
+          ]
+        },
+        {
+          "id": "m4-q2",
+          "prompt": "¿Qué hace un signo ? en un PreparedStatement?",
+          "options": [
+            {
+              "text": "Reserva el lugar de un dato que se envía aparte del SQL",
+              "correct": true,
+              "explanation": "El driver manda la consulta y los valores por separado."
+            },
+            {
+              "text": "Marca un comentario en la consulta",
+              "correct": false,
+              "explanation": "Los comentarios en SQL son -- o /* */."
+            },
+            {
+              "text": "Indica que el valor es opcional",
+              "correct": false,
+              "explanation": "Cada ? debe recibir un valor con setXxx antes de ejecutar."
+            }
+          ]
+        },
+        {
+          "id": "m4-q3",
+          "prompt": "¿Dónde deben estar DB_URL, DB_USER y DB_PASSWORD?",
+          "options": [
+            {
+              "text": "En variables de entorno, fuera del código",
+              "correct": true,
+              "explanation": "Así no quedan en Git y se cambian sin recompilar."
+            },
+            {
+              "text": "Como constantes en Main.java",
+              "correct": false,
+              "explanation": "Quedarían en el repositorio a la vista de cualquiera."
+            },
+            {
+              "text": "En el repositorio que hace las consultas",
+              "correct": false,
+              "explanation": "El repositorio usa la conexión; no debe conocer credenciales."
+            }
+          ]
+        },
+        {
+          "id": "m4-q4",
+          "prompt": "¿En qué capa debe aparecer el SQL?",
+          "options": [
+            {
+              "text": "Solo en el repositorio",
+              "correct": true,
+              "explanation": "Es el único punto que habla con la base; el resto de la app no sabe de SQL."
+            },
+            {
+              "text": "En el servicio, junto a las reglas",
+              "correct": false,
+              "explanation": "El servicio decide reglas, pero delega el acceso a datos."
+            },
+            {
+              "text": "En la interfaz, donde se leen los datos",
+              "correct": false,
+              "explanation": "Ese es el error que se encontró en los proyectos revisados."
+            }
+          ]
+        },
+        {
+          "id": "m4-q5",
+          "prompt": "Con un pool de conexiones, ¿qué hace connection.close()?",
+          "options": [
+            {
+              "text": "Devuelve la conexión al pool para reutilizarla",
+              "correct": true,
+              "explanation": "La conexión física sigue abierta y otra petición la usa."
+            },
+            {
+              "text": "Cierra la conexión con la base para siempre",
+              "correct": false,
+              "explanation": "Eso pasaría sin pool; con pool solo se devuelve."
+            },
+            {
+              "text": "Nada: con pool no hace falta cerrar",
+              "correct": false,
+              "explanation": "Si no la devuelves, el pool se queda sin conexiones."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

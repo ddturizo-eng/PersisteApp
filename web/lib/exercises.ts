@@ -95,8 +95,8 @@ export function checkGaps(
   return { solved: Object.values(results).every(Boolean), results };
 }
 
-/** True for code steps that must be solved before Continue (everything except `read`). */
-export const isExercise = (step: Step) => step.kind === "code" && step.mode !== "read";
+/** Steps that must be solved before Continue: code exercises (not `read`) and the trace walkthrough. */
+export const isExercise = (step: Step) => (step.kind === "code" && step.mode !== "read") || step.kind === "trace";
 
 /** Failed checks after which «Ver solución» appears (REQ-04 CA5). */
 export const SOLUTION_AFTER_FAILURES = 2;
