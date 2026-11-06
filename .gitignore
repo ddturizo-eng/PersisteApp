@@ -1,0 +1,31 @@
+# secrets: never commit credentials (constitution P3)
+.env*
+!.env.example
+
+# node / next
+node_modules/
+.next/
+out/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+npm-debug.log*
+
+# java / maven
+target/
+*.class
+
+# os / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+*.log
+*.swp
+
+# local AI tooling (skills, agents, sessions, critiques)
+.claude/
+.impeccable/
