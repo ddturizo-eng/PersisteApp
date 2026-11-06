@@ -87,7 +87,8 @@ type Stage = 'problem' | 'visualize' | 'predict' | 'write' | 'run' | 'explain';
 type SimId = 'pool' | 'injection' | 'mirror' | 'system-map' | 'request-tracer';
 ```
 
-- `content.ts` valida todo con zod en `generateStaticParams`; un JSON inválido rompe el build (REQ-01 CA2).
+- **Fuente de verdad del esquema:** `web/lib/lesson-schema.ts` (zod 4). El bloque de arriba es orientativo; el código manda. Cambios respecto al bloque: ejercicios `fill` con huecos `{{n}}` y `gaps[]`, `pick-line` con `options[]`, `order` con `blocks[]` y `distractors[]`, y paso `text` con `reflection: true` para la bitácora de IA.
+- Validación (REQ-01 CA2): `npm run build` ejecuta antes `prebuild` → `vitest run tests/content.test.ts`, que carga todo `content/` con `loadLessons()` y falla con `archivo → campo: mensaje`. El esquema también exige etapas en orden y las seis etapas en lecciones no opcionales.
 - `stage` permite verificar que cada lección recorre las seis etapas (REQ-16 CA2) con una prueba.
 - Un paso `explain` usa una plantilla fija con los cuatro campos de la bitácora del docente (REQ-16 CA3). No se envía a ningún lado; es reflexión guiada.
 

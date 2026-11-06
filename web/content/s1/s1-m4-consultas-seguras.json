@@ -1,0 +1,98 @@
+{
+  "id": "s1-m4-consultas-seguras",
+  "session": 1,
+  "module": 4,
+  "title": "Por qué tu login deja entrar a cualquiera",
+  "summary": "Del SQL concatenado a PreparedStatement: cómo una comilla abre la puerta y cómo cerrarla.",
+  "estimatedMinutes": 15,
+  "source": {
+    "label": "The Java Tutorials · Using Prepared Statements",
+    "url": "https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html"
+  },
+  "steps": [
+    {
+      "kind": "text",
+      "stage": "problem",
+      "title": "Un login que parece correcto",
+      "body": "Este repositorio arma la consulta pegando lo que escribe el usuario. Funciona con datos normales, por eso el fallo pasa desapercibido en la revisión."
+    },
+    {
+      "kind": "code",
+      "stage": "problem",
+      "mode": "read",
+      "language": "java",
+      "title": "UserRepository, versión v0",
+      "variants": {
+        "java": "public boolean login(String user, String password) throws SQLException {\n    String sql = \"SELECT id FROM users WHERE name = '\" + user\n               + \"' AND password = '\" + password + \"'\";\n    try (Statement st = connection.createStatement();\n         ResultSet rs = st.executeQuery(sql)) {\n        return rs.next();\n    }\n}"
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "visualize",
+      "component": "injection",
+      "props": { "mode": "vulnerable" },
+      "caption": "Escribe en el usuario y mira cómo cambia la consulta que llega a la base de datos."
+    },
+    {
+      "kind": "question",
+      "stage": "predict",
+      "prompt": "Si el usuario escribe  ' OR '1'='1  en ambos campos, ¿qué devuelve login?",
+      "options": [
+        {
+          "text": "false, porque ese usuario no existe",
+          "correct": false,
+          "explanation": "La comilla cierra la cadena y OR '1'='1' es verdadero para todas las filas: la consulta ya no busca a ese usuario."
+        },
+        {
+          "text": "true, porque la condición se cumple para cualquier fila",
+          "correct": true,
+          "explanation": "El texto dejó de ser un dato y pasó a ser parte del SQL. Con una fila basta para que rs.next() sea true."
+        },
+        {
+          "text": "Lanza una SQLException por sintaxis inválida",
+          "correct": false,
+          "explanation": "La consulta resultante es SQL válido; por eso el ataque funciona sin errores visibles."
+        }
+      ]
+    },
+    {
+      "kind": "code",
+      "stage": "write",
+      "mode": "fill",
+      "language": "java",
+      "title": "Corrige el repositorio",
+      "prompt": "Completa los huecos para enviar el usuario y la clave como parámetros.",
+      "variants": {
+        "java": "public boolean login(String user, String password) throws SQLException {\n    String sql = \"SELECT id FROM users WHERE name = ? AND password = ?\";\n    try (PreparedStatement ps = connection.{{1}}(sql)) {\n        ps.{{2}}(1, user);\n        ps.{{2}}(2, password);\n        try (ResultSet rs = ps.executeQuery()) {\n            return rs.next();\n        }\n    }\n}"
+      },
+      "gaps": [
+        {
+          "id": 1,
+          "label": "Método que crea la sentencia preparada",
+          "answers": ["prepareStatement"],
+          "hint": "Es un método de Connection que recibe el SQL con signos ?."
+        },
+        {
+          "id": 2,
+          "label": "Método que asigna un parámetro de texto",
+          "answers": ["setString"],
+          "hint": "set + el tipo Java del valor."
+        }
+      ]
+    },
+    {
+      "kind": "visual",
+      "stage": "run",
+      "component": "injection",
+      "props": { "mode": "safe" },
+      "caption": "Repite el ataque con la versión parametrizada: el texto viaja como dato y el login falla."
+    },
+    {
+      "kind": "text",
+      "stage": "explain",
+      "title": "Explícalo con tus palabras",
+      "body": "Registra en la bitácora por qué PreparedStatement evita la inyección, aunque el usuario escriba comillas.",
+      "reflection": true
+    }
+  ]
+}
