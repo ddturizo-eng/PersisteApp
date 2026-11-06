@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { ContentError, loadLessons } from "@/lib/content";
-import { lessonSchema } from "@/lib/lesson-schema";
+import { lengthGiveaway, lessonSchema } from "@/lib/lesson-schema";
 
 /** Real content must always be valid: this test also runs as `prebuild`. */
 describe("content/ lessons", () => {
@@ -156,5 +156,37 @@ describe("loadLessons", () => {
     dir = mkdtempSync(path.join(tmpdir(), "lessons-"));
     write("s1-m1-demo.json", validLesson);
     expect(loadLessons(dir).map((l) => l.id)).toEqual(["s1-m1-demo"]);
+  });
+});
+
+describe("question quality (REQ-32)", () => {
+  const options = (correct: string, ...wrong: string[]) => [
+    { text: correct, correct: true },
+    ...wrong.map((text) => ({ text, correct: false })),
+  ];
+
+  it("flags a right answer that is much longer or shorter than the rest", () => {
+    expect(lengthGiveaway(options("a".repeat(60), "b".repeat(40), "c".repeat(45)))).toContain("demasiado larga");
+    expect(lengthGiveaway(options("a".repeat(20), "b".repeat(40), "c".repeat(45)))).toContain("demasiado corta");
+  });
+
+  it("accepts balanced options", () => {
+    expect(lengthGiveaway(options("a".repeat(50), "b".repeat(46), "c".repeat(55)))).toBeUndefined();
+  });
+
+  it("requires the gap answer to be one of its choices", () => {
+    const lesson = clone();
+    lesson.steps[3] = {
+      kind: "code",
+      stage: "practice",
+      mode: "fill",
+      language: "java",
+      prompt: "elige",
+      variants: { java: "ps.{{1}}(1, x);" },
+      gaps: [{ id: 1, label: "uno", answers: ["setString"], choices: ["setInt", "getString"] }],
+    } as unknown as (typeof lesson.steps)[number];
+    const result = lessonSchema.safeParse(lesson);
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((i) => i.message)).toContain("la respuesta debe estar entre las opciones");
   });
 });

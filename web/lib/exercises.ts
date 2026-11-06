@@ -46,6 +46,14 @@ export function seededShuffle<T>(items: readonly T[], seed: string): T[] {
   return result;
 }
 
+/** Display order for options: original indexes shuffled with a seed (REQ-32 CA5). */
+export function optionOrder(count: number, seed: string): number[] {
+  return seededShuffle(
+    Array.from({ length: count }, (_, i) => i),
+    seed
+  );
+}
+
 /** A block in the order exercise; ids keep identity when two blocks have the same text. */
 export type OrderBlock = { id: string; text: string };
 

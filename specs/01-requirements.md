@@ -37,6 +37,15 @@ Como estudiante, quiero practicar con fragmentos Java sin escribir un programa c
 - **CA4.** Las interacciones deben poder completarse solo con teclado.
 - **CA5.** Ningún ejercicio debe dejar al estudiante bloqueado: tras cada intento fallido el sistema debe mostrar la siguiente pista, y tras 2 intentos fallidos debe ofrecer «Ver solución». *(Agregado el 6 nov 2026 tras revisión de contenido: riesgo de abandono en el ejercicio de ordenar.)*
 - **CA6.** Después de comprobar, el ejercicio de ordenar debe marcar qué bloques ya están en su lugar.
+- **CA7.** Cada hueco de un ejercicio de completar puede ofrecer una lista de opciones (selector); con lista, el estudiante elige en vez de escribir. *(6 nov 2026: más rápido en clase y sin errores de tipeo.)*
+
+### REQ-32 · Calidad de las preguntas — **M**
+*(Agregado el 6 nov 2026 tras revisar el módulo 4: preguntas demasiado implícitas y respuestas adivinables por su longitud.)*
+- **CA1.** Toda pregunta (repaso, elegir línea y quiz) puede llevar un `context`: la situación o el fragmento de código sobre el que se pregunta, visible antes del enunciado.
+- **CA2.** El enunciado nombra explícitamente la clase, la línea o la situación por la que pregunta; no depende de recordar un paso anterior.
+- **CA3.** La opción correcta no debe ser más de 20 % más larga que la opción incorrecta más larga ni más de 20 % más corta que la incorrecta más corta. El build falla si se incumple.
+- **CA4.** Las opciones incorrectas son errores reales y plausibles (lo que un estudiante haría), no opciones absurdas.
+- **CA5.** Las opciones se muestran en un orden barajado de forma determinista (igual en servidor y navegador), para que la correcta no quede siempre en la misma posición.
 
 ### REQ-05 · Modo Exposición — **M**
 - **CA1.** Cuando se activa (tecla `P` o botón), el sistema debe ocultar navegación secundaria y aumentar tipografía para proyector.

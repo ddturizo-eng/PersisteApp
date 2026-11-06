@@ -140,7 +140,14 @@ export function LessonPlayer({
         {step.kind === "text" && <TextStep key={index} step={step} headingRef={headingRef} />}
         {step.kind === "visual" && <VisualStep key={index} step={step} headingRef={headingRef} />}
         {step.kind === "question" && (
-          <QuestionStep key={index} step={step} picked={attempts[index] ?? []} onPick={pick} headingRef={headingRef} />
+          <QuestionStep
+            key={index}
+            step={step}
+            stepKey={`${lesson.id}-${index}`}
+            picked={attempts[index] ?? []}
+            onPick={pick}
+            headingRef={headingRef}
+          />
         )}
         {step.kind === "code" && (
           <CodeStep

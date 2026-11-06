@@ -30,9 +30,10 @@ Para que quepa en el plazo, pasan al backlog: buscador Ctrl K y Referencia (T-23
 | T-05 | Esquema zod y validación en build | REQ-01 | 1 h | ✅ |
 | T-06 | `LessonPlayer` con texto, visual y pregunta | REQ-02, 03 | 2 h | ✅ |
 | T-07 | Paso de código: Shiki, pestañas de motor, ejercicios, pistas y «Ver solución» | REQ-04 | 1.75 h | ✅ |
-| T-08 | Modo Exposición: `P`, vista general `O`, cronómetro | REQ-05 | 0.5 h | ✅ (falta commit) |
-| T-36 | Etapas Teoría → Práctica → Quiz en esquema, indicador y lección del módulo 4 | REQ-26 | 1 h | ⬜ |
-| T-37 | Paso `trace` «¿Dónde ocurre?» con pruebas; reemplaza el ordenar del módulo 4 | REQ-27 | 2 h | ⬜ |
+| T-08 | Modo Exposición: `P`, vista general `O`, cronómetro | REQ-05 | 0.5 h | ✅ |
+| T-36 | Etapas Teoría → Práctica → Quiz en esquema, indicador y lección del módulo 4 | REQ-26 | 1 h | ✅ |
+| T-37 | Paso `trace` «¿Dónde ocurre?» con pruebas; reemplaza el ordenar del módulo 4 | REQ-27 | 2 h | ✅ |
+| T-45 | Calidad de preguntas: `context`, selector en huecos, control de longitud en build, opciones barajadas; módulo 4 reescrito | REQ-04 CA7, REQ-32 | 0.75 h | ✅ |
 | T-38 | Paso `quiz` en modo práctica, calificado por Server Action sin exponer respuestas | REQ-29 CA1–CA4 | 1.5 h | ⬜ |
 | T-09 | **Lección modelo: módulo 1 «Mapa del sistema»** (teoría → recorrido → quiz) | REQ-16, 26 | 1.5 h | ⬜ |
 | T-12 | Enviar preguntas abiertas al docente | — | 0.1 h | ⬜ |
@@ -116,6 +117,7 @@ Para que quepa en el plazo, pasan al backlog: buscador Ctrl K y Referencia (T-23
 | REQ-29 | M | T-38, T-41 |
 | REQ-30 | M | T-41, T-42, T-43 |
 | REQ-31 | M | T-42 |
+| REQ-32 | M | T-45 (control de longitud en el esquema y preguntas del módulo 4 reescritas) y todas las lecciones |
 
 ## Reglas de recorte si el plan se atrasa
 

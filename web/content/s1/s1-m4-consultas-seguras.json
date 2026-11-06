@@ -49,24 +49,25 @@
     {
       "kind": "question",
       "stage": "theory",
-      "prompt": "Repaso: Si el usuario escribe  ' OR '1'='1  en ambos campos, ¿qué devuelve login?",
+      "prompt": "Repaso: ¿qué devuelve login() en ese caso?",
       "options": [
         {
-          "text": "false, porque ese usuario no existe",
-          "correct": false,
-          "explanation": "La comilla cierra la cadena y OR '1'='1' es verdadero para todas las filas: la consulta ya no busca a ese usuario."
-        },
-        {
-          "text": "true, porque la condición se cumple para cualquier fila",
+          "text": "true, porque la condición OR '1'='1' se cumple en todas las filas",
           "correct": true,
-          "explanation": "El texto dejó de ser un dato y pasó a ser parte del SQL. Con una fila basta para que rs.next() sea true."
+          "explanation": "La comilla cierra el texto y el resto pasa a ser SQL. Con una sola fila, rs.next() es true y la persona entra."
         },
         {
-          "text": "Lanza una SQLException por sintaxis inválida",
+          "text": "false, porque no existe ningún usuario con ese nombre exacto",
           "correct": false,
-          "explanation": "La consulta resultante es SQL válido; por eso el ataque funciona sin errores visibles."
+          "explanation": "Eso pasaría si el texto se tratara como dato. Aquí la comilla lo convierte en parte de la consulta."
+        },
+        {
+          "text": "Lanza SQLException porque la comilla deja la sintaxis inválida",
+          "correct": false,
+          "explanation": "La consulta resultante es SQL válido; por eso el ataque funciona sin ningún error visible."
         }
-      ]
+      ],
+      "context": "El método login() de la versión v0 arma la consulta pegando el texto que escribe la persona:\n\n\"SELECT id FROM users WHERE name = '\" + user + \"' AND password = '\" + password + \"'\"\n\nAlguien escribe  ' OR '1'='1  en el usuario y también en la clave."
     },
     {
       "kind": "text",
@@ -80,27 +81,33 @@
       "mode": "pick-line",
       "language": "java",
       "title": "Elige la consulta segura",
-      "prompt": "¿Qué línea debe reemplazar a la concatenación?",
+      "prompt": "¿Cuál de estas líneas debe definir sql para que el login sea seguro?",
       "variants": {
         "java": "String sql = /* aquí va la línea */;\ntry (PreparedStatement ps = connection.prepareStatement(sql)) { ... }"
       },
       "options": [
         {
-          "line": "String sql = \"SELECT id FROM users WHERE name = '\" + user + \"'\";",
-          "correct": false,
-          "explanation": "Sigue concatenando: cambiar Statement por PreparedStatement no basta si el valor viaja dentro del texto SQL."
-        },
-        {
           "line": "String sql = \"SELECT id FROM users WHERE name = ? AND password = ?\";",
           "correct": true,
-          "explanation": "Los signos ? reservan el lugar de cada dato; el driver los envía por separado del SQL."
+          "explanation": "Cada ? reserva el lugar de un valor. Los setString de las líneas siguientes envían esos valores aparte del SQL."
         },
         {
-          "line": "String sql = String.format(\"SELECT id FROM users WHERE name = %s\", user);",
+          "line": "String sql = \"SELECT id FROM users WHERE name = :user AND password = :pass\";",
           "correct": false,
-          "explanation": "String.format también arma el SQL con el texto del usuario; es concatenación con otra sintaxis."
+          "explanation": "JDBC no entiende parámetros con nombre como :user; esa sintaxis es de JPA o Spring. Con PreparedStatement se usa ?."
+        },
+        {
+          "line": "String sql = \"SELECT id FROM users WHERE name = '\" + user + \"' AND password = ?\";",
+          "correct": false,
+          "explanation": "La clave quedó como parámetro, pero el usuario sigue pegado al texto: la inyección entra por ahí."
+        },
+        {
+          "line": "String sql = String.format(\"SELECT id FROM users WHERE name = '%s' AND password = ?\", user);",
+          "correct": false,
+          "explanation": "String.format también pega el texto del usuario dentro del SQL; es concatenación con otra sintaxis."
         }
-      ]
+      ],
+      "context": "En la versión segura de UserRepository, el método ya usa connection.prepareStatement(sql) y luego ps.setString(1, user) y ps.setString(2, password). Falta escribir la línea que define el texto de sql."
     },
     {
       "kind": "trace",
@@ -321,31 +328,43 @@
       "mode": "fill",
       "language": "java",
       "title": "Corrige el repositorio",
-      "prompt": "Completa los huecos para enviar el usuario y la clave como parámetros.",
+      "prompt": "Elige en cada lista el método que corresponde para enviar el usuario y la clave como parámetros.",
       "variants": {
         "java": "public boolean login(String user, String password) throws SQLException {\n    String sql = \"SELECT id FROM users WHERE name = ? AND password = ?\";\n    try (PreparedStatement ps = connection.{{1}}(sql)) {\n        ps.{{2}}(1, user);\n        ps.{{2}}(2, password);\n        try (ResultSet rs = ps.executeQuery()) {\n            return rs.next();\n        }\n    }\n}"
       },
       "gaps": [
         {
           "id": 1,
-          "label": "Método que crea la sentencia preparada",
+          "label": "Método de Connection que crea la sentencia con signos ?",
           "answers": [
             "prepareStatement"
           ],
-          "hint": "Es un método de Connection que recibe el SQL con signos ?."
+          "choices": [
+            "createStatement",
+            "prepareStatement",
+            "prepareCall",
+            "executeQuery"
+          ],
+          "hint": "Es el paso 2 de los cuatro: preparar la sentencia a partir del texto con ?."
         },
         {
           "id": 2,
-          "label": "Método que asigna un parámetro de texto",
+          "label": "Método de PreparedStatement que asigna un valor de texto a un ?",
           "answers": [
             "setString"
           ],
-          "hint": "set + el tipo Java del valor."
+          "choices": [
+            "getString",
+            "setString",
+            "setInt",
+            "addBatch"
+          ],
+          "hint": "Asignar empieza por set, y el usuario y la clave son texto (String)."
         }
       ],
       "hints": [
-        "Los dos métodos aparecen en el paso «Los cuatro pasos de una consulta segura».",
-        "Hueco 1 es el paso 2 (preparar); hueco 2 es el paso 3 (asignar un texto)."
+        "Repasa el paso «Los cuatro pasos de una consulta segura»: preparar y asignar.",
+        "Hueco 1 crea la sentencia preparada; hueco 2 asigna texto a cada ?."
       ]
     },
     {
@@ -371,106 +390,111 @@
       "questions": [
         {
           "id": "m4-q1",
-          "prompt": "Si el usuario escribe ' OR '1'='1 en un login con SQL concatenado, ¿qué pasa?",
+          "context": "Un compañero entrega este método de login:\n\nString sql = \"SELECT id FROM users WHERE name = '\" + user + \"'\";\nResultSet rs = statement.executeQuery(sql);",
+          "prompt": "¿Cuál es el problema principal de esa línea de SQL?",
           "options": [
             {
-              "text": "La app entra aunque el usuario no exista",
+              "text": "Permite inyección SQL: lo que escribe la persona se vuelve parte del SQL",
               "correct": true,
-              "explanation": "La comilla cierra el texto y OR '1'='1' es verdadero para todas las filas."
+              "explanation": "Una comilla en el nombre cierra el texto y lo que sigue se ejecuta como SQL."
             },
             {
-              "text": "La base lanza un error de sintaxis",
+              "text": "Falla con nombres que tienen tildes porque Statement no maneja UTF-8",
               "correct": false,
-              "explanation": "La consulta resultante es SQL válido; por eso el ataque no se nota."
+              "explanation": "Statement maneja UTF-8 sin problema; el riesgo real es la inyección."
             },
             {
-              "text": "No pasa nada: el texto se guarda como dato",
+              "text": "Es lenta porque cada consulta abre una conexión nueva con la base",
               "correct": false,
-              "explanation": "Eso solo ocurre con consultas parametrizadas."
+              "explanation": "Esa línea no abre conexiones; el problema está en cómo arma el texto del SQL."
             }
           ]
         },
         {
           "id": "m4-q2",
-          "prompt": "¿Qué hace un signo ? en un PreparedStatement?",
+          "context": "En el repositorio seguro la consulta es:\n\nSELECT id FROM users WHERE name = ? AND password = ?",
+          "prompt": "¿Qué representa cada signo ? para el driver JDBC?",
           "options": [
             {
-              "text": "Reserva el lugar de un dato que se envía aparte del SQL",
+              "text": "El lugar de un valor que viaja separado del texto SQL",
               "correct": true,
-              "explanation": "El driver manda la consulta y los valores por separado."
+              "explanation": "El driver envía la consulta y los valores por separado; el valor nunca se interpreta como SQL."
             },
             {
-              "text": "Marca un comentario en la consulta",
+              "text": "Un comodín que acepta cualquier texto, como el % de LIKE",
               "correct": false,
-              "explanation": "Los comentarios en SQL son -- o /* */."
+              "explanation": "El comodín de LIKE es %; el ? solo marca dónde va un valor."
             },
             {
-              "text": "Indica que el valor es opcional",
+              "text": "Un valor opcional que la base ignora si llega vacío",
               "correct": false,
-              "explanation": "Cada ? debe recibir un valor con setXxx antes de ejecutar."
+              "explanation": "Cada ? debe recibir un valor con setXxx; si falta, la consulta falla."
             }
           ]
         },
         {
           "id": "m4-q3",
-          "prompt": "¿Dónde deben estar DB_URL, DB_USER y DB_PASSWORD?",
+          "context": "Tu proyecto se sube a un repositorio público de GitHub para que el docente y otros equipos lo revisen.",
+          "prompt": "¿Dónde deben quedar DB_URL, DB_USER y DB_PASSWORD?",
           "options": [
             {
-              "text": "En variables de entorno, fuera del código",
+              "text": "En variables de entorno que la app lee al arrancar",
               "correct": true,
-              "explanation": "Así no quedan en Git y se cambian sin recompilar."
+              "explanation": "No quedan en Git y se pueden cambiar sin recompilar el proyecto."
             },
             {
-              "text": "Como constantes en Main.java",
+              "text": "Como constantes private static final en Main.java",
               "correct": false,
-              "explanation": "Quedarían en el repositorio a la vista de cualquiera."
+              "explanation": "Quedarían publicadas en el repositorio a la vista de cualquiera."
             },
             {
-              "text": "En el repositorio que hace las consultas",
+              "text": "En application.properties dentro de src/main/resources",
               "correct": false,
-              "explanation": "El repositorio usa la conexión; no debe conocer credenciales."
+              "explanation": "Ese archivo se sube a Git con el código; las claves quedarían expuestas igual."
             }
           ]
         },
         {
           "id": "m4-q4",
-          "prompt": "¿En qué capa debe aparecer el SQL?",
+          "context": "La app de login tiene tres clases: LoginMenu lee lo que escribe la persona, LoginService decide si puede entrar y UserRepository habla con la base.",
+          "prompt": "¿En cuál de estas clases debe estar el texto SQL de la consulta?",
           "options": [
             {
-              "text": "Solo en el repositorio",
+              "text": "Solo en UserRepository, la única que habla con la base",
               "correct": true,
-              "explanation": "Es el único punto que habla con la base; el resto de la app no sabe de SQL."
+              "explanation": "Si el SQL vive en una sola clase, cambiar de motor o corregir la consulta no toca el resto de la app."
             },
             {
-              "text": "En el servicio, junto a las reglas",
+              "text": "En LoginService, porque ahí se decide si el login vale",
               "correct": false,
-              "explanation": "El servicio decide reglas, pero delega el acceso a datos."
+              "explanation": "El servicio decide reglas, pero delega el acceso a datos al repositorio."
             },
             {
-              "text": "En la interfaz, donde se leen los datos",
+              "text": "En LoginMenu, porque ahí se leen el usuario y la clave",
               "correct": false,
-              "explanation": "Ese es el error que se encontró en los proyectos revisados."
+              "explanation": "SQL en la interfaz es justo el error encontrado en los proyectos revisados."
             }
           ]
         },
         {
           "id": "m4-q5",
-          "prompt": "Con un pool de conexiones, ¿qué hace connection.close()?",
+          "context": "UserRepository obtiene la conexión con dataSource.getConnection() dentro de un try-with-resources, y dataSource es un pool HikariCP.",
+          "prompt": "¿Qué pasa con la conexión al salir del bloque try?",
           "options": [
             {
-              "text": "Devuelve la conexión al pool para reutilizarla",
+              "text": "Vuelve al pool y queda abierta para la siguiente consulta",
               "correct": true,
-              "explanation": "La conexión física sigue abierta y otra petición la usa."
+              "explanation": "Con pool, close() no corta la conexión física: la devuelve para reutilizarla."
             },
             {
-              "text": "Cierra la conexión con la base para siempre",
+              "text": "Se cierra en la base y el pool abre otra la próxima vez",
               "correct": false,
-              "explanation": "Eso pasaría sin pool; con pool solo se devuelve."
+              "explanation": "Eso pasaría sin pool, y es justo lo caro que el pool evita."
             },
             {
-              "text": "Nada: con pool no hace falta cerrar",
+              "text": "Sigue reservada para UserRepository hasta que la app termine",
               "correct": false,
-              "explanation": "Si no la devuelves, el pool se queda sin conexiones."
+              "explanation": "Si quedara reservada, el pool se quedaría sin conexiones para otras peticiones."
             }
           ]
         }

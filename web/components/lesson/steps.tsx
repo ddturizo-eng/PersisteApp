@@ -6,9 +6,9 @@ import { cn } from "cn";
 import { CodeView } from "@/components/code/code-view";
 import { useEngine } from "@/components/code/engine";
 import { EngineTabs } from "@/components/code/engine-tabs";
-import { FillGaps, OrderBlocks, PickLine } from "@/components/code/exercises";
+import { Context, FillGaps, OrderBlocks, PickLine } from "@/components/code/exercises";
 import { ExecutionBadge } from "@/components/ui/execution-badge";
-import { codeFor, toSentinels } from "@/lib/exercises";
+import { codeFor, optionOrder, toSentinels } from "@/lib/exercises";
 import { highlightKey, type Highlights } from "@/lib/highlight";
 import { stageLabels, type Step } from "@/lib/lesson-schema";
 import { correctOptionIndex } from "@/lib/player";
@@ -91,11 +91,13 @@ export function VisualStep({ step, headingRef }: { step: StepOf<"visual">; headi
  */
 export function QuestionStep({
   step,
+  stepKey,
   picked,
   onPick,
   headingRef,
 }: {
   step: StepOf<"question">;
+  stepKey: string;
   picked: number[];
   onPick: (option: number) => void;
   headingRef: Ref<HTMLHeadingElement>;
@@ -109,11 +111,13 @@ export function QuestionStep({
   return (
     <div className="space-y-6">
       <p className="text-sm font-medium text-muted-foreground">{stageLabels[step.stage]}</p>
+      {step.context && <Context text={step.context} />}
       <div id={promptId}>
         <StepHeading headingRef={headingRef}>{step.prompt}</StepHeading>
       </div>
       <ul role="list" aria-labelledby={promptId} className="max-w-prose space-y-3">
-        {step.options.map((option, index) => {
+        {optionOrder(step.options.length, stepKey).map((index) => {
+          const option = step.options[index];
           const tried = picked.includes(index);
           const isRight = tried && option.correct;
           const isWrong = tried && !option.correct;
@@ -210,7 +214,7 @@ export function CodeStep({
       {step.mode === "pick-line" && (
         <>
           {wrapTabs(<CodeView lines={lookup(code)} fallback={code} />)}
-          <PickLine step={step} lookup={lookup} solved={solved} onSolved={onSolved} />
+          <PickLine step={step} stepKey={stepKey} lookup={lookup} solved={solved} onSolved={onSolved} />
         </>
       )}
       {step.mode === "order" && (

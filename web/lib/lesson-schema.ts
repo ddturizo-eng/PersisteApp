@@ -52,14 +52,38 @@ const choice = z.object({
 const exactlyOneCorrect = (options: { correct: boolean }[]) =>
   options.filter((option) => option.correct).length === 1;
 
+/** Situation or code shown before the prompt so the question is explicit (REQ-32 CA1). */
+const questionContext = text.optional();
+
+/**
+ * REQ-32 CA3: the right option must not stand out by length — at most 20 % longer than the
+ * longest wrong option and at most 20 % shorter than the shortest wrong one.
+ */
+export function lengthGiveaway(options: { text: string; correct: boolean }[]): string | undefined {
+  const correct = options.find((option) => option.correct);
+  const wrong = options.filter((option) => !option.correct).map((option) => option.text.trim().length);
+  if (!correct || wrong.length === 0) return undefined;
+  const length = correct.text.trim().length;
+  if (length > Math.max(...wrong) * 1.2) return `la opción correcta es demasiado larga (${length} caracteres frente a ${Math.max(...wrong)}): se adivina por la longitud`;
+  if (length < Math.min(...wrong) * 0.8) return `la opción correcta es demasiado corta (${length} caracteres frente a ${Math.min(...wrong)}): se adivina por la longitud`;
+  return undefined;
+}
+
+const balancedChoices = <T extends { text: string; correct: boolean }>(options: T[], ctx: z.RefinementCtx) => {
+  const problem = lengthGiveaway(options);
+  if (problem) ctx.addIssue({ code: "custom", message: problem });
+};
+
 const questionStep = z.object({
   kind: z.literal("question"),
   stage,
+  context: questionContext,
   prompt: text,
   options: z
     .array(choice)
     .min(2, "necesita al menos 2 opciones")
-    .refine(exactlyOneCorrect, "debe tener exactamente una opción correcta"),
+    .refine(exactlyOneCorrect, "debe tener exactamente una opción correcta")
+    .superRefine(balancedChoices),
 });
 
 /** Code per variant: Java for application code, or one entry per engine for SQL/driver code. */
@@ -85,11 +109,13 @@ const readCode = z.object({ ...codeBase, mode: z.literal("read") });
 const pickLineCode = z.object({
   ...codeBase,
   mode: z.literal("pick-line"),
+  context: questionContext,
   prompt: text,
   options: z
     .array(z.object({ line: text, correct: z.boolean(), explanation: text }))
     .min(2, "necesita al menos 2 líneas")
-    .refine(exactlyOneCorrect, "debe tener exactamente una línea correcta"),
+    .refine(exactlyOneCorrect, "debe tener exactamente una línea correcta")
+    .superRefine((options, ctx) => balancedChoices(options.map((o) => ({ text: o.line, correct: o.correct })), ctx)),
 });
 
 const orderCode = z.object({
@@ -119,12 +145,19 @@ const fillCode = z
           id: z.number().int().positive(),
           label: text,
           answers: z.array(text).min(1),
+          /** When present, the gap is a selector with these options (REQ-04 CA7). */
+          choices: z.array(text).min(2, "al menos 2 opciones").max(6, "máximo 6 opciones").optional(),
           hint: text.optional(),
         })
       )
       .min(1, "necesita al menos 1 hueco"),
   })
   .superRefine((step, ctx) => {
+    step.gaps.forEach((gap, i) => {
+      if (gap.choices && !gap.answers.some((answer) => gap.choices!.includes(answer))) {
+        ctx.addIssue({ code: "custom", path: ["gaps", i, "choices"], message: "la respuesta debe estar entre las opciones" });
+      }
+    });
     const code = [step.variants.java, step.variants.oracle, step.variants.postgresql].join("\n");
     const used = new Set([...code.matchAll(GAP_PATTERN)].map((m) => Number(m[1])));
     const declared = new Set(step.gaps.map((gap) => gap.id));
@@ -199,11 +232,13 @@ const quizStep = z
       .array(
         z.object({
           id: z.string().regex(/^[a-z0-9-]+$/, "id en minúsculas, números y guiones"),
+          context: questionContext,
           prompt: text,
           options: z
             .array(choice)
             .min(2, "necesita al menos 2 opciones")
-            .refine(exactlyOneCorrect, "debe tener exactamente una opción correcta"),
+            .refine(exactlyOneCorrect, "debe tener exactamente una opción correcta")
+            .superRefine(balancedChoices),
         })
       )
       .min(3, "entre 3 y 8 preguntas")
