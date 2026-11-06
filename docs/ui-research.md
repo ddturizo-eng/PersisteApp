@@ -66,6 +66,7 @@
 **Adoptar**
 - Es la misma ruta y el mismo componente, con un atributo `data-exposition` en `<html>` (R1).
 - Tipografía de cuerpo de 28 px como mínimo (`clamp` según el ancho), código de 22 px como mínimo y contraste AAA en texto, porque los proyectores lavan los colores.
+- **Ajuste tras probar en 1280×720 (PA-8, 6 nov 2026):** 28 px fijos dejaban poco espacio al contenido bajo la cabecera y el pie. La base es ahora `clamp(22px, 3.2vh, 28px)`: 22 px en un proyector 720p y 28 px desde 1080p. Validar en el ensayo (PA-28).
 - Se oculta la cabecera global y el pie de navegación. Solo queda un borde inferior con `Paso n de m` y el tiempo transcurrido de la sesión (R6).
 - Teclas: `→` / `Espacio` avanzan, `←` retrocede, `P` entra y sale del modo, `O` abre una vista general con las etapas y pasos de la lección para saltar (R6), `Esc` la cierra.
 - En el pie va una ayuda discreta "`?` atajos", que abre la lista de teclas.

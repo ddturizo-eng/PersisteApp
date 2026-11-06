@@ -22,10 +22,12 @@ constitution  →  requirements (QUÉ)  →  design (CÓMO)  →  tasks (PASOS) 
 | P3 | **Ninguna credencial en el cliente ni en el repositorio.** | Supabase solo con variables de entorno de servidor. `.env*` en `.gitignore`. |
 | P4 | **El CRUD sigue las convenciones del docente (GameZoneUnicesar).** | Paquetes `model/persistence/service/ui`, `ProductStore` + `JdbcProductRepository`, inglés en código, español en consola, JavaDoc, Java 17, Maven. |
 | P5 | **Contenido como datos.** | Lecciones en JSON tipado; un solo renderizador de pasos. No se construyen pantallas por lección. |
-| P6 | **Primero el problema, luego la teoría.** | Cada lección sigue Problema → Visualizar → Predecir → Escribir → Ejecutar → Explicar. |
+| P6 | **Primero la teoría, luego la práctica.** *(Cambio del 6 nov 2026, antes «primero el problema».)* | Los módulos se construyen y se recorren en orden, del 1 al 8. Cada lección sigue Teoría → Práctica → Quiz: conceptos base con ejemplos, ejercicios guiados sin calificación y un quiz corto que suma al ranking. |
 | P7 | **Accesible en aula.** | Teclado completo, contraste AA, modo oscuro, funciona en celular y en proyector. |
 | P8 | **Diseño sin relleno.** | Se respeta la skill `ui-reference-intelligence`: sin dashboards genéricos, sin estadísticas falsas, animación solo si explica algo. |
-| P9 | **Alcance de 3 días = sesión 1.** | Sesión 2 y fase 2 viven en el backlog, no en el sprint. |
+| P9 | **Alcance de 3 días = sesión 1 + quiz con ranking.** | Sesión 2 y fase 2 viven en el backlog. El ranking entra en la v1 por decisión del 6 nov 2026. |
+| P10 | **Ranking justo y verificable.** | Las respuestas correctas del quiz no viajan al navegador; el servidor califica y cuenta solo el primer intento. El docente ve, depura y exporta el ranking de su grupo. |
+| P11 | **Sin servidor propio en el MVP.** | No hay VPS ni backend desplegado aparte. Todo lo dinámico corre en funciones serverless de Vercel (Server Actions y Route Handlers de Next.js) contra Supabase gestionado. Nada de procesos permanentes, WebSockets propios ni colas: el panel docente se actualiza consultando cada 5 s. |
 
 ## Pila fijada
 
@@ -33,7 +35,7 @@ constitution  →  requirements (QUÉ)  →  design (CÓMO)  →  tasks (PASOS) 
 - Shiki (resaltado en servidor) para Java y SQL; ejercicios con inputs nativos. Monaco queda para fase 2 (decisión del 6 nov 2026, ver `docs/ui-research.md`).
 - React Bits solo en la portada: `SplitText`, `TextType` y fondo `Threads` (ver `02-design.md` §8).
 - PGlite (PostgreSQL en WebAssembly) para el laboratorio SQL real, cargado bajo demanda.
-- Supabase (PostgreSQL) para la demo del docente con el CRUD Java.
+- Supabase (PostgreSQL) para la demo del docente con el CRUD Java y para salas, participantes y respuestas del quiz, siempre desde el servidor (Server Actions con `SUPABASE_SERVICE_ROLE_KEY`, nunca en el navegador).
 - CRUD Java 17 + Maven + HikariCP + JUnit 5 / AssertJ / Mockito + JaCoCo (≥ 70 % en `service`).
 
 ## Calendario fijo

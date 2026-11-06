@@ -31,7 +31,7 @@ PersisteApp/
 ├─ docs/ui-research.md         ← salida de la skill ui-reference-intelligence
 ├─ web/                        ← app Next.js
 │  ├─ app/
-│  │  ├─ layout.tsx            tema, fuente, ExpositionProvider, CommandPalette
+│  │  ├─ layout.tsx            tema, fuente, script de tema y exposición, atajo P, CommandPalette
 │  │  ├─ page.tsx              portada + índice del curso
 │  │  ├─ s1/[lessonId]/page.tsx
 │  │  ├─ lab/sql/page.tsx
@@ -96,7 +96,7 @@ type SimId = 'pool' | 'injection' | 'mirror' | 'system-map' | 'request-tracer';
 
 - Estado local: `index`, `answered[]`. URL `?step=n` para poder retomar y para que el docente salte en vivo.
 - Teclado: `→`/`Enter` avanzar, `←` retroceder, `P` modo exposición, `Ctrl K` buscador. Atajos ignorados si el foco está en un input.
-- `ExpositionProvider` (contexto + `localStorage`) añade clase `data-exposition` al `<html>`: escala tipográfica ×1.35, oculta barra lateral y pie.
+- Modo exposición (`components/exposition.tsx`, sin contexto de React): atributo `data-exposition` en `<html>`, restaurado antes de pintar por un script en `<head>` y guardado en `localStorage`. Base tipográfica `clamp(22px, 3.2vh, 28px)`; se ocultan la cabecera del sitio, el título de la lección, la barra de progreso y la fuente. Teclas: `P` en cualquier página, `O` abre la vista general de pasos (`<dialog>` nativo, `Esc` cierra). El pie muestra el tiempo de exposición.
 - Transición entre pasos: fundido de 150 ms; se anula con `prefers-reduced-motion`.
 - **Ningún callejón sin salida (REQ-04 CA5):** cada ejercicio `order` y `fill` acepta `hints[]`; cada intento fallido muestra la siguiente pista y, desde el 2.º fallo, aparece «Ver solución». La solución mostrada desbloquea Continuar igual que resolverlo; el objetivo es que nadie abandone la clase en un paso.
 - **Contenido para el público real:** ejercicios de ordenar con 4–6 bloques como máximo, sin anidar `try`, precedidos por un paso de texto que nombra las partes que se van a ordenar.
@@ -195,3 +195,132 @@ npx shadcn@latest add @react-bits/SplitText-TS-TW @react-bits/TextType-TS-TW @re
 | Wi-Fi del aula caído el lunes | Media | Alto | Build estático; probar `next build` + servir local; PGlite cacheado. |
 | Supabase pausa el proyecto gratuito | Baja | Medio | Abrirlo el domingo; tener PostgreSQL local con Docker como respaldo. |
 | Scope creep (refactor guiado, detector de fugas) | Alta | Medio | Están en `W`; solo entran si el domingo a mediodía está todo `M` cerrado. |
+| Ranking: red del aula saturada o caída | Media | Alto | El quiz sigue en modo práctica sin sala (REQ-29 CA4); las respuestas pendientes se reintentan al volver la red. |
+| Ranking: nombres falsos o duplicados | Media | Bajo | Código estudiantil único por sala (REQ-28 CA3) y botón de eliminar en el panel docente. |
+| Ranking: proyecto Supabase sin crear o claves sin cargar en Vercel | Media | Alto | T-36 crea el proyecto y carga las variables el sábado temprano; sin ellas la app sigue funcionando sin puntaje. |
+
+## 11. Teoría → Práctica → Quiz, recorrido y ranking (cambio del 6 nov 2026)
+
+Responde a REQ-26 a REQ-30 y a los principios P6 y P10.
+
+### 11.1 Etapas y nuevos tipos de paso
+
+- `stages` pasa de seis valores a tres: `theory`, `practice`, `quiz` (etiquetas Teoría, Práctica, Quiz). La regla del esquema se mantiene: las etapas avanzan en orden y una lección no opcional recorre las tres.
+- Paso nuevo `trace` (REQ-27), etapa `practice`:
+
+```ts
+type TraceStep = {
+  kind: "trace";
+  stage: "practice";
+  title: string;
+  intro: string;
+  locations: { id: string; label: string; kind: "file" | "class" | "db" }[]; // ".env", "ConnectionPool.java", "PostgreSQL"…
+  events: {
+    moment: string;          // "La app arranca"
+    description: string;     // "Se leen DB_URL, DB_USER y DB_PASSWORD"
+    options: string[];       // 3–4 ids de locations
+    answer: string;          // id correcto
+    why: Record<string, string>; // explicación por opción incorrecta
+    explanation: string;     // al acertar
+    code?: { language: "java" | "sql" | "properties"; source: string };
+  }[];
+};
+```
+
+- Paso nuevo `quiz` (REQ-29), etapa `quiz`: `{ kind: "quiz", stage: "quiz", questions: { id, prompt, options: { text, correct, explanation }[] }[] }`. El JSON guarda la respuesta correcta, pero el renderizado envía al navegador solo `id`, `prompt` y el texto de las opciones: `toPublicQuiz()` elimina `correct` y `explanation` antes de pasar las props al componente cliente.
+
+### 11.2 Datos en Supabase
+
+```sql
+create table rooms (
+  id          uuid primary key default gen_random_uuid(),
+  code        char(6) not null unique,          -- A-Z sin I/O + 2-9
+  label       text not null,                    -- "Grupo 8:00"
+  session     smallint not null default 1,
+  created_at  timestamptz not null default now(),
+  closed_at   timestamptz
+);
+create table participants (
+  id            uuid primary key default gen_random_uuid(),
+  room_id       uuid not null references rooms(id) on delete cascade,
+  name          text not null check (length(name) between 2 and 60),
+  student_code  text not null check (length(student_code) between 3 and 20),
+  token         uuid not null default gen_random_uuid(), -- va en cookie httpOnly
+  created_at    timestamptz not null default now(),
+  unique (room_id, student_code)
+);
+create table quiz_answers (
+  participant_id uuid not null references participants(id) on delete cascade,
+  lesson_id      text not null,
+  question_id    text not null,
+  shown_at       timestamptz not null default now(),  -- lo fija el servidor al entregar la pregunta
+  option_index   smallint,                            -- null hasta que responde
+  correct        boolean,
+  answered_at    timestamptz,
+  primary key (participant_id, lesson_id, question_id)   -- el primer intento gana (REQ-29 CA3)
+);
+-- Tiempo por pregunta con tope de 60 s (REQ-30 CA1b).
+create view answer_times as
+  select *, least(extract(epoch from answered_at - shown_at), 60) as seconds
+  from quiz_answers where answered_at is not null;
+-- Aciertos y desempate por tiempo en correctas (REQ-30 CA1).
+create view room_ranking as
+  select p.room_id, p.id as participant_id, p.name, p.student_code,
+         count(t.*) filter (where t.correct)                   as score,
+         coalesce(sum(t.seconds) filter (where t.correct), 0)  as correct_seconds,
+         count(t.*)                                            as answered
+  from participants p left join answer_times t on t.participant_id = p.id
+  group by p.id;
+-- Orden: score desc, correct_seconds asc.
+```
+
+- `shown_at` se inserta con `on conflict do nothing` en `startQuestion`, así que recargar la página no reinicia el reloj.
+
+- RLS activado en las tres tablas y **sin políticas** para `anon`: solo el servidor, con `SUPABASE_SERVICE_ROLE_KEY`, lee y escribe (P3, P10).
+- Script versionado en `web/supabase/001_quiz.sql`.
+
+### 11.3 Servidor (Next.js 16, Server Actions)
+
+| Acción | Quién | Qué hace |
+|---|---|---|
+| `joinRoom(code, name, studentCode)` | Estudiante | Valida con zod, hace upsert por `(room_id, student_code)`, guarda `token` en cookie httpOnly `pa_participant` (SameSite=Lax, 12 h). |
+| `startQuestion(lessonId, questionId)` | Estudiante | Inserta la fila con `shown_at = now()` si no existe (el reloj no se reinicia). Sin sala: no hace nada. |
+| `submitAnswer(lessonId, questionId, optionIndex)` | Estudiante | Lee la cookie, busca la pregunta en `content/` (servidor), califica y actualiza la fila solo si `answered_at is null` (primer intento). Devuelve `{ correct, explanation, firstAttempt, seconds }`. Sin sala: califica igual y no guarda. |
+| `getRoomReport(roomId)` | Docente | Una sola consulta por vista (En vivo, Por pregunta, Por estudiante) sobre `answer_times` y `room_ranking`; la agregación por opción se hace en el servidor. |
+| `getMyStanding()` | Estudiante | Puntaje propio y posición en su sala. |
+| `createRoom(label)`, `closeRoom(id)`, `removeParticipant(id)` | Docente | Exigen la cookie `pa_teacher`, emitida al validar `TEACHER_PASSCODE`. |
+| `GET /docente/ranking.csv?room=` | Docente | Exporta el CSV de REQ-30 CA4. |
+
+- Rutas: `/sala` (entrar con código), `/docente` (clave, salas, ranking con refresco cada 5 s), `/docente/proyectar/[room]` (top 10 para exposición, nombre + inicial).
+- Cliente Supabase solo en `web/lib/supabase-server.ts` con `import "server-only"`.
+- Variables nuevas en Vercel: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `TEACHER_PASSCODE`.
+
+### 11.4 Interfaz
+
+- **Barra de sala** bajo la cabecera: «Sala Grupo 8:00 · Daniel T. · 7 aciertos · puesto 3». Sin sala: enlace «Entrar a una sala para sumar puntos».
+- **Quiz:** una pregunta por pantalla, feedback inmediato del servidor, rótulo «Cuenta para el ranking» o «Sin puntaje». Al final, resumen del módulo y posición.
+- **Recorrido:** a la izquierda la línea de tiempo con los eventos ya resueltos (evento → lugar); a la derecha el evento actual con sus opciones. En móvil, la línea de tiempo se pliega sobre el evento.
+- **Ranking proyectado:** tabla grande, los 3 primeros con su puesto en texto («1.º»), sin medallas ni confeti (P8).
+
+### 11.5 Panel docente (REQ-31)
+
+```
+/docente                      clave → cookie pa_teacher (12 h)
+/docente                      lista de salas: código, estado, participantes, [+ Nueva sala]
+/docente/sala/[id]            pestañas: En vivo · Por pregunta · Por estudiante · Proyectar
+/docente/sala/[id]/csv        Route Handler que devuelve el CSV
+```
+
+| Pestaña | Contenido | Actualización |
+|---|---|---|
+| En vivo | Estudiante, módulo actual, aciertos, tiempo en correctas, puesto; top 3 destacado | Consulta cada 5 s mientras la pestaña está visible (`visibilitychange` la pausa) |
+| Por pregunta | % de aciertos, barras por opción con conteo, tiempo promedio; aviso si < 50 %; al tocar una opción, lista de nombres | Al abrir y con botón «Actualizar» |
+| Por estudiante | Respuestas una por una: opción, correcta o no, segundos | Al abrir |
+| Proyectar | Top 10 con nombre e inicial, en modo exposición | Cada 5 s |
+
+### 11.6 Sin servidor propio (P11)
+
+- Todo corre en Vercel como funciones serverless y en Supabase gestionado; no hay VPS, procesos permanentes ni WebSockets propios.
+- Carga estimada de una clase: ~35 estudiantes × ~35 preguntas × 2 llamadas (mostrar y responder) ≈ 2 500 invocaciones por grupo, más el panel cada 5 s durante 100 min ≈ 1 200. Muy por debajo de los límites del plan gratuito de Vercel y de Supabase.
+- Las lecciones (con sus respuestas correctas) viajan dentro del despliegue de Vercel en `content/`; la Server Action las lee del disco, nunca desde el navegador.
+- Supabase pausa los proyectos gratuitos tras 7 días sin uso: abrir el proyecto el domingo y antes de cada sesión (ver §10).

@@ -1,52 +1,60 @@
-Issue Id,Parent Id,Issue Type,Summary,Description,Priority,Story Points,Original Estimate,Sprint,Labels,Due Date
-101,,Epic,Fundaciones de plataforma,"App Next.js, esquema de lecciones, reproductor de pasos y modo exposicion.",Highest,,,,v1,2026-11-06
-102,,Epic,Investigacion y acabado UI,"Referencias con ui-reference-intelligence y revision final con impeccable.",High,,,,v1,2026-11-08
-103,,Epic,Simuladores interactivos,"Pool, inyeccion SQL, espejo app-BD y PGlite.",Highest,,,,v1,2026-11-07
-104,,Epic,Contenido sesion 1,"Ocho modulos con el recorrido Problema-Visualizar-Predecir-Escribir-Ejecutar-Explicar.",Highest,,,,v1,2026-11-07
-105,,Epic,CRUD de referencia Java,"v0 desordenado, v1 con capas y base en Supabase.",Highest,,,,v1,2026-11-06
-106,,Epic,"Navegacion, busqueda y accesibilidad","Portada, progreso, Ctrl K, referencia y a11y.",High,,,,v1,2026-11-08
-107,,Epic,Lanzamiento y ensayo,"Despliegues, respaldo offline y ensayo de 100 min.",Highest,,,,v1,2026-11-08
-108,,Epic,Sesion 2,"Rutinas, triggers y CRUD v2. Fuera del plazo de 3 dias.",Medium,,,,backlog,2026-11-10
-109,,Epic,Fase 2,"Ejecucion Java aislada, esquemas por estudiante, cuentas y rubrica.",Low,,,,backlog,
-1,101,Task,Inicializar repo y app Next.js + TS + Tailwind + Vitest,"DoD: npm run build y npm test pasan; .env* en .gitignore.",Highest,2,2700,PA Sprint 1 · Vie 6,T-01,2026-11-06
-2,107,Task,Primer despliegue preview en Vercel,"DoD: URL publica responde.",High,1,900,PA Sprint 1 · Vie 6,T-02,2026-11-06
-3,102,Task,Investigacion UI con ui-reference-intelligence,"Objetivos: reproductor de leccion, modo exposicion, bloque de codigo con pestanas. DoD: docs/ui-research.md con 3+ referencias por objetivo. REQ-02/04/05/09.",High,2,2700,PA Sprint 1 · Vie 6,"T-03,ux,research",2026-11-06
-4,101,Story,"Tokens, tema claro/oscuro y componentes base","Incluye ExecutionBadge, Button, Kbd. DoD: contraste AA en ambos temas. REQ-07/09.",Highest,2,3600,PA Sprint 1 · Vie 6,T-04,2026-11-06
-5,101,Story,Esquema zod y carga validada de lecciones,"DoD: JSON invalido rompe el build indicando archivo y campo. REQ-01.",Highest,2,3600,PA Sprint 1 · Vie 6,T-05,2026-11-06
-6,101,Story,"LessonPlayer con pasos text, visual y question","Barra de progreso, atajos flecha. DoD: Continuar bloqueado sin respuesta; el error explica la causa. REQ-02/03.",Highest,5,7200,PA Sprint 1 · Vie 6,T-06,2026-11-06
-7,101,Story,Paso code: pestanas de motor y ejercicios guiados,"CodeTabs Oracle/PostgreSQL, PickLine, OrderBlocks, FillGaps. DoD: completables solo con teclado. REQ-04.",Highest,3,6300,PA Sprint 1 · Vie 6,T-07,2026-11-06
-8,101,Story,Modo Exposicion para proyector,"Tecla P, persistente entre pasos. REQ-05.",High,1,1800,PA Sprint 1 · Vie 6,T-08,2026-11-06
-9,104,Story,Leccion modelo: modulo 4 Consultas seguras,"Seis etapas completas; sirve de plantilla. REQ-16.",Highest,2,3600,PA Sprint 1 · Vie 6,T-09,2026-11-06
-10,105,Task,"Esquema y semilla en Supabase (products, sales)","db/001_schema.sql y 002_seed.sql con FK y 10 productos. REQ-19.",High,1,1800,PA Sprint 1 · Vie 6,T-10,2026-11-06
-11,105,Story,CRUD Java v0 desordenado y v1 con capas,"Maven, Java 17, HikariCP, TransactionRunner, registerSale. DoD: mvn verify pasa; JaCoCo 70% en service; v1 conecta a Supabase con env vars. REQ-17/18.",Highest,5,8100,PA Sprint 1 · Vie 6,T-11,2026-11-06
-12,107,Task,Enviar preguntas abiertas al docente,"Estandares extra (nombres de tablas, commits) y adopcion de la rubrica.",Medium,1,360,PA Sprint 1 · Vie 6,T-12,2026-11-06
-13,103,Task,Modelo puro del pool con pruebas,"Vitest: tiempo medio sin pool mayor que con pool para 50 peticiones. REQ-10.",Highest,2,2700,PA Sprint 2 · Sáb 7,T-13,2026-11-07
-14,103,Story,Simulador de pool con y sin pool,"Slider 1-20, rafaga de 50, rejilla, cola, tiempo medio, comparacion lado a lado. REQ-10.",Highest,3,6300,PA Sprint 2 · Sáb 7,T-14,2026-11-07
-15,103,Story,Laboratorio de inyeccion SQL,"SQL en vivo, interruptor vulnerable/seguro, codigo Java de ambas versiones. DoD: ' OR '1'='1 entra en vulnerable y falla en seguro. REQ-11.",Highest,5,7200,PA Sprint 2 · Sáb 7,T-15,2026-11-07
-16,103,Story,Espejo app-base de datos (MemoryDb),"Adaptador MirrorDb; commit y rollback forzado. DoD: rollback deja la tabla sin cambios; rotulo Simulacion. REQ-12.",Highest,3,6300,PA Sprint 2 · Sáb 7,T-16,2026-11-07
-17,103,Task,Spike PGlite (timebox 1 h),"Carga en Next, transacciones, plpgsql y trigger. Salida: docs/pglite-spike.md. REQ-15/20.",Medium,2,3600,PA Sprint 2 · Sáb 7,"T-17,spike",2026-11-07
-18,104,Story,"Contenido modulos 1, 2 y 3 + mapa del sistema","Mapa con alternativa de teclado. REQ-13/16.",Highest,3,5400,PA Sprint 2 · Sáb 7,T-18,2026-11-07
-19,104,Story,"Contenido modulos 5, 6 y 7","Modulo 7 usa el espejo. REQ-16.",Highest,3,5400,PA Sprint 2 · Sáb 7,T-19,2026-11-07
-20,104,Story,"Contenido modulo 8 (Spring Boot, opcional)","Tabla manual vs Spring Boot; rotulo Estudio autonomo. REQ-06/16.",Medium,1,1800,PA Sprint 2 · Sáb 7,T-20,2026-11-07
-21,103,Story,Stretch: PGlite real en el espejo y /lab/sql,"Solo si el spike PA-17 funciona. Carga diferida; boton restaurar. REQ-12/15.",Low,5,7200,PA Sprint 2 · Sáb 7,"T-21,stretch",2026-11-07
-22,106,Story,"Portada, indice del curso y progreso local","React Bits: SplitText, TextType, Threads (02-design 8.1); localStorage. REQ-06.",Medium,3,5400,PA Sprint 3 · Dom 8,T-22,2026-11-08
-23,106,Story,"Buscador Ctrl K, Referencia y glosario","Chuleta JDBC, patrones, errores; glosario pool/DAO/commit/DTO. REQ-08.",Medium,3,5400,PA Sprint 3 · Dom 8,T-23,2026-11-08
-24,106,Task,Pasada de accesibilidad y responsive,"Teclado, foco visible, 375 px, reduced motion. REQ-09.",Highest,3,4500,PA Sprint 3 · Dom 8,T-24,2026-11-08
-25,106,Task,Auditoria de rotulos real/simulado,"Cero salidas sin rotulo. REQ-07.",Highest,1,1800,PA Sprint 3 · Dom 8,T-25,2026-11-08
-26,102,Task,Revision de acabado con impeccable,"Corregir solo hallazgos de severidad alta.",High,2,3600,PA Sprint 3 · Dom 8,T-26,2026-11-08
-27,107,Task,Despliegue de produccion y respaldo offline,"URL de produccion; next start local como respaldo sin red.",Highest,1,1800,PA Sprint 3 · Dom 8,"T-27,release",2026-11-08
-28,107,Task,Ensayo completo de 100 min,"Seguir el guion de minutos; salida: lista de fallos priorizada.",Highest,3,7200,PA Sprint 3 · Dom 8,T-28,2026-11-08
-29,107,Task,Corregir fallos del ensayo,"Cerrar fallos de severidad alta.",Highest,3,5400,PA Sprint 3 · Dom 8,T-29,2026-11-08
-31,108,Story,CRUD v2 con CallableStatement y errores traducidos,"Funcion, procedimiento IN/OUT register_sale, traduccion ORA/SQLState.",Medium,5,10800,,T-31,2026-11-09
-32,108,Task,Scripts de rutinas y trigger de bitacora,"Variantes Oracle y PostgreSQL.",Medium,3,5400,,T-32,2026-11-09
-33,108,Story,Contenido modulos S2-1 a S2-7,"Siete lecciones de la sesion 2.",Medium,8,18000,,T-33,2026-11-10
-34,108,Story,Visual del trigger en paralelo,"Con PGlite si el spike lo permitio; si no, simulado y rotulado.",Medium,5,7200,,T-34,2026-11-10
-35,108,Task,Ensayo sesion 2,,Medium,3,5400,,T-35,2026-11-10
-36,109,Story,Editor Java ejecutable en contenedor aislado,"Limite de tiempo, CPU y memoria. REQ-21.",Low,,,,fase2,
-37,109,Story,Esquema por estudiante restaurable,REQ-22.,Low,,,,fase2,
-38,109,Story,Cuentas y progreso sincronizado en Supabase,REQ-23.,Low,,,,fase2,
-39,109,Story,Rubrica automatizada,REQ-24.,Low,,,,fase2,
-40,109,Story,Revision tipo jurado (8 defectos),REQ-24.,Low,,,,fase2,
-41,109,Story,Refactor guiado SOLID/GRASP,REQ-25.,Low,,,,fase2,
-42,109,Story,Detector de fugas de conexiones,REQ-25.,Low,,,,fase2,
-43,103,Story,Rastreador de peticion,"REQ-14. Solo si sobra buffer; si no, fase 2.",Low,3,5400,,"T-xx,stretch",
+Issue Id,Parent Id,Issue Type,Summary,Description,Priority,Story Points,Original Estimate,Sprint,Status,Labels,Due Date
+101,,Epic,Fundaciones de plataforma,"App, esquema, reproductor, exposicion, etapas, recorrido y quiz.",Highest,,,,In Progress,v1,2026-11-06
+102,,Epic,Investigacion UI,"Referencias con ui-reference-intelligence.",High,,,,Done,v1,2026-11-06
+103,,Epic,Simuladores interactivos,"Pool, inyeccion SQL y espejo app-BD.",Highest,,,,To Do,v1,2026-11-08
+104,,Epic,Contenido sesion 1,"Modulos 1 a 7 en orden: teoria, practica y quiz.",Highest,,,,To Do,v1,2026-11-08
+105,,Epic,CRUD de referencia Java,"v0 desordenado y v1 con capas.",Highest,,,,To Do,v1,2026-11-07
+106,,Epic,Navegacion y accesibilidad,"Portada, progreso, a11y y rotulos.",High,,,,To Do,v1,2026-11-08
+107,,Epic,Lanzamiento y ensayo,"Despliegues, respaldo sin red y ensayo.",Highest,,,,In Progress,v1,2026-11-08
+110,,Epic,Quiz y ranking por grupo,"Supabase, sala, puntaje en servidor, panel docente y CSV. REQ-28 a REQ-30.",Highest,,,,To Do,v1,2026-11-07
+108,,Epic,Sesion 2,"Rutinas, triggers y CRUD v2. Fuera del plazo.",Medium,,,,To Do,backlog,2026-11-10
+109,,Epic,Fase 2,"Ejecucion Java aislada, esquemas, cuentas y rubrica.",Low,,,,To Do,backlog,
+1,101,Task,Repo y app Next.js + TS + Tailwind + Vitest,"T-01.",Highest,2,2700,PA Sprint 1 · Vie 6,Done,T-01,2026-11-06
+2,107,Task,Primer despliegue en Vercel,"T-02.",High,1,900,PA Sprint 1 · Vie 6,Done,T-02,2026-11-06
+3,102,Task,Investigacion UI,"docs/ui-research.md. REQ-02/04/05/09.",High,2,2700,PA Sprint 1 · Vie 6,Done,"T-03,ux",2026-11-06
+4,101,Story,"Tokens, temas y componentes base","REQ-07/09.",Highest,2,3600,PA Sprint 1 · Vie 6,Done,T-04,2026-11-06
+5,101,Story,Esquema de lecciones validado en build,"REQ-01.",Highest,2,3600,PA Sprint 1 · Vie 6,Done,T-05,2026-11-06
+6,101,Story,LessonPlayer,"REQ-02/03.",Highest,5,7200,PA Sprint 1 · Vie 6,Done,T-06,2026-11-06
+7,101,Story,"Paso de codigo, ejercicios, pistas y Ver solucion","REQ-04 CA1-CA6.",Highest,3,6300,PA Sprint 1 · Vie 6,Done,T-07,2026-11-06
+8,101,Story,Modo Exposicion,"P, vista general O y cronometro. REQ-05.",High,1,1800,PA Sprint 1 · Vie 6,In Review,T-08,2026-11-06
+36,101,Story,Etapas Teoria - Practica - Quiz,"Esquema, indicador y leccion del modulo 4. REQ-26.",Highest,2,3600,PA Sprint 1 · Vie 6,To Do,T-36,2026-11-06
+37,101,Story,Recorrido Donde ocurre,"Eventos en orden cronologico; elegir archivo o clase; explicacion por opcion; resumen final. REQ-27.",Highest,5,7200,PA Sprint 1 · Vie 6,To Do,T-37,2026-11-06
+38,101,Story,Quiz en modo practica calificado en servidor,"Server Action; respuestas correctas no llegan al navegador. REQ-29 CA1-CA4.",Highest,3,5400,PA Sprint 1 · Vie 6,To Do,T-38,2026-11-06
+9,104,Story,Leccion modelo: modulo 1 Mapa del sistema,"Teoria, recorrido y quiz. REQ-16/26.",Highest,3,5400,PA Sprint 1 · Vie 6,To Do,T-09,2026-11-06
+12,107,Task,Preguntas abiertas al docente,"Estandares extra y adopcion de la rubrica.",Medium,1,360,PA Sprint 1 · Vie 6,To Do,T-12,2026-11-06
+39,110,Task,"Proyecto Supabase, scripts SQL y variables en Vercel","supabase/001_quiz.sql y db/001_schema.sql; SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, TEACHER_PASSCODE. REQ-19/28.",Highest,2,2700,PA Sprint 2 · Sáb 7,To Do,T-39,2026-11-07
+40,110,Story,"Sala: entrar con codigo, nombre y codigo estudiantil","Cookie httpOnly; mismo codigo estudiantil = mismo participante. REQ-28 CA1-CA3.",Highest,3,5400,PA Sprint 2 · Sáb 7,To Do,T-40,2026-11-07
+41,110,Story,"Tiempo medido en servidor, primer intento, puntaje y posicion","startQuestion y submitAnswer; tope 60 s. REQ-29 CA3/CA5, REQ-30 CA1b.",Highest,3,4500,PA Sprint 2 · Sáb 7,To Do,T-41,2026-11-07
+42,110,Story,"Panel docente: salas, En vivo, Por pregunta, Por estudiante, CSV","Clave TEACHER_PASSCODE; En vivo cada 5 s; % por pregunta y conteo por opcion; detalle por estudiante. REQ-28 CA4-CA5, REQ-30, REQ-31.",Highest,8,10800,PA Sprint 2 · Sáb 7,To Do,T-42,2026-11-07
+43,110,Story,Ranking proyectado top 10,"Nombre e inicial, sin codigo estudiantil. REQ-30 CA3.",High,1,1800,PA Sprint 2 · Sáb 7,To Do,T-43,2026-11-07
+18,104,Story,Modulo 2 Primera conexion con recorrido,"URL, driver y variables de entorno. REQ-16/26/27.",Highest,2,3600,PA Sprint 2 · Sáb 7,To Do,T-18,2026-11-07
+13,103,Task,Modelo puro del pool con pruebas,"REQ-10.",Highest,2,2700,PA Sprint 2 · Sáb 7,To Do,T-13,2026-11-07
+14,103,Story,Simulador de pool y modulo 3,"REQ-10/16.",Highest,5,9000,PA Sprint 2 · Sáb 7,To Do,T-14,2026-11-07
+11,105,Story,CRUD Java v0 y v1 contra Supabase,"Maven, Java 17, HikariCP, registerSale. REQ-17/18.",Highest,5,8100,PA Sprint 2 · Sáb 7,To Do,T-11,2026-11-07
+15,103,Story,Laboratorio de inyeccion SQL,"REQ-11.",Highest,5,7200,PA Sprint 3 · Dom 8,To Do,T-15,2026-11-08
+19,104,Story,Modulo 4 migrado a teoria - practica - quiz,"REQ-16/26.",Highest,2,2700,PA Sprint 3 · Dom 8,To Do,T-19,2026-11-08
+16,103,Story,Espejo app - base de datos,"MemoryDb con commit y rollback. REQ-12.",High,3,5400,PA Sprint 3 · Dom 8,To Do,T-16,2026-11-08
+20,104,Story,"Modulos 5, 6 y 7 con quiz","REQ-16/26/29.",Highest,5,9000,PA Sprint 3 · Dom 8,To Do,T-20,2026-11-08
+22,106,Story,"Portada minima, indice y progreso","REQ-06.",Medium,2,3600,PA Sprint 3 · Dom 8,To Do,T-22,2026-11-08
+24,106,Task,Accesibilidad y responsive,"REQ-09.",Highest,2,3600,PA Sprint 3 · Dom 8,To Do,T-24,2026-11-08
+25,106,Task,Auditoria de rotulos,"REQ-07.",Highest,1,900,PA Sprint 3 · Dom 8,To Do,T-25,2026-11-08
+27,107,Task,Produccion y respaldo sin red,"",Highest,1,1800,PA Sprint 3 · Dom 8,To Do,"T-27,release",2026-11-08
+28,107,Task,Ensayo de 100 min con sala de prueba,"",Highest,5,7200,PA Sprint 3 · Dom 8,To Do,T-28,2026-11-08
+29,107,Task,Corregir fallos del ensayo,"",Highest,2,3600,PA Sprint 3 · Dom 8,To Do,T-29,2026-11-08
+23,106,Story,"Buscador Ctrl K, Referencia y glosario","REQ-08. Recorte del 6 nov.",Low,3,5400,,To Do,"T-23,backlog",
+26,102,Task,Revision de acabado con impeccable,"Recorte del 6 nov.",Low,2,3600,,To Do,"T-26,backlog",
+17,103,Task,Spike PGlite,"REQ-15/20.",Low,2,3600,,To Do,"T-17,backlog",
+21,103,Story,PGlite real en el espejo y /lab/sql,"REQ-12/15.",Low,5,7200,,To Do,"T-21,backlog",
+44,104,Story,Modulo 8 Que hace Spring Boot por ti,"Estudio autonomo despues del lunes.",Low,1,1800,,To Do,"T-44,backlog",
+31,108,Story,CRUD v2 con CallableStatement y errores traducidos,"",Medium,5,10800,,To Do,T-31,2026-11-09
+32,108,Task,Scripts de rutinas y trigger de bitacora,"",Medium,3,5400,,To Do,T-32,2026-11-09
+33,108,Story,Contenido modulos S2-1 a S2-7,"",Medium,8,18000,,To Do,T-33,2026-11-10
+34,108,Story,Visual del trigger en paralelo,"",Medium,5,7200,,To Do,T-34,2026-11-10
+35,108,Task,Ensayo sesion 2,"",Medium,3,5400,,To Do,T-35,2026-11-10
+45,109,Story,Editor Java ejecutable en contenedor aislado,"REQ-21.",Low,,,,To Do,fase2,
+46,109,Story,Esquema por estudiante restaurable,"REQ-22.",Low,,,,To Do,fase2,
+47,109,Story,Cuentas y progreso sincronizado,"REQ-23.",Low,,,,To Do,fase2,
+48,109,Story,Rubrica automatizada,"REQ-24.",Low,,,,To Do,fase2,
+49,109,Story,Revision tipo jurado,"REQ-24.",Low,,,,To Do,fase2,
+50,109,Story,Refactor guiado SOLID/GRASP,"REQ-25.",Low,,,,To Do,fase2,
+51,109,Story,Detector de fugas de conexiones,"REQ-25.",Low,,,,To Do,fase2,

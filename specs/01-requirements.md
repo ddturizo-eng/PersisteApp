@@ -98,7 +98,7 @@ Como estudiante, quiero practicar con fragmentos Java sin escribir un programa c
 
 ### REQ-16 · Contenido de los 8 módulos — **M**
 - **CA1.** Cada módulo 1–7 debe tener al menos una lección completa con su actividad; el módulo 8 al menos la tabla de equivalencias Spring.
-- **CA2.** Cada lección debe seguir el recorrido Problema → Visualizar → Predecir → Escribir → Ejecutar → Explicar.
+- ~~**CA2.** Cada lección debe seguir el recorrido Problema → Visualizar → Predecir → Escribir → Ejecutar → Explicar.~~ Reemplazado por REQ-26 (6 nov 2026).
 - **CA3.** El paso Explicar debe usar el formato de bitácora de IA del docente (motivo, problema, prompt, solución).
 
 ---
@@ -120,6 +120,56 @@ Como estudiante, quiero practicar con fragmentos Java sin escribir un programa c
 ### REQ-19 · Base de demo en Supabase — **M**
 - **CA1.** Tablas `products` y `sales` con FK, creadas por un script SQL versionado.
 - **CA2.** El CRUD v1 debe conectarse a Supabase desde el equipo del docente usando variables de entorno.
+
+---
+
+## Cambio de alcance del 6 nov 2026: teoría primero, quiz y ranking
+
+> Origen: revisión de contenido con el autor. Los estudiantes necesitan base teórica antes de practicar, y el docente quiere premiar a los 3 primeros de cada grupo con décimas. Se construye en orden de módulos, del 1 al 8.
+
+### REQ-26 · Lección en tres etapas: Teoría → Práctica → Quiz — **M**
+Reemplaza las seis etapas de REQ-16 CA2.
+- **CA1.** Cada lección debe recorrer, en este orden, Teoría (texto, visual, glosario), Práctica (ejercicios guiados sin calificación) y Quiz (preguntas calificadas).
+- **CA2.** El indicador de etapas debe mostrar las tres etapas con su estado.
+- **CA3.** La bitácora de IA (REQ-16 CA3) se mantiene como último paso de la Práctica.
+
+### REQ-27 · Recorrido «¿Dónde ocurre?» — **M**
+Reemplaza al ejercicio de ordenar bloques en el módulo 4 y se reutiliza en el módulo 2.
+- **CA1.** El sistema debe presentar los eventos de una petición en orden cronológico, uno por pantalla (por ejemplo: leer variables de entorno, crear el pool, pedir una conexión, preparar, ejecutar, cerrar).
+- **CA2.** En cada evento el estudiante debe elegir dónde ocurre (archivo o clase) entre 3 y 4 opciones.
+- **CA3.** Una opción incorrecta debe explicar por qué no es ahí; la correcta debe mostrar el fragmento de código de ese momento y habilitar el siguiente evento.
+- **CA4.** Al terminar el recorrido, el sistema debe mostrar la línea de tiempo completa (evento → lugar) como resumen.
+- **CA5.** Todo el recorrido debe poder completarse con teclado.
+
+### REQ-28 · Sala del grupo — **M**
+- **CA1.** El docente debe poder crear una sala por grupo (por ejemplo «Grupo 8:00») que genera un código corto de 6 caracteres.
+- **CA2.** El estudiante debe entrar con el código de sala, su nombre y su código estudiantil, sin contraseña.
+- **CA3.** Si el mismo código estudiantil entra dos veces a la misma sala, el sistema debe reconocerlo como el mismo participante.
+- **CA4.** El panel docente debe estar protegido por una clave guardada solo en el servidor (`TEACHER_PASSCODE`).
+- **CA5.** El docente debe poder eliminar un participante (nombres falsos) y cerrar la sala para que no entren más respuestas.
+
+### REQ-29 · Quiz calificado por módulo — **M**
+- **CA1.** Cada lección debe terminar con un quiz de 4 a 6 preguntas de opción única.
+- **CA2.** Las respuestas correctas no deben enviarse al navegador; el servidor califica cada respuesta (P10).
+- **CA3.** Solo el primer intento de cada pregunta suma puntos; después el estudiante ve la explicación y puede seguir.
+- **CA4.** Sin sala activa, el quiz debe funcionar en modo práctica, rotulado «Sin puntaje», sin guardar nada.
+- **CA5.** Al terminar el quiz, el estudiante debe ver su puntaje del módulo y su posición en el grupo.
+
+### REQ-30 · Ranking por grupo — **M**
+- **CA1.** El ranking debe ordenar a los participantes de una sala por aciertos totales; el empate lo gana quien sumó menos tiempo en sus respuestas correctas. *(Decisión del 6 nov 2026: el tiempo solo desempata; no da puntos.)*
+- **CA1b.** El tiempo de cada pregunta lo mide el servidor, desde que entrega la pregunta hasta que recibe la respuesta, con un tope de 60 s por pregunta. Recargar la página no reinicia el reloj.
+- **CA2.** El panel docente debe mostrar el ranking actualizado cada 5 segundos como máximo y destacar los 3 primeros lugares.
+- **CA3.** El modo exposición debe poder proyectar el top 10 con nombre y la inicial del apellido, nunca con el código estudiantil.
+- **CA4.** El docente debe poder exportar el ranking completo a CSV (nombre, código, aciertos, tiempo, puesto y detalle por pregunta) para asignar las décimas.
+
+### REQ-31 · Panel docente con reportes — **M**
+- **CA1.** El panel debe listar las salas con su código, estado (abierta/cerrada) y número de participantes, y mostrar el código en grande para proyectarlo.
+- **CA2.** La vista **En vivo** debe mostrar por estudiante: módulo en que va, aciertos, tiempo y puesto, y actualizarse cada 5 s como máximo.
+- **CA3.** La vista **Por pregunta** debe mostrar por cada pregunta el % de aciertos, cuántos eligieron cada opción y el tiempo promedio, y marcar las que tengan menos de 50 % de aciertos.
+- **CA4.** Al tocar una opción en la vista Por pregunta, el sistema debe listar qué estudiantes la eligieron.
+- **CA5.** La vista **Por estudiante** debe mostrar cada respuesta: opción elegida, si fue correcta y el tiempo.
+- **CA6.** El progreso de un estudiante se deriva de sus respuestas: un módulo está terminado cuando respondió todas sus preguntas del quiz.
+- **CA7.** La bitácora de IA no se envía al panel; se queda en el navegador del estudiante.
 
 ---
 
