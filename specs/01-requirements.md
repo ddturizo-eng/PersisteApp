@@ -136,10 +136,12 @@ Como estudiante, quiero practicar con fragmentos Java sin escribir un programa c
 
 > Origen: revisión de contenido con el autor. Los estudiantes necesitan base teórica antes de practicar, y el docente quiere premiar a los 3 primeros de cada grupo con décimas. Se construye en orden de módulos, del 1 al 8.
 
-### REQ-26 · Lección en tres etapas: Teoría → Práctica → Quiz — **M**
-Reemplaza las seis etapas de REQ-16 CA2.
-- **CA1.** Cada lección debe recorrer, en este orden, Teoría (texto, visual, glosario), Práctica (ejercicios guiados sin calificación) y Quiz (preguntas calificadas).
-- **CA2.** El indicador de etapas debe mostrar las tres etapas con su estado.
+### REQ-26 · Módulo en dos etapas: Teoría → Práctica — **M**
+Reemplaza las seis etapas de REQ-16 CA2. *(Cambiado el 6 nov 2026, tarde: el quiz calificado pasa al final de la sesión, ver REQ-29.)*
+- ~~**CA1.** Cada lección debe recorrer Teoría, Práctica y Quiz.~~
+- **CA1.** Cada módulo debe recorrer, en este orden, Teoría (texto, visual, glosario y preguntas de repaso sin puntaje) y Práctica (ejercicios guiados sin calificación). Un módulo dura entre 10 y 15 minutos.
+- **CA2.** El indicador de etapas debe mostrar las dos etapas con su estado.
+- **CA4.** Al terminar un módulo, el sistema debe llevar al siguiente; al terminar el último módulo de la sesión, a la página «Prepárate para el quiz» (REQ-34).
 - **CA3.** La bitácora de IA (REQ-16 CA3) se mantiene como último paso de la Práctica.
 
 ### REQ-27 · Recorrido «¿Dónde ocurre?» — **M**
@@ -157,12 +159,27 @@ Reemplaza al ejercicio de ordenar bloques en el módulo 4 y se reutiliza en el m
 - **CA4.** El panel docente debe estar protegido por una clave guardada solo en el servidor (`TEACHER_PASSCODE`).
 - **CA5.** El docente debe poder eliminar un participante (nombres falsos) y cerrar la sala para que no entren más respuestas.
 
-### REQ-29 · Quiz calificado por módulo — **M**
-- **CA1.** Cada lección debe terminar con un quiz de 4 a 6 preguntas de opción única.
+### REQ-29 · Quiz final de la sesión — **M**
+*(Cambiado el 6 nov 2026, tarde: un quiz por módulo resultaba repetitivo en módulos de 10–15 min.)*
+- ~~**CA1.** Cada lección debe terminar con un quiz de 4 a 6 preguntas de opción única.~~
+- **CA1.** La sesión 1 termina con un único quiz de 12 preguntas de opción única que cubre los módulos 1 a 7 (1 o 2 preguntas por módulo, unos 10 minutos).
+- **CA1b.** El quiz final queda bloqueado hasta que el docente lo abre para su sala desde el panel; así todos empiezan a la vez.
 - **CA2.** Las respuestas correctas no deben enviarse al navegador; el servidor califica cada respuesta (P10).
 - **CA3.** Solo el primer intento de cada pregunta suma puntos; después el estudiante ve la explicación y puede seguir.
 - **CA4.** Sin sala activa, el quiz debe funcionar en modo práctica, rotulado «Sin puntaje», sin guardar nada.
-- **CA5.** Al terminar el quiz, el estudiante debe ver su puntaje del módulo y su posición en el grupo.
+- **CA5.** Al terminar el quiz, el estudiante debe ver su puntaje, el detalle por pregunta con su explicación y su posición en el grupo.
+
+### REQ-33 · Landing de conceptos — **M**
+*(Agregado el 6 nov 2026, tarde: la portada es la entrada a la clase, no solo un índice.)*
+- **CA1.** La portada debe presentar los conceptos clave de la sesión antes de entrar a los módulos: las cuatro piezas (aplicación, driver JDBC, red, motor), la conexión, la consulta segura y el pool.
+- **CA2.** Cada concepto debe ser interactivo y tener función didáctica (por ejemplo, pulsar una pieza explica qué hace; una consulta viaja por las piezas). Nada decorativo sin función (P8).
+- **CA3.** La portada debe mostrar el recorrido de la clase: módulos 1 a 7 en orden con su duración, el módulo 8 como opcional y el quiz final, con un enlace claro para empezar por el módulo 1.
+- **CA4.** Usa la identidad de la Universidad Popular del Cesar (logo y verdes institucionales) y funciona con teclado, en 375 px y con `prefers-reduced-motion`.
+
+### REQ-34 · Prepárate para el quiz — **M**
+- **CA1.** Al terminar el último módulo, el estudiante llega a una página que resume qué evalúa el quiz (12 preguntas, una opción correcta, solo cuenta el primer intento, el tiempo desempata).
+- **CA2.** En esa página el estudiante entra a la sala con el código de sala, su nombre y su código estudiantil (REQ-28 CA2). El código estudiantil es el de su carné: no se verifica ni se envía por correo.
+- **CA3.** Si el docente aún no abrió el quiz, la página lo indica y se actualiza sola al abrirse; sin sala, el estudiante puede hacer el quiz en modo práctica, sin puntaje.
 
 ### REQ-30 · Ranking por grupo — **M**
 - **CA1.** El ranking debe ordenar a los participantes de una sala por aciertos totales; el empate lo gana quien sumó menos tiempo en sus respuestas correctas. *(Decisión del 6 nov 2026: el tiempo solo desempata; no da puntos.)*
@@ -173,11 +190,12 @@ Reemplaza al ejercicio de ordenar bloques en el módulo 4 y se reutiliza en el m
 
 ### REQ-31 · Panel docente con reportes — **M**
 - **CA1.** El panel debe listar las salas con su código, estado (abierta/cerrada) y número de participantes, y mostrar el código en grande para proyectarlo.
-- **CA2.** La vista **En vivo** debe mostrar por estudiante: módulo en que va, aciertos, tiempo y puesto, y actualizarse cada 5 s como máximo.
+- **CA2.** La vista **En vivo** debe mostrar por estudiante: preguntas respondidas de las 12, aciertos, tiempo y puesto, y actualizarse cada 5 s como máximo.
 - **CA3.** La vista **Por pregunta** debe mostrar por cada pregunta el % de aciertos, cuántos eligieron cada opción y el tiempo promedio, y marcar las que tengan menos de 50 % de aciertos.
 - **CA4.** Al tocar una opción en la vista Por pregunta, el sistema debe listar qué estudiantes la eligieron.
 - **CA5.** La vista **Por estudiante** debe mostrar cada respuesta: opción elegida, si fue correcta y el tiempo.
-- **CA6.** El progreso de un estudiante se deriva de sus respuestas: un módulo está terminado cuando respondió todas sus preguntas del quiz.
+- **CA6.** ~~El progreso se deriva del quiz de cada módulo.~~ El avance en los módulos queda en el navegador del estudiante (REQ-06 CA2); el panel solo ve el quiz final.
+- **CA8.** El panel debe tener un botón para abrir y cerrar el quiz final de cada sala (REQ-29 CA1b).
 - **CA7.** La bitácora de IA no se envía al panel; se queda en el navegador del estudiante.
 
 ---

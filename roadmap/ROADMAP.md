@@ -93,13 +93,17 @@ gantt
 
 ## Sprint 2 · Sáb 7 nov · "Ranking y módulos 2–3" — 31 SP (sobre capacidad; ver regla de recorte)
 
-**Meta:** ranking por grupo de punta a punta con una sala de prueba; módulos 1–3 completos.
+**Meta:** landing de conceptos, quiz final y ranking por grupo de punta a punta con una sala de prueba; módulos 1–3 completos.
+
+> Cambio del 6 nov (tarde): un solo quiz final de 12 preguntas que abre el docente; módulos en Teoría → Práctica; la portada pasa a landing de conceptos y se adelanta (REQ-26, 29, 33, 34).
 
 | Clave | Tipo | Resumen | Épica | SP | REQ |
 |---|---|---|---|---|---|
 | PA-39 | Task | Proyecto Supabase, scripts SQL y variables en Vercel | E10 | 2 | 19, 28 |
 | PA-40 | Story | Sala: entrar con código, nombre y código estudiantil | E10 | 3 | 28 |
-| PA-41 | Story | Tiempo medido en servidor, primer intento, puntaje y posición | E10 | 3 | 29, 30 |
+| PA-46 | Story | Quiz final de 12 preguntas; módulos sin etapa Quiz y «Siguiente módulo» | E4 | 3 | 26, 29 |
+| PA-47 | Story | Landing de conceptos interactiva con identidad UPC | E6 | 8 | 33, 06 |
+| PA-41 | Story | «Prepárate para el quiz», tiempo en servidor, primer intento, puntaje y posición | E10 | 3 | 29, 30, 34 |
 | PA-42 | Story | Panel docente: salas, En vivo, Por pregunta, Por estudiante, CSV | E10 | 8 | 28, 30, 31 |
 | PA-43 | Story | Ranking proyectado top 10 | E10 | 1 | 30 |
 | PA-18 | Story | Módulo 2 «Primera conexión» con recorrido | E4 | 2 | 16, 26, 27 |
@@ -117,7 +121,7 @@ gantt
 | PA-19 | Story | Módulo 4 migrado a teoría → práctica → quiz | E4 | 2 | 16, 26 |
 | PA-16 | Story | Espejo app ↔ base de datos | E3 | 3 | 12 |
 | PA-20 | Story | Módulos 5, 6 y 7 con quiz | E4 | 5 | 16, 26, 29 |
-| PA-22 | Story | Portada mínima, índice y progreso | E6 | 2 | 06 |
+| PA-22 | Story | Progreso local en el índice de la landing (la portada la reemplaza PA-47) | E6 | 1 | 06 |
 | PA-24 | Task | Accesibilidad y responsive | E6 | 2 | 09 |
 | PA-25 | Task | Auditoría de rótulos | E6 | 1 | 07 |
 | PA-27 | Task | Producción y respaldo sin red | E7 | 1 | — |
@@ -137,7 +141,7 @@ gantt
 
 ## Ruta crítica
 
-`PA-36 → PA-37 → PA-38 → PA-9 → PA-39 → PA-40 → PA-41 → PA-42 → PA-27 → PA-28`
+`PA-36 → PA-37 → PA-38 → PA-9 → PA-39 → PA-40 → PA-46 → PA-41 → PA-42 → PA-27 → PA-28`
 
 El ranking depende de que el proyecto Supabase y sus claves estén en Vercel (PA-39) el sábado temprano. Sin VPS: todo corre en funciones serverless de Vercel + Supabase (P11).
 

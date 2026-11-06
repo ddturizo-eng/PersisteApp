@@ -17,6 +17,15 @@ Restricción del MVP: **no hay VPS ni backend propio**; todo lo dinámico corre 
 
 Para que quepa en el plazo, pasan al backlog: buscador Ctrl K y Referencia (T-23), revisión con `impeccable` (T-26), PGlite (T-17, T-21), el mapa interactivo del módulo 1 (lo cubre el recorrido) y el módulo 8 en la versión del lunes (queda como estudio autónomo después).
 
+## Replanificación del 6 nov 2026 (tarde)
+
+Segundo cambio aprobado por el autor (REQ-26 y REQ-29 cambiados, REQ-33 y REQ-34 nuevos; diseño §12):
+
+1. **Un solo quiz final de 12 preguntas** al terminar la sesión, en lugar de un quiz por módulo. Los módulos duran 10–15 min y quedan en **Teoría → Práctica**.
+2. **El docente abre el quiz** para su sala; el estudiante entra a la sala en la página **«Prepárate para el quiz»**, al terminar el módulo 7.
+3. **La portada pasa a ser una landing de conceptos** interactiva (identidad UPC) y se adelanta al sábado: es la entrada a la clase.
+4. El código estudiantil es el del carné; no se verifica por correo (sin API externa).
+
 ---
 
 ## Día 1 · Vie 6 nov · Base
@@ -45,16 +54,18 @@ Para que quepa en el plazo, pasan al backlog: buscador Ctrl K y Referencia (T-23
 | ID | Tarea | REQ | Est. | Estado |
 |---|---|---|---|---|
 | T-39 | Proyecto Supabase, `supabase/001_quiz.sql` y `db/001_schema.sql`, variables en Vercel | REQ-19, 28 | 0.75 h | ✅ |
-| T-40 | Sala: `joinRoom`, cookie httpOnly, página `/sala`, barra de sala | REQ-28 CA1–CA3 | 1.5 h | ⬜ |
-| T-41 | `startQuestion` y `submitAnswer`: tiempo medido en servidor, primer intento, puntaje y posición propia | REQ-29 CA3, CA5, REQ-30 CA1b | 1.25 h | ⬜ |
-| T-42 | Panel docente: clave, salas, pestañas En vivo, Por pregunta y Por estudiante, eliminar, cerrar, CSV | REQ-28 CA4–CA5, REQ-30 CA1, CA2, CA4, REQ-31 | 3 h | ⬜ |
+| T-40 | Sala: `joinRoom`, cookie httpOnly, página `/sala`, barra de sala | REQ-28 CA1–CA3 | 1.5 h | ✅ |
+| T-46 | Quiz final: `content/s1/quiz.json` (12 preguntas) con esquema propio; módulos 1 y 4 sin etapa Quiz; «Siguiente módulo» al terminar | REQ-26, 29 CA1 | 1.25 h | ⬜ |
+| T-47 | Landing de conceptos: hero UPC, mapa interactivo de las 4 piezas, conexión y pool, consulta segura, recorrido de la clase | REQ-33, REQ-06 | 3.5 h | 🔄 |
+| T-41 | `/s1/quiz` «Prepárate para el quiz» con entrada a sala; `startQuestion` y `submitAnswer` con tiempo en servidor, primer intento y quiz abierto; puntaje y posición | REQ-29, REQ-30 CA1b, REQ-34 | 1.75 h | ⬜ |
+| T-42 | Panel docente: clave, salas, **abrir/cerrar quiz** (`002_quiz_open.sql`), pestañas En vivo, Por pregunta y Por estudiante, eliminar, cerrar, CSV | REQ-28 CA4–CA5, REQ-30 CA1, CA2, CA4, REQ-31 | 3.25 h | ⬜ |
 | T-43 | Ranking proyectado (top 10, nombre + inicial) | REQ-30 CA3 | 0.5 h | ⬜ |
 | T-18 | Módulo 2 «Primera conexión»: URL, driver, variables de entorno; recorrido reutilizado | REQ-16, 26, 27 | 1 h | ⬜ |
 | T-13 | Modelo puro del pool con pruebas | REQ-10 | 0.75 h | ⬜ |
 | T-14 | Simulador de pool y contenido del módulo 3 | REQ-10, 16 | 2.5 h | ⬜ |
 | T-11 | CRUD Java `v0-messy` y `v1-layered` contra Supabase | REQ-17, 18 | 2.25 h | ⬜ |
 
-**Salida del sábado:** ranking y panel docente funcionando de punta a punta con una sala de prueba; módulos 1–3 completos.
+**Salida del sábado:** landing de conceptos, quiz final y panel docente funcionando de punta a punta con una sala de prueba; módulos 1–3 completos.
 
 > El sábado suma ≈ 13.5 h tras ampliar el panel (REQ-31). Si a las 18:00 no está T-11, el CRUD Java pasa al domingo temprano y T-16 (espejo) se recorta según la regla 1.
 
@@ -63,17 +74,17 @@ Para que quepa en el plazo, pasan al backlog: buscador Ctrl K y Referencia (T-23
 | ID | Tarea | REQ | Est. | Estado |
 |---|---|---|---|---|
 | T-15 | Laboratorio de inyección SQL | REQ-11 | 2 h | ⬜ |
-| T-19 | Módulo 4: migrar la lección actual a teoría → práctica → quiz | REQ-16, 26 | 0.75 h | ⬜ |
+| T-19 | Módulo 4: ajustar a teoría → práctica (sin quiz) y preguntas al quiz final | REQ-16, 26 | 0.5 h | ⬜ |
 | T-16 | Espejo app ↔ base de datos (`MemoryDb`) | REQ-12 | 1.5 h | ⬜ |
-| T-20 | Módulos 5, 6 y 7 con quiz | REQ-16, 26, 29 | 2.5 h | ⬜ |
-| T-22 | Portada mínima + índice del curso + progreso local | REQ-06 | 1 h | ⬜ |
+| T-20 | Módulos 5, 6 y 7, y sus preguntas en el quiz final | REQ-16, 26, 29 | 2.5 h | ⬜ |
+| T-22 | ~~Portada mínima~~ (la reemplaza T-47); progreso local en el índice de la landing | REQ-06 CA2 | 0.5 h | ⬜ |
 | T-24 | Pasada de accesibilidad y responsive | REQ-09 | 1 h | ⬜ |
 | T-25 | Auditoría de rótulos real/simulado | REQ-07 | 0.25 h | ⬜ |
 | T-27 | Despliegue de producción + respaldo sin red | — | 0.5 h | ⬜ |
 | T-28 | Ensayo de 100 min con sala de prueba | — | 2 h | ⬜ |
 | T-29 | Corregir fallos del ensayo | — | 1 h | ⬜ |
 
-**Salida del domingo (fin del plazo):** sesión 1 con módulos 1–7, quiz y ranking por grupo, desplegada y ensayada.
+**Salida del domingo (fin del plazo):** sesión 1 con landing, módulos 1–7, quiz final y ranking por grupo, desplegada y ensayada.
 
 > El domingo suma ≈ 12.5 h. Si a las 14:00 del domingo no están cerrados T-15 y T-19, se aplica la regla de recorte 2.
 
@@ -111,12 +122,14 @@ Para que quepa en el plazo, pasan al backlog: buscador Ctrl K y Referencia (T-23
 | REQ-16 | M | T-09, T-18, T-14, T-19, T-20 |
 | REQ-17, REQ-18 | M | T-11 |
 | REQ-19 | M | T-39, T-11 |
-| REQ-26 | M | T-36 y todas las lecciones |
+| REQ-26 | M | T-36, T-46 y todas las lecciones |
 | REQ-27 | M | T-37, T-09, T-18 |
 | REQ-28 | M | T-39, T-40, T-42 |
-| REQ-29 | M | T-38, T-41 |
+| REQ-29 | M | T-38, T-46, T-41 |
 | REQ-30 | M | T-41, T-42, T-43 |
 | REQ-31 | M | T-42 |
+| REQ-33 | M | T-47 |
+| REQ-34 | M | T-41 |
 | REQ-32 | M | T-45 (control de longitud en el esquema y preguntas del módulo 4 reescritas) y todas las lecciones |
 
 ## Reglas de recorte si el plan se atrasa

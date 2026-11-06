@@ -151,7 +151,7 @@ crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/
 
 ### 8.1 React Bits: dónde y qué
 
-Regla: animación solo en la portada (`/`), una vez por visita, y nunca dentro de una lección, del modo exposición ni de los simuladores. Se instalan en variante TypeScript + Tailwind (`-TS-TW`) en `web/components/bits/`, y luego se adaptan a los tokens del proyecto.
+Regla: animación solo en la portada (`/`), una vez por visita, y nunca dentro de una lección, del modo exposición ni de los simuladores. La landing interactiva (§12.4, REQ-33) amplía esta lista con `AnimatedContent`. Se instalan en variante TypeScript + Tailwind (`-TS-TW`) en `web/components/bits/`, y luego se adaptan a los tokens del proyecto.
 
 | Componente | Categoría | Dónde | Para qué | Comportamiento |
 |---|---|---|---|---|
@@ -324,3 +324,41 @@ create view room_ranking as
 - Carga estimada de una clase: ~35 estudiantes × ~35 preguntas × 2 llamadas (mostrar y responder) ≈ 2 500 invocaciones por grupo, más el panel cada 5 s durante 100 min ≈ 1 200. Muy por debajo de los límites del plan gratuito de Vercel y de Supabase.
 - Las lecciones (con sus respuestas correctas) viajan dentro del despliegue de Vercel en `content/`; la Server Action las lee del disco, nunca desde el navegador.
 - Supabase pausa los proyectos gratuitos tras 7 días sin uso: abrir el proyecto el domingo y antes de cada sesión (ver §10).
+
+## 12. Quiz final de la sesión y landing de conceptos (cambio del 6 nov 2026, tarde)
+
+Responde a REQ-26 (cambiado), REQ-29 (cambiado), REQ-31 CA2/CA6/CA8, REQ-33 y REQ-34. Reemplaza lo que contradiga a §11.
+
+### 12.1 Flujo de la clase
+
+```
+/                  landing: conceptos clave interactivos + recorrido de la clase  (REQ-33)
+/s1/s1-m1-…        módulo 1: Teoría → Práctica  ─┐
+…                  módulos 2 a 7, en orden        ├─ «Siguiente módulo» al terminar
+/s1/s1-m7-…        módulo 7                      ─┘  el último lleva a /s1/quiz
+/s1/quiz           «Prepárate para el quiz»: reglas + entrar a la sala → quiz final  (REQ-34, REQ-29)
+```
+
+- Los módulos ya no tienen etapa Quiz. El esquema cambia: una lección no opcional debe recorrer `theory` y `practice`; la etapa `quiz` y el paso `quiz` dejan de existir dentro de las lecciones. Las preguntas de repaso (`question`) siguen en la Teoría, sin puntaje.
+- El quiz final vive en `content/s1/quiz.json`, validado en el build con su propio esquema: `{ session, title, questions: { id, module, context?, prompt, options }[] }` con **exactamente 12 preguntas** y al menos una por cada módulo 1–7 que exista. Las mismas reglas de REQ-32 (contexto, longitud pareja).
+- Las 12 preguntas son fijas e iguales para todos (no se sortean): así el informe «Por pregunta» compara lo mismo entre estudiantes. Las preguntas actuales de los quizzes de los módulos 1 y 4 pasan a ser la reserva de la que salen las de esos módulos.
+- En `quiz_answers`, `lesson_id` toma el valor `s1-quiz`. Las vistas `answer_times` y `room_ranking` no cambian.
+
+### 12.2 Apertura del quiz por el docente
+
+- Migración `web/supabase/002_quiz_open.sql`: `alter table rooms add column quiz_opened_at timestamptz;` (null = cerrado).
+- `openQuiz(roomId)` / `closeQuiz(roomId)` (docente) fijan o vacían `quiz_opened_at`.
+- `startQuestion` y `submitAnswer` con sala exigen `quiz_opened_at is not null` y `closed_at is null`; si no, responden «El docente aún no abre el quiz» y no guardan nada.
+- `/s1/quiz` sin quiz abierto muestra las reglas y «Esperando a que el docente abra el quiz»; se refresca con `router.refresh()` cada 5 s mientras la pestaña está visible. Sin sala, el estudiante puede hacer el quiz en modo práctica, sin puntaje.
+
+### 12.3 Sala y barra de sala
+
+- Entrar a la sala ocurre en `/s1/quiz` (mismo formulario y Server Action `joinRoom` de T-40). `/sala` se mantiene para cambiar de sala.
+- La barra de sala solo aparece cuando el estudiante ya está en una sala; antes no invita a entrar, porque la invitación está al final de los módulos.
+- El código estudiantil es el del carné: no se verifica ni se envía por correo. El docente elimina participantes falsos desde el panel (REQ-28 CA5).
+
+### 12.4 Landing (REQ-33)
+
+- Secciones, en orden: hero con la identidad UPC → «Qué viaja entre tu código y la tabla» (mapa interactivo de las 4 piezas con una consulta que viaja) → conexión y pool → consulta segura (mini demo: el texto escrito cambia el SQL concatenado; con `PreparedStatement` no) → recorrido de la clase (módulos 1–7 con duración, módulo 8 opcional, quiz final) → botón «Empezar por el módulo 1».
+- Ilustraciones: SVG propios con función didáctica (diagramas de piezas, conexión, pool). Logo UPC aportado por el autor. Sin estadísticas ni testimonios inventados (P8).
+- React Bits en la portada: `SplitText`, `TextType` y `Threads` (§8.1), más `AnimatedContent` para revelar secciones al hacer scroll. Todo se desactiva con `prefers-reduced-motion` y en modo exposición; los conceptos se pueden usar con teclado.
