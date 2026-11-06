@@ -4,7 +4,7 @@ import type { z } from "zod";
 import { lessonSchema, type Lesson } from "@/lib/lesson-schema";
 
 /** Root folder for lesson JSON files: content/<session folder>/<lesson id>.json */
-export const CONTENT_DIR = path.join(process.cwd(), "content");
+export const CONTENT_DIR = path.join(/* turbopackIgnore: true */ process.cwd(), "content");
 
 /** Thrown when one or more lesson files are invalid; lists every problem found. */
 export class ContentError extends Error {
@@ -33,14 +33,14 @@ export function loadLessons(dir: string = CONTENT_DIR): Lesson[] {
   const lessons: Lesson[] = [];
   const seen = new Map<string, string>();
 
-  const sessionDirs = readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory());
+  const sessionDirs = readdirSync(/* turbopackIgnore: true */ dir, { withFileTypes: true }).filter((d) => d.isDirectory());
   for (const sessionDir of sessionDirs) {
-    const folder = path.join(dir, sessionDir.name);
-    for (const fileName of readdirSync(folder).filter((f) => f.endsWith(".json")).sort()) {
+    const folder = path.join(/* turbopackIgnore: true */ dir, sessionDir.name);
+    for (const fileName of readdirSync(/* turbopackIgnore: true */ folder).filter((f) => f.endsWith(".json")).sort()) {
       const file = `${sessionDir.name}/${fileName}`;
       let raw: unknown;
       try {
-        raw = JSON.parse(readFileSync(path.join(folder, fileName), "utf8"));
+        raw = JSON.parse(readFileSync(/* turbopackIgnore: true */ path.join(folder, fileName), "utf8"));
       } catch (error) {
         problems.push(`${file} → JSON mal formado: ${(error as Error).message}`);
         continue;
