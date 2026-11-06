@@ -26,6 +26,7 @@ import {
 } from "@/lib/exercises";
 import type { TokenLines } from "@/lib/highlight";
 import type { Step } from "@/lib/lesson-schema";
+import { InlineText } from "@/components/lesson/inline-text";
 
 type CodeStep = Extract<Step, { kind: "code" }>;
 type PickLineStep = Extract<CodeStep, { mode: "pick-line" }>;
@@ -46,10 +47,8 @@ export function Feedback({
   return (
     <div
       className={cn(
-        "rounded-lg border p-4",
-        ok
-          ? "border-success/40 bg-success-soft text-success"
-          : "border-danger/40 bg-danger-soft text-danger",
+        "rounded-2xl p-4",
+        ok ? "bg-success-soft text-success" : "bg-danger-soft text-destructive",
       )}
     >
       <p className="flex items-center gap-2 font-semibold">
@@ -60,7 +59,7 @@ export function Feedback({
         )}
         {title}
       </p>
-      {children && <div className="mt-1 space-y-1">{children}</div>}
+      {children && <div className="mt-1 space-y-1 leading-relaxed text-foreground">{children}</div>}
     </div>
   );
 }
@@ -68,17 +67,20 @@ export function Feedback({
 /** Situation shown before a question so the prompt is explicit (REQ-32 CA1). */
 export function Context({ text }: { text: string }) {
   return (
-    <div className="max-w-prose space-y-2 rounded-lg border-l-4 border-primary/60 bg-muted/60 px-4 py-3">
+    <div className="max-w-prose space-y-2 rounded-xl bg-accent px-4 py-3 text-accent-foreground">
       {text.split(/\n{2,}/).map((paragraph, i) => (
         <p key={i} className="leading-relaxed whitespace-pre-line">
-          {paragraph}
+          <InlineText text={paragraph} />
         </p>
       ))}
     </div>
   );
 }
 
-/** Pick the right line: native radios (↑ ↓ move, no instant feedback) and a Check button. */
+/**
+ * Pick the right line: tapping a line answers at once (no Check button). A wrong line explains why
+ * and stays marked; the right one solves the exercise.
+ */
 export function PickLine({
   step,
   stepKey,
@@ -92,88 +94,67 @@ export function PickLine({
   solved: boolean;
   onSolved: () => void;
 }) {
-  const name = useId();
-  const [selected, setSelected] = useState<number | null>(
-    solved ? step.options.findIndex((o) => o.correct) : null,
-  );
-  const [checked, setChecked] = useState<number | null>(
-    solved ? selected : null,
-  );
-  const result = checked === null ? undefined : step.options[checked];
+  const promptId = useId();
+  const correctIndex = step.options.findIndex((o) => o.correct);
+  const [tried, setTried] = useState<number[]>(() => (solved ? [correctIndex] : []));
+  const last = tried.at(-1);
+  const result = last === undefined ? undefined : step.options[last];
 
-  function check() {
-    if (selected === null) return;
-    setChecked(selected);
-    if (step.options[selected].correct) onSolved();
+  function pick(index: number) {
+    if (solved || tried.includes(index)) return;
+    setTried([...tried, index]);
+    if (step.options[index].correct) onSolved();
   }
 
   return (
-    <form
-      className="space-y-4"
-      onSubmit={(event) => {
-        event.preventDefault();
-        check();
-      }}
-    >
+    <div className="space-y-4">
       {step.context && <Context text={step.context} />}
-      <fieldset className="min-w-0 space-y-3" disabled={solved}>
-        <legend className="mb-3 text-lg">{step.prompt}</legend>
+      <p id={promptId} className="text-lg">
+        <InlineText text={step.prompt} />
+      </p>
+      <ul aria-labelledby={promptId} className="space-y-2.5">
         {optionOrder(step.options.length, stepKey).map((index) => {
           const option = step.options[index];
+          const wasTried = tried.includes(index);
+          const right = wasTried && option.correct;
+          const wrong = wasTried && !option.correct;
           return (
-            <label
-              key={index}
-              className={cn(
-                "flex cursor-pointer items-start gap-3 rounded-lg border bg-code px-4 py-3 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring",
-                selected === index && "border-primary ring-1 ring-primary",
-                solved && option.correct && "border-success ring-success",
-                solved && "cursor-default",
-              )}
-            >
-              <input
-                type="radio"
-                name={name}
-                checked={selected === index}
-                onChange={() => {
-                  setSelected(index);
-                  if (!solved) setChecked(null);
-                }}
-                className="mt-1 size-4 accent-primary"
-              />
-              <span className="min-w-0">
-                <CodeView
-                  inline
-                  lines={lookup(option.line)}
-                  fallback={option.line}
-                />
-              </span>
-            </label>
+            <li key={index}>
+              <button
+                type="button"
+                onClick={() => pick(index)}
+                aria-disabled={solved || wasTried || undefined}
+                className={cn(
+                  "flex w-full items-start gap-3 rounded-2xl border-2 bg-code px-4 py-3 text-left outline-none transition-colors focus-visible:ring-4 focus-visible:ring-ring/40",
+                  !solved && !wasTried && "border-transparent hover:border-foreground/40",
+                  right && "border-success bg-success-soft",
+                  wrong && "border-destructive/60 bg-danger-soft",
+                  solved && !wasTried && "border-transparent opacity-60",
+                )}
+              >
+                <span className="mt-0.5 shrink-0" aria-hidden="true">
+                  {right ? <Check className="size-4 text-success" /> : wrong ? <X className="size-4 text-destructive" /> : <span className="block size-4 rounded-full border-2 border-input" />}
+                </span>
+                <span className="min-w-0">
+                  <CodeView inline lines={lookup(option.line)} fallback={option.line} />
+                </span>
+                <span className="sr-only">{right ? " (correcta)" : wrong ? " (incorrecta)" : ""}</span>
+              </button>
+            </li>
           );
         })}
-      </fieldset>
-      {!solved && (
-        <Button
-          type="submit"
-          variant="secondary"
-          isDisabled={selected === null}
-        >
-          Comprobar
-        </Button>
-      )}
+      </ul>
       <div aria-live="polite">
         {result && (
-          <Feedback
-            ok={result.correct}
-            title={result.correct ? "Correcto" : "No exactamente"}
-          >
-            <p>{result.explanation}</p>
-            {!result.correct && (
-              <p className="text-sm">Elige otra línea y vuelve a comprobar.</p>
-            )}
+          <Feedback ok={result.correct} title={result.correct ? "Correcto" : "No exactamente"}>
+            <p>
+              <InlineText text={result.explanation} />
+            </p>
+            {!result.correct && <p className="text-sm">Prueba con otra línea.</p>}
           </Feedback>
         )}
       </div>
-    </form>
+    </div>
   );
 }
 
@@ -196,7 +177,7 @@ function HelpAfterFailure({
           <Lightbulb aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
           <span>
             <span className="font-medium">Pista: </span>
-            {hint}
+            <InlineText text={hint} />
           </span>
         </p>
       )}
@@ -322,7 +303,9 @@ export function OrderBlocks({
 
   return (
     <div className="space-y-4">
-      <p className="text-lg">{step.prompt}</p>
+      <p className="text-lg">
+        <InlineText text={step.prompt} />
+      </p>
       {!solved && (
         <p className="text-sm text-muted-foreground">
           Mueve cada bloque con los botones Subir y Bajar; el número de la
@@ -484,7 +467,10 @@ export function OrderBlocks({
   );
 }
 
-/** Fill the gaps inline in the code; Enter or Check validates every gap at once. */
+/**
+ * Fill the gaps inline in the code. With selectors the answer is checked as soon as every gap has a
+ * value (no Check button); free-text gaps still check with Enter or the button.
+ */
 export function FillGaps({
   step,
   code,
@@ -509,8 +495,10 @@ export function FillGaps({
   const [revealed, setRevealed] = useState(false);
   const gapById = new Map(step.gaps.map((gap) => [gap.id, gap]));
 
-  function check() {
-    const outcome = checkGaps(step.gaps, values);
+  const allSelectors = step.gaps.every((gap) => gap.choices);
+
+  function check(current = values) {
+    const outcome = checkGaps(step.gaps, current);
     setResults(outcome.results);
     if (outcome.solved) onSolved();
     else setFailures((n) => n + 1);
@@ -547,8 +535,10 @@ export function FillGaps({
       (solved || results?.[gapId]) && "border-success",
     );
     const update = (next: string) => {
-      setValues({ ...values, [gapId]: next });
+      const nextValues = { ...values, [gapId]: next };
+      setValues(nextValues);
       setResults(null);
+      if (allSelectors && step.gaps.every((g) => nextValues[g.id])) check(nextValues);
     };
     if (gap.choices) {
       // Selector: faster in class and no typos (REQ-04 CA7).
@@ -597,7 +587,9 @@ export function FillGaps({
         if (!solved) check();
       }}
     >
-      <p className="text-lg">{step.prompt}</p>
+      <p className="text-lg">
+        <InlineText text={step.prompt} />
+      </p>
       {!solved && (
         <ul className="space-y-1 text-sm text-muted-foreground">
           {step.gaps.map((gap) => (
@@ -608,7 +600,7 @@ export function FillGaps({
         </ul>
       )}
       <CodeView lines={lookup(code)} fallback={code} renderGap={renderGap} />
-      {!solved && (
+      {!solved && !allSelectors && (
         <Button type="submit" variant="secondary">
           Comprobar
         </Button>

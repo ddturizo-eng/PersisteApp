@@ -14,13 +14,15 @@
       "kind": "text",
       "stage": "theory",
       "title": "Una línea de Java no lee la tabla",
-      "body": "Cuando escribes ps.executeQuery(), tu programa no abre el archivo donde está la tabla. Le pide los datos a otro programa, el motor de base de datos, que puede estar en otro computador. Entre los dos hay cuatro piezas, y cada error que veas en este curso ocurre en una de ellas."
+      "body": "Cuando escribes `ps.executeQuery()`, tu programa no abre el archivo donde está la tabla. Le pide los datos a otro programa, el motor de base de datos, que puede estar en otro computador. Entre los dos hay cuatro piezas, y cada error que veas en este curso ocurre en una de ellas.",
+      "image": "hero-conexion"
     },
     {
       "kind": "text",
       "stage": "theory",
       "title": "Las cuatro piezas",
-      "body": "1. Aplicación Java: tus clases (Main, ProductRepository…). Deciden qué datos pedir y qué hacer con ellos. Solo conocen la API de JDBC: Connection, PreparedStatement, ResultSet.\n\n2. Driver JDBC: una librería .jar que pone el fabricante del motor (postgresql-42.x.jar para PostgreSQL, ojdbc11.jar para Oracle). Traduce las llamadas de JDBC al protocolo propio de ese motor.\n\n3. Red: la conexión TCP entre tu computador y el servidor de la base. PostgreSQL escucha por defecto en el puerto 5432 y Oracle en el 1521. Aunque todo esté en tu portátil (localhost), los datos igual viajan por TCP.\n\n4. Motor de base de datos: el servidor PostgreSQL u Oracle. Comprueba usuario y clave, ejecuta el SQL, lee y escribe las tablas en disco y devuelve las filas."
+      "body": "1. Aplicación Java: tus clases (`Main`, `ProductRepository`…). Deciden qué datos pedir y qué hacer con ellos. Solo conocen la API de JDBC: `Connection`, `PreparedStatement`, `ResultSet`.\n\n2. Driver JDBC: una librería .jar que pone el fabricante del motor (`postgresql-42.x.jar` para PostgreSQL, `ojdbc11.jar` para Oracle). Traduce las llamadas de JDBC al protocolo propio de ese motor.\n\n3. Red: la conexión TCP entre tu computador y el servidor de la base. PostgreSQL escucha por defecto en el puerto 5432 y Oracle en el 1521. Aunque todo esté en tu portátil (`localhost`), los datos igual viajan por TCP.\n\n4. Motor de base de datos: el servidor PostgreSQL u Oracle. Comprueba usuario y clave, ejecuta el SQL, lee y escribe las tablas en disco y devuelve las filas.",
+      "image": "piezas-driver"
     },
     {
       "kind": "code",
@@ -36,12 +38,13 @@
       "kind": "text",
       "stage": "theory",
       "title": "Qué es una conexión",
-      "body": "Una conexión (Connection) es una sesión abierta entre tu app y el motor: un canal TCP ya establecido y un usuario ya autenticado. Mientras está abierta, puedes enviar muchas consultas por ella.\n\nAbrirla cuesta: hay que abrir el canal TCP, negociar el protocolo y comprobar la clave. Por eso se reutilizan (con un pool, en el módulo 3) y por eso siempre se cierran con try-with-resources: una conexión olvidada ocupa un lugar en el motor, que solo acepta un número limitado."
+      "body": "Una conexión (`Connection`) es una sesión abierta entre tu app y el motor: un canal TCP ya establecido y un usuario ya autenticado. Mientras está abierta, puedes enviar muchas consultas por ella.\n\nAbrirla cuesta: hay que abrir el canal TCP, negociar el protocolo y comprobar la clave. Por eso se reutilizan (con un pool, en el módulo 3) y por eso siempre se cierran con try-with-resources: una conexión olvidada ocupa un lugar en el motor, que solo acepta un número limitado.",
+      "image": "pool-bicicletas"
     },
     {
       "kind": "question",
       "stage": "theory",
-      "context": "Un proyecto Java que funcionaba con PostgreSQL ahora debe usar Oracle. El código de los repositorios solo usa Connection, PreparedStatement y ResultSet.",
+      "context": "Un proyecto Java que funcionaba con PostgreSQL ahora debe usar Oracle. El código de los repositorios solo usa `Connection`, `PreparedStatement` y `ResultSet`.",
       "prompt": "¿Qué pieza hay que cambiar sí o sí para que la app hable con Oracle?",
       "options": [
         {
@@ -50,9 +53,9 @@
           "explanation": "Cada motor tiene su propio protocolo y su propio driver. La API de JDBC que usa tu código es la misma para los dos."
         },
         {
-          "text": "Las clases del repositorio, porque Connection solo funciona con PostgreSQL",
+          "text": "Las clases del repositorio, porque `Connection` solo funciona con PostgreSQL",
           "correct": false,
-          "explanation": "Connection es una interfaz de JDBC, igual para todos los motores. Lo que cambia es el driver que la implementa."
+          "explanation": "`Connection` es una interfaz de JDBC, igual para todos los motores. Lo que cambia es el driver que la implementa."
         },
         {
           "text": "La red: Oracle necesita un protocolo distinto de TCP para conectarse",
@@ -65,24 +68,51 @@
       "kind": "text",
       "stage": "theory",
       "title": "El recorrido de una consulta",
-      "body": "Toda consulta hace el mismo viaje de ida y vuelta:\n\n1. Tu código llama a executeQuery().\n\n2. El driver convierte esa llamada en un mensaje del protocolo del motor.\n\n3. El mensaje viaja por la red hasta el servidor.\n\n4. El motor ejecuta el SQL y prepara las filas.\n\n5. Las filas vuelven por la red.\n\n6. El driver las entrega como un ResultSet.\n\n7. Tu código recorre el ResultSet con rs.next().\n\nEn la práctica vas a ubicar cada momento en su pieza."
+      "body": "Toda consulta hace el mismo viaje de ida y vuelta:\n\n1. Tu código llama a `executeQuery()`.\n\n2. El driver convierte esa llamada en un mensaje del protocolo del motor.\n\n3. El mensaje viaja por la red hasta el servidor.\n\n4. El motor ejecuta el SQL y prepara las filas.\n\n5. Las filas vuelven por la red.\n\n6. El driver las entrega como un `ResultSet`.\n\n7. Tu código recorre el `ResultSet` con `rs.next()`.\n\nEn la práctica vas a ubicar cada momento en su pieza."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "system-map",
+      "title": "Síguela de ida y vuelta",
+      "caption": "Pulsa cada pieza para ver qué hace, o envía una consulta y mira dónde está en cada paso."
     },
     {
       "kind": "trace",
       "stage": "practice",
       "title": "¿Dónde ocurre? Una consulta de ida y vuelta",
-      "intro": "ProductRepository lista los productos de la tienda. Sigue la consulta desde que se abre la conexión hasta que el nombre aparece en pantalla. En cada momento, elige en qué pieza pasa.",
+      "intro": "`ProductRepository` lista los productos de la tienda. Sigue la consulta desde que se abre la conexión hasta que el nombre aparece en pantalla. En cada momento, elige en qué pieza pasa.",
       "locations": [
-        { "id": "app", "label": "Aplicación Java (ProductRepository.java)", "kind": "class" },
-        { "id": "driver", "label": "Driver JDBC (postgresql.jar)", "kind": "file" },
-        { "id": "red", "label": "Red (TCP, puerto 5432)", "kind": "network" },
-        { "id": "db", "label": "Motor PostgreSQL", "kind": "db" }
+        {
+          "id": "app",
+          "label": "Aplicación Java (ProductRepository.java)",
+          "kind": "class"
+        },
+        {
+          "id": "driver",
+          "label": "Driver JDBC (postgresql.jar)",
+          "kind": "file"
+        },
+        {
+          "id": "red",
+          "label": "Red (TCP, puerto 5432)",
+          "kind": "network"
+        },
+        {
+          "id": "db",
+          "label": "Motor PostgreSQL",
+          "kind": "db"
+        }
       ],
       "events": [
         {
           "moment": "Abrir la conexión",
-          "description": "Se llama a DriverManager.getConnection con la URL, el usuario y la clave.",
-          "options": ["app", "driver", "db"],
+          "description": "Se llama a `DriverManager.getConnection` con la URL, el usuario y la clave.",
+          "options": [
+            "app",
+            "driver",
+            "db"
+          ],
           "answer": "app",
           "why": {
             "driver": "El driver atiende la llamada, pero quien la hace es tu código.",
@@ -96,15 +126,20 @@
         },
         {
           "moment": "Abrir la conexión",
-          "description": "Se reconoce que la URL empieza por jdbc:postgresql: y se elige quién la atiende.",
-          "options": ["app", "driver", "red", "db"],
+          "description": "Se reconoce que la URL empieza por `jdbc:postgresql:` y se elige quién la atiende.",
+          "options": [
+            "app",
+            "driver",
+            "red",
+            "db"
+          ],
           "answer": "driver",
           "why": {
             "app": "Tu código solo entrega la URL; no sabe qué librería la entiende.",
             "red": "La red transporta bytes; no interpreta URL de JDBC.",
             "db": "El motor nunca ve la URL completa: la usa el driver para saber a dónde ir."
           },
-          "explanation": "Cada driver anuncia qué prefijo entiende. El de PostgreSQL acepta jdbc:postgresql:, el de Oracle jdbc:oracle:. Si el .jar no está en el proyecto, aquí aparece «No suitable driver found».",
+          "explanation": "Cada driver anuncia qué prefijo entiende. El de PostgreSQL acepta `jdbc:postgresql:`, el de Oracle `jdbc:oracle:`. Si el .jar no está en el proyecto, aquí aparece «No suitable driver found».",
           "code": {
             "language": "properties",
             "source": "jdbc:postgresql://localhost:5432/tienda\n└── prefijo ───┘└── servidor ──┘└ base┘"
@@ -112,8 +147,12 @@
         },
         {
           "moment": "Abrir la conexión",
-          "description": "Se abre un canal TCP hacia localhost en el puerto 5432.",
-          "options": ["red", "app", "db"],
+          "description": "Se abre un canal TCP hacia `localhost` en el puerto 5432.",
+          "options": [
+            "red",
+            "app",
+            "db"
+          ],
           "answer": "red",
           "why": {
             "app": "Tu código no abre sockets: lo hace el driver por ti, a través de la red.",
@@ -128,22 +167,31 @@
         {
           "moment": "Abrir la conexión",
           "description": "Se comprueba que el usuario existe y que la clave es correcta.",
-          "options": ["db", "driver", "app", "red"],
+          "options": [
+            "db",
+            "driver",
+            "app",
+            "red"
+          ],
           "answer": "db",
           "why": {
             "driver": "El driver envía el usuario y la clave, pero no sabe si son válidos.",
             "app": "Tu código solo leyó la clave de una variable; no la puede validar.",
             "red": "La red solo transporta los datos de acceso, sin mirarlos."
           },
-          "explanation": "Solo el motor conoce sus usuarios. Si la clave es incorrecta, responde con un error que llega a tu código como SQLException («password authentication failed»)."
+          "explanation": "Solo el motor conoce sus usuarios. Si la clave es incorrecta, responde con un error que llega a tu código como `SQLException` («password authentication failed»)."
         },
         {
           "moment": "Enviar la consulta",
-          "description": "La llamada executeQuery() se convierte en un mensaje del protocolo de PostgreSQL.",
-          "options": ["driver", "app", "db"],
+          "description": "La llamada `executeQuery()` se convierte en un mensaje del protocolo de PostgreSQL.",
+          "options": [
+            "driver",
+            "app",
+            "db"
+          ],
           "answer": "driver",
           "why": {
-            "app": "Tu código llama a executeQuery(), pero no conoce el formato de los mensajes del motor.",
+            "app": "Tu código llama a `executeQuery()`, pero no conoce el formato de los mensajes del motor.",
             "db": "El motor recibe el mensaje ya armado; no lo construye."
           },
           "explanation": "Esa es la razón de existir del driver: traducir la API común de JDBC al idioma de un motor concreto.",
@@ -154,8 +202,12 @@
         },
         {
           "moment": "Ejecutar la consulta",
-          "description": "Se lee la tabla products y se arman las filas del resultado.",
-          "options": ["db", "driver", "red"],
+          "description": "Se lee la tabla `products` y se arman las filas del resultado.",
+          "options": [
+            "db",
+            "driver",
+            "red"
+          ],
           "answer": "db",
           "why": {
             "driver": "El driver no tiene las tablas: solo envía el SQL y espera la respuesta.",
@@ -170,19 +222,28 @@
         {
           "moment": "Volver con el resultado",
           "description": "Las filas viajan del servidor de vuelta al computador de la app.",
-          "options": ["red", "db", "driver", "app"],
+          "options": [
+            "red",
+            "db",
+            "driver",
+            "app"
+          ],
           "answer": "red",
           "why": {
             "db": "El motor ya terminó su parte: envió las filas.",
             "driver": "El driver las recibe al otro lado del canal.",
-            "app": "Tu código todavía no ve nada: espera dentro de executeQuery()."
+            "app": "Tu código todavía no ve nada: espera dentro de `executeQuery()`."
           },
           "explanation": "Las filas vuelven por el mismo canal TCP. Con muchas filas o una red lenta, este viaje es lo que más tarda."
         },
         {
           "moment": "Volver con el resultado",
-          "description": "Los bytes recibidos se convierten en un ResultSet que se puede recorrer.",
-          "options": ["driver", "app", "db"],
+          "description": "Los bytes recibidos se convierten en un `ResultSet` que se puede recorrer.",
+          "options": [
+            "driver",
+            "app",
+            "db"
+          ],
           "answer": "driver",
           "why": {
             "app": "Tu código recibe el ResultSet ya listo; no decodifica bytes.",
@@ -192,15 +253,20 @@
         },
         {
           "moment": "Usar el resultado",
-          "description": "Se recorre el resultado con rs.next() y se muestra el nombre de cada producto.",
-          "options": ["app", "driver", "db", "red"],
+          "description": "Se recorre el resultado con `rs.next()` y se muestra el nombre de cada producto.",
+          "options": [
+            "app",
+            "driver",
+            "db",
+            "red"
+          ],
           "answer": "app",
           "why": {
             "driver": "El driver entrega cada fila, pero qué hacer con ella lo decide tu código.",
             "db": "El motor ya no participa: las filas están en tu programa.",
             "red": "Ya no viaja nada por la red en este momento."
           },
-          "explanation": "El viaje termina donde empezó: tu código usa los datos. Al salir del try-with-resources se cierran el ResultSet, la sentencia y la conexión.",
+          "explanation": "El viaje termina donde empezó: tu código usa los datos. Al salir del try-with-resources se cierran el `ResultSet`, la sentencia y la conexión.",
           "code": {
             "language": "java",
             "source": "while (rs.next()) {\n    System.out.println(rs.getString(\"name\"));\n}"
@@ -223,7 +289,7 @@
         {
           "line": "String url = \"jdbc:postgresql://localhost:5432/tienda\";",
           "correct": true,
-          "explanation": "Prefijo jdbc:postgresql: para elegir el driver, localhost porque el servidor está en tu portátil, 5432 por defecto y tienda como base."
+          "explanation": "Prefijo `jdbc:postgresql:` para elegir el driver, `localhost` porque el servidor está en tu portátil, 5432 por defecto y tienda como base."
         },
         {
           "line": "String url = \"jdbc:postgresql://localhost:1521/tienda\";",
@@ -262,7 +328,7 @@
             {
               "text": "En el driver: falta el .jar de PostgreSQL en el proyecto",
               "correct": true,
-              "explanation": "JDBC no encontró ningún driver que acepte el prefijo jdbc:postgresql:. Se arregla agregando la dependencia del driver."
+              "explanation": "JDBC no encontró ningún driver que acepte el prefijo `jdbc:postgresql:`. Se arregla agregando la dependencia del driver."
             },
             {
               "text": "En el motor: la base tienda no existe en el servidor",
@@ -300,7 +366,7 @@
         },
         {
           "id": "m1-q3",
-          "context": "ProductRepository solo usa las interfaces Connection, PreparedStatement y ResultSet del paquete java.sql.",
+          "context": "`ProductRepository` solo usa las interfaces `Connection`, `PreparedStatement` y `ResultSet` del paquete java.sql.",
           "prompt": "¿Qué pieza traduce esas llamadas al protocolo propio del motor?",
           "options": [
             {
@@ -333,7 +399,7 @@
             {
               "text": "Java cierra cada conexión al terminar el método, sin costo",
               "correct": false,
-              "explanation": "Salir del método no cierra la conexión: sigue abierta en el motor hasta que alguien llame a close()."
+              "explanation": "Salir del método no cierra la conexión: sigue abierta en el motor hasta que alguien llame a `close()`."
             },
             {
               "text": "Las consultas siguientes devuelven las filas de la primera",
@@ -344,13 +410,13 @@
         },
         {
           "id": "m1-q5",
-          "context": "La app y el servidor PostgreSQL están instalados en el mismo portátil y la URL usa localhost.",
+          "context": "La app y el servidor PostgreSQL están instalados en el mismo portátil y la URL usa `localhost`.",
           "prompt": "¿Cómo llegan los datos del motor a la app en ese caso?",
           "options": [
             {
               "text": "Por una conexión TCP local, igual que con un servidor remoto",
               "correct": true,
-              "explanation": "localhost sigue siendo red: el driver abre un socket TCP al puerto 5432, solo que sin salir del equipo."
+              "explanation": "`localhost` sigue siendo red: el driver abre un socket TCP al puerto 5432, solo que sin salir del equipo."
             },
             {
               "text": "Java lee directamente los archivos de la tabla en el disco",

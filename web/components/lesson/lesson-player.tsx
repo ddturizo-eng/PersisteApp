@@ -10,7 +10,9 @@ import { StepOverview } from "@/components/lesson/step-overview";
 import { QuizStep } from "@/components/lesson/quiz-step";
 import { TraceStep } from "@/components/lesson/trace-step";
 import { CodeStep, QuestionStep, TextStep, VisualStep } from "@/components/lesson/steps";
+import type { StepNav } from "@/components/lesson/step-nav";
 import type { Highlights } from "@/lib/highlight";
+import { stageLabels } from "@/lib/lesson-schema";
 import type { PublicLesson as Lesson } from "@/lib/quiz";
 import {
   canAdvance,
@@ -55,9 +57,15 @@ export function LessonPlayer({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
 
+  // Steps with inner screens (trace moments, quiz questions) take over «Continuar» while they last.
+  const [nav, setNav] = useState<{ index: number; nav: StepNav } | null>(null);
+  const innerNav = nav?.index === index ? nav.nav : null;
+  const onNav = useCallback((next: StepNav) => setNav({ index, nav: next }), [index]);
+
   const step = lesson.steps[index];
   const isLast = index === total - 1;
-  const advanceAllowed = canAdvance(lesson, index, attempts, solved);
+  const stepDone = canAdvance(lesson, index, attempts, solved);
+  const advanceAllowed = innerNav ? innerNav.canAdvance : stepDone;
 
   const goTo = useCallback(
     (next: number) => {
@@ -67,6 +75,11 @@ export function LessonPlayer({
     },
     [total]
   );
+
+  const next = useCallback(() => {
+    if (innerNav?.advance) innerNav.advance();
+    else goTo(index + 1);
+  }, [goTo, index, innerNav]);
 
   // Move focus to the new step's heading so keyboard and screen-reader users start there.
   useEffect(() => {
@@ -87,9 +100,9 @@ export function LessonPlayer({
         setOverviewOpen(true);
         return;
       }
-      if (event.key === "ArrowRight" && advanceAllowed) {
+      if (event.key === "ArrowRight" && advanceAllowed && !(isLast && !innerNav?.advance)) {
         event.preventDefault();
-        goTo(index + 1);
+        next();
       } else if (event.key === "ArrowLeft" && index > 0) {
         event.preventDefault();
         goTo(index - 1);
@@ -97,7 +110,7 @@ export function LessonPlayer({
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [advanceAllowed, goTo, index, overviewOpen]);
+  }, [advanceAllowed, goTo, index, overviewOpen, next, isLast, innerNav]);
 
   function pick(option: number) {
     setAttempts((current) => {
@@ -108,11 +121,13 @@ export function LessonPlayer({
 
   return (
     <main data-lesson-player="" className="mx-auto flex w-full max-w-lesson flex-1 flex-col px-4 sm:px-6">
-      <header className="space-y-4 border-b py-5 exposition:space-y-2 exposition:py-3">
+      <header className="space-y-2 border-b py-3 sm:space-y-4 sm:py-5 exposition:space-y-2 exposition:py-3">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <p className="text-sm text-muted-foreground">
             Sesión {lesson.session} · Módulo {lesson.module}
             {lesson.optional && " · Estudio autónomo"}
+            {/* On phones the stage indicator is hidden: the current stage goes on this line. */}
+            <span className="sm:hidden"> · {stageLabels[step.stage]}</span>
           </p>
           <div className="flex items-center gap-3">
             <button
@@ -127,8 +142,10 @@ export function LessonPlayer({
             <ExpositionToggle className="hidden sm:inline-flex" />
           </div>
         </div>
-        <h1 className="text-lg font-semibold tracking-tight text-balance exposition:sr-only">{lesson.title}</h1>
-        <StageIndicator states={stageStates(lesson, index)} />
+        <h1 className="line-clamp-2 text-base font-semibold tracking-tight text-balance sm:text-lg exposition:sr-only">{lesson.title}</h1>
+        <div className="hidden sm:block">
+          <StageIndicator states={stageStates(lesson, index)} />
+        </div>
         <div aria-hidden="true" className="h-1 overflow-hidden rounded-full bg-muted exposition:hidden">
           <div
             className="h-full rounded-full bg-primary transition-[width] duration-150"
@@ -137,7 +154,7 @@ export function LessonPlayer({
         </div>
       </header>
 
-      <section aria-label={`Paso ${index + 1}`} className="flex-1 py-8 sm:py-10 exposition:py-5">
+      <section aria-label={`Paso ${index + 1}`} className="flex-1 py-6 sm:py-10 exposition:py-5">
         {step.kind === "text" && <TextStep key={index} step={step} headingRef={headingRef} />}
         {step.kind === "visual" && <VisualStep key={index} step={step} headingRef={headingRef} />}
         {step.kind === "question" && (
@@ -168,6 +185,7 @@ export function LessonPlayer({
             highlights={highlights}
             solved={solved[index] === true}
             onSolved={() => setSolved((current) => ({ ...current, [index]: true }))}
+            onNav={onNav}
             headingRef={headingRef}
           />
         )}
@@ -178,6 +196,7 @@ export function LessonPlayer({
             lessonId={lesson.id}
             stepKey={`${lesson.id}-${index}`}
             onComplete={() => setSolved((current) => ({ ...current, [index]: true }))}
+            onNav={onNav}
             headingRef={headingRef}
           />
         )}
@@ -200,19 +219,20 @@ export function LessonPlayer({
             <ExpositionTimer />
           </div>
           <div className="flex flex-col items-end gap-1">
-            {isLast ? (
+            {isLast && !innerNav?.advance ? (
               <LinkButton href="/">Terminar lección</LinkButton>
             ) : (
-              <Button isDisabled={!advanceAllowed} onPress={() => goTo(index + 1)}>
+              <Button isDisabled={!advanceAllowed} onPress={next}>
                 Continuar
                 <ArrowRight data-icon="inline-end" aria-hidden="true" />
               </Button>
             )}
-            {!advanceAllowed && !isLast && (
+            {!advanceAllowed && (
               <p className="text-xs text-muted-foreground">
-                {step.kind === "code" || step.kind === "trace"
-                  ? "Resuelve el ejercicio para continuar"
-                  : "Responde correctamente para continuar"}
+                {innerNav?.hint ??
+                  (step.kind === "code" || step.kind === "trace"
+                    ? "Resuelve el ejercicio para continuar"
+                    : "Responde correctamente para continuar")}
               </p>
             )}
           </div>

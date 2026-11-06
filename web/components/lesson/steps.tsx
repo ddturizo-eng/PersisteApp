@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, type Ref } from "react";
+import { Fragment, useId, type Ref } from "react";
+import Image from "next/image";
 import { Check, X } from "lucide-react";
 import { cn } from "cn";
 import { CodeView } from "@/components/code/code-view";
@@ -12,6 +13,11 @@ import { codeFor, optionOrder, toSentinels } from "@/lib/exercises";
 import { highlightKey, type Highlights } from "@/lib/highlight";
 import { stageLabels, type Step } from "@/lib/lesson-schema";
 import { correctOptionIndex } from "@/lib/player";
+import { InlineText } from "@/components/lesson/inline-text";
+import { PoolDemo } from "@/components/landing/pool-demo";
+import { SafeQueryDemo } from "@/components/landing/safe-query-demo";
+import { SystemMap } from "@/components/landing/system-map";
+import { illustrations, illustrationSrc, type IllustrationName } from "@/lib/illustrations";
 
 type StepOf<K extends Step["kind"]> = Extract<Step, { kind: K }>;
 
@@ -24,11 +30,22 @@ function StepHeading({ children, headingRef }: { children: React.ReactNode; head
   );
 }
 
-function Paragraphs({ text }: { text: string }) {
+/**
+ * Body text. An illustration floats to the right from the second paragraph on, so the text wraps
+ * around it instead of pushing the reading below the fold on a phone.
+ */
+function Paragraphs({ text, figure }: { text: string; figure?: React.ReactNode }) {
+  const paragraphs = text.split(/\n{2,}/);
+  const at = paragraphs.length > 1 ? 1 : 0;
   return (
-    <div className="max-w-prose space-y-4 text-lg leading-relaxed">
-      {text.split(/\n{2,}/).map((paragraph, i) => (
-        <p key={i}>{paragraph}</p>
+    <div className="flow-root max-w-prose space-y-4 text-lg leading-relaxed">
+      {paragraphs.map((paragraph, i) => (
+        <Fragment key={i}>
+          {figure && i === at && figure}
+          <p>
+            <InlineText text={paragraph} />
+          </p>
+        </Fragment>
       ))}
     </div>
   );
@@ -41,13 +58,28 @@ const reflectionFields = [
   ["solucion", "Solución y decisión", "¿Qué hiciste y por qué es correcto?"],
 ] as const;
 
+/** Illustration floated to the right of the text: about 40 % of a phone's width, 15rem on wider screens. */
+function StepIllustration({ name }: { name: IllustrationName }) {
+  const { width, height, alt } = illustrations[name];
+  return (
+    <Image
+      src={illustrationSrc(name)}
+      alt={alt}
+      width={width}
+      height={height}
+      sizes="(min-width: 640px) 15rem, 40vw"
+      className="float-right mt-1 mb-3 ml-4 h-auto w-[40%] max-w-60 sm:ml-6 sm:w-60"
+    />
+  );
+}
+
 /** Text step; with `reflection` it shows the teacher's AI log template (REQ-16 CA3). */
 export function TextStep({ step, headingRef }: { step: StepOf<"text">; headingRef: Ref<HTMLHeadingElement> }) {
   const id = useId();
   return (
     <div className="space-y-6">
       <StepHeading headingRef={headingRef}>{step.title ?? stageLabels[step.stage]}</StepHeading>
-      <Paragraphs text={step.body} />
+      <Paragraphs text={step.body} figure={step.image && <StepIllustration name={step.image} />} />
       {step.reflection && (
         <form className="max-w-prose space-y-4" onSubmit={(e) => e.preventDefault()}>
           <p className="text-sm text-muted-foreground">
@@ -72,15 +104,25 @@ export function TextStep({ step, headingRef }: { step: StepOf<"text">; headingRe
   );
 }
 
-/** Visual step; simulators arrive in PA-13..PA-16. */
+/** Visual step: the interactive pieces shared with the landing; the rest arrive in PA-13..PA-16. */
 export function VisualStep({ step, headingRef }: { step: StepOf<"visual">; headingRef: Ref<HTMLHeadingElement> }) {
-  return (
-    <div className="space-y-6">
-      <StepHeading headingRef={headingRef}>{stageLabels[step.stage]}</StepHeading>
-      <Paragraphs text={step.caption} />
-      <div className="flex min-h-48 items-center justify-center rounded-lg border border-dashed bg-muted p-6 text-center text-muted-foreground">
+  const simulator =
+    step.component === "system-map" ? (
+      <SystemMap />
+    ) : step.component === "pool" ? (
+      <PoolDemo />
+    ) : step.component === "injection" ? (
+      <SafeQueryDemo mode={step.props?.mode === "vulnerable" ? "vulnerable" : "both"} />
+    ) : (
+      <div className="flex min-h-48 items-center justify-center rounded-3xl bg-muted p-6 text-center text-muted-foreground">
         Simulador «{step.component}» en construcción.
       </div>
+    );
+  return (
+    <div className="space-y-6">
+      <StepHeading headingRef={headingRef}>{step.title ?? stageLabels[step.stage]}</StepHeading>
+      <Paragraphs text={step.caption} />
+      {simulator}
     </div>
   );
 }
@@ -113,7 +155,9 @@ export function QuestionStep({
       <p className="text-sm font-medium text-muted-foreground">{stageLabels[step.stage]}</p>
       {step.context && <Context text={step.context} />}
       <div id={promptId}>
-        <StepHeading headingRef={headingRef}>{step.prompt}</StepHeading>
+        <StepHeading headingRef={headingRef}>
+          <InlineText text={step.prompt} />
+        </StepHeading>
       </div>
       <ul role="list" aria-labelledby={promptId} className="max-w-prose space-y-3">
         {optionOrder(step.options.length, stepKey).map((index) => {
@@ -132,11 +176,11 @@ export function QuestionStep({
                   if (!solved && !isWrong) onPick(index);
                 }}
                 className={cn(
-                  "flex w-full items-start gap-3 rounded-lg border px-4 py-3 text-left text-base transition-colors",
-                  !tried && !solved && "cursor-pointer hover:border-primary hover:bg-accent",
+                  "flex min-h-14 w-full items-start gap-3 rounded-2xl border-2 px-4 py-3 text-left text-base outline-none transition-colors focus-visible:ring-4 focus-visible:ring-ring/40",
+                  !tried && !solved && "cursor-pointer border-border bg-card hover:border-foreground/50",
                   (solved || isWrong) && "cursor-default",
-                  isRight && "border-success/50 bg-success-soft text-success",
-                  isWrong && "border-danger/40 bg-danger-soft text-danger",
+                  isRight && "border-success bg-success-soft",
+                  isWrong && "border-destructive/50 bg-danger-soft",
                   solved && !tried && "opacity-60"
                 )}
               >
@@ -145,7 +189,7 @@ export function QuestionStep({
                   {isWrong && <X className="size-3.5" />}
                 </span>
                 <span>
-                  {option.text}
+                  <InlineText text={option.text} />
                   {isRight && <span className="sr-only"> (correcta)</span>}
                   {isWrong && <span className="sr-only"> (incorrecta)</span>}
                 </span>
@@ -154,16 +198,21 @@ export function QuestionStep({
           );
         })}
       </ul>
-      <div id={`${promptId}-fb`} aria-live="polite" className="max-w-prose">
+      <div id={`${promptId}-fb`} aria-live="polite" className="max-w-prose scroll-mb-40" ref={(el) => { if (el && feedback) el.scrollIntoView({ block: "nearest", behavior: "smooth" }); }}>
         {feedback && (
           <div
             className={cn(
-              "rounded-lg border p-4",
-              feedback.correct ? "border-success/40 bg-success-soft text-success" : "border-danger/40 bg-danger-soft text-danger"
+              "rounded-2xl p-4",
+              feedback.correct ? "bg-success-soft text-success" : "bg-danger-soft text-destructive"
             )}
           >
-            <p className="font-semibold">{feedback.correct ? "Correcto" : "No exactamente"}</p>
-            <p className="mt-1">{feedback.explanation}</p>
+            <p className="flex items-center gap-2 font-semibold">
+              {feedback.correct ? <Check aria-hidden="true" className="size-4" /> : <X aria-hidden="true" className="size-4" />}
+              {feedback.correct ? "¡Correcto!" : "No exactamente"}
+            </p>
+            <p className="mt-1 leading-relaxed text-foreground">
+              <InlineText text={feedback.explanation} />
+            </p>
             {!feedback.correct && <p className="mt-2 text-sm">Prueba otra opción.</p>}
           </div>
         )}

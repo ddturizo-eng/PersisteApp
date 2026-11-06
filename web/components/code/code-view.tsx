@@ -60,14 +60,32 @@ export function CodeView({
     );
   }
 
+  // Block code: one element per line, so a long line wraps with a hanging indent instead of
+  // forcing sideways scrolling on a phone.
+  const blockLines = lines
+    ? lines.map((line, l) => (
+        <span key={l} className="code-line">
+          {line.length === 0
+            ? "​"
+            : line.map(([text, light, dark], t) =>
+                renderText(text, `${l}-${t}`, { color: light, ["--shiki-dark" as string]: dark })
+              )}
+        </span>
+      ))
+    : fallback.split("\n").map((text, l) => (
+        <span key={l} className="code-line">
+          {text ? renderText(text, `plain-${l}`) : "​"}
+        </span>
+      ));
+
   return (
     <pre
       className={cn(
-        "overflow-x-auto rounded-lg bg-code p-4 font-mono text-sm leading-relaxed text-code-foreground",
+        "rounded-2xl bg-code p-3.5 font-mono text-[0.8125rem] leading-relaxed text-code-foreground sm:p-4 sm:text-sm",
         className
       )}
     >
-      <code>{body}</code>
+      <code>{blockLines}</code>
     </pre>
   );
 }

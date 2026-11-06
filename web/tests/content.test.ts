@@ -4,12 +4,44 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { ContentError, loadLessons } from "@/lib/content";
 import { lengthGiveaway, lessonSchema } from "@/lib/lesson-schema";
+import { hasUnclosedCode, plainText, splitInlineCode } from "@/lib/inline-code";
 
 /** Real content must always be valid: this test also runs as `prebuild`. */
 describe("content/ lessons", () => {
   it("are all valid", () => {
     const lessons = loadLessons();
     expect(lessons.length).toBeGreaterThan(0);
+  });
+
+  it("close every inline code span (`…`)", () => {
+    const unclosed: string[] = [];
+    const walk = (value: unknown, where: string) => {
+      if (typeof value === "string") {
+        if (hasUnclosedCode(value)) unclosed.push(where);
+      } else if (Array.isArray(value)) value.forEach((item, i) => walk(item, `${where}[${i}]`));
+      else if (value && typeof value === "object") for (const [k, v] of Object.entries(value)) walk(v, `${where}.${k}`);
+    };
+    for (const lesson of loadLessons()) walk(lesson, lesson.id);
+    expect(unclosed).toEqual([]);
+  });
+});
+
+describe("inline code", () => {
+  it("splits backtick spans and keeps the prose", () => {
+    expect(splitInlineCode("llama a `rs.next()` y sigue")).toEqual([
+      { text: "llama a ", code: false },
+      { text: "rs.next()", code: true },
+      { text: " y sigue", code: false },
+    ]);
+    expect(plainText("`a` y `b`")).toBe("a y b");
+  });
+
+  it("does not count backticks when comparing option lengths", () => {
+    const options = [
+      { text: "`setString` asigna texto", correct: true },
+      { text: "`getString` lee el texto", correct: false },
+    ];
+    expect(lengthGiveaway(options)).toBeUndefined();
   });
 });
 

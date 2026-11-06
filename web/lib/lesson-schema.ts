@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { plainText } from "@/lib/inline-code";
+import { illustrationNames } from "@/lib/illustrations";
 
 /**
  * Lesson content schema (REQ-01, REQ-02, REQ-04, REQ-16).
@@ -33,6 +35,8 @@ const textStep = z.object({
   glossary: z.array(text).optional(),
   /** Renders the teacher's AI log template: reason, problem, prompt, solution (REQ-16 CA3). */
   reflection: z.boolean().optional(),
+  /** Illustration next to the text (docs/ilustraciones.md), so a theory step is not a wall of text. */
+  image: z.enum(illustrationNames).optional(),
 });
 
 const visualStep = z.object({
@@ -40,6 +44,7 @@ const visualStep = z.object({
   stage,
   component: z.enum(simulators),
   props: z.record(z.string(), z.unknown()).optional(),
+  title: text.optional(),
   caption: text,
 });
 
@@ -61,9 +66,9 @@ const questionContext = text.optional();
  */
 export function lengthGiveaway(options: { text: string; correct: boolean }[]): string | undefined {
   const correct = options.find((option) => option.correct);
-  const wrong = options.filter((option) => !option.correct).map((option) => option.text.trim().length);
+  const wrong = options.filter((option) => !option.correct).map((option) => plainText(option.text).trim().length);
   if (!correct || wrong.length === 0) return undefined;
-  const length = correct.text.trim().length;
+  const length = plainText(correct.text).trim().length;
   if (length > Math.max(...wrong) * 1.2) return `la opción correcta es demasiado larga (${length} caracteres frente a ${Math.max(...wrong)}): se adivina por la longitud`;
   if (length < Math.min(...wrong) * 0.8) return `la opción correcta es demasiado corta (${length} caracteres frente a ${Math.min(...wrong)}): se adivina por la longitud`;
   return undefined;

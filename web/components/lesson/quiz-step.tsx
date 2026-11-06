@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type Ref } from "react";
-import { ArrowRight, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { cn } from "cn";
 import { submitQuizAnswer } from "@/app/actions/quiz";
 import { Context } from "@/components/code/exercises";
-import { Button } from "@/components/ui/button";
 import { optionOrder } from "@/lib/exercises";
 import type { GradeResult, PublicQuizStep } from "@/lib/quiz";
+import { InlineText } from "@/components/lesson/inline-text";
+import type { StepNav } from "@/components/lesson/step-nav";
 
 type Graded = Extract<GradeResult, { ok: true }> & { chosen: number };
 
@@ -20,12 +21,14 @@ export function QuizStep({
   lessonId,
   stepKey,
   onComplete,
+  onNav,
   headingRef,
 }: {
   step: PublicQuizStep;
   lessonId: string;
   stepKey: string;
   onComplete: () => void;
+  onNav: (nav: StepNav) => void;
   headingRef: Ref<HTMLHeadingElement>;
 }) {
   const id = useId();
@@ -35,12 +38,12 @@ export function QuizStep({
   const [pending, setPending] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const questionHeading = useRef<HTMLHeadingElement>(null);
-  const nextButton = useRef<HTMLButtonElement>(null);
-  const focusTarget = useRef<"question" | "next" | null>(null);
+  const feedbackRef = useRef<HTMLDivElement>(null);
+  const focusTarget = useRef<"question" | "feedback" | null>(null);
 
   useEffect(() => {
     if (focusTarget.current === "question") questionHeading.current?.focus();
-    if (focusTarget.current === "next") nextButton.current?.focus();
+    if (focusTarget.current === "feedback") feedbackRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     focusTarget.current = null;
   });
 
@@ -61,7 +64,7 @@ export function QuizStep({
       }
       const next = { ...graded, [question.id]: { ...outcome, chosen: optionIndex } };
       setGraded(next);
-      focusTarget.current = "next";
+      focusTarget.current = "feedback";
       if (Object.keys(next).length === total) onComplete();
     } catch {
       setError("No se pudo calificar la respuesta. Revisa la conexión y vuelve a elegir.");
@@ -70,16 +73,23 @@ export function QuizStep({
     }
   }
 
-  function advance() {
-    setCurrent((n) => n + 1);
-    focusTarget.current = "question";
-  }
+  // The footer «Continuar» goes to the next question, then to the result, then out of the step.
+  useEffect(() => {
+    onNav({
+      canAdvance: done || Boolean(result),
+      advance: done ? null : () => {
+        setCurrent((n) => n + 1);
+        focusTarget.current = "question";
+      },
+      hint: "Elige una respuesta para continuar",
+    });
+  }, [done, result, onNav]);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm font-medium text-muted-foreground">Quiz</p>
-        <span className="rounded-md border border-dashed px-2 py-0.5 text-xs text-muted-foreground">
+        <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
           Sin puntaje · modo práctica
         </span>
       </div>
@@ -94,7 +104,7 @@ export function QuizStep({
           </p>
           {question.context && <Context text={question.context} />}
           <h3 id={`${id}-q`} ref={questionHeading} tabIndex={-1} className="max-w-prose text-xl font-semibold focus:outline-none">
-            {question.prompt}
+            <InlineText text={question.prompt} />
           </h3>
           <ul role="list" aria-labelledby={`${id}-q`} className="max-w-prose space-y-3">
             {optionOrder(question.options.length, `${stepKey}-${question.id}`).map((index) => {
@@ -109,12 +119,12 @@ export function QuizStep({
                     aria-describedby={result ? `${id}-feedback` : undefined}
                     onClick={() => answer(index)}
                     className={cn(
-                      "flex w-full items-start gap-3 rounded-lg border px-4 py-3 text-left text-base transition-colors",
-                      !result && pending === null && "cursor-pointer hover:border-primary hover:bg-accent",
+                      "flex min-h-14 w-full items-start gap-3 rounded-2xl border-2 px-4 py-3 text-left text-base outline-none transition-colors focus-visible:ring-4 focus-visible:ring-ring/40",
+                      !result && pending === null && "cursor-pointer border-border bg-card hover:border-foreground/50",
                       (result || pending !== null) && "cursor-default",
                       pending === index && "border-primary",
-                      isCorrect && "border-success/50 bg-success-soft text-success",
-                      chosen && !isCorrect && "border-danger/40 bg-danger-soft text-danger",
+                      isCorrect && "border-success bg-success-soft",
+                      chosen && !isCorrect && "border-destructive/50 bg-danger-soft",
                       result && !chosen && !isCorrect && "opacity-60"
                     )}
                   >
@@ -123,7 +133,7 @@ export function QuizStep({
                       {chosen && !isCorrect && <X className="size-3.5" />}
                     </span>
                     <span>
-                      {option.text}
+                      <InlineText text={option.text} />
                       {chosen && <span className="sr-only"> (tu respuesta)</span>}
                       {isCorrect && <span className="sr-only"> (correcta)</span>}
                     </span>
@@ -133,7 +143,7 @@ export function QuizStep({
             })}
           </ul>
 
-          <div id={`${id}-feedback`} aria-live="polite" className="max-w-prose space-y-3">
+          <div ref={feedbackRef} id={`${id}-feedback`} aria-live="polite" className="max-w-prose scroll-mb-40 space-y-3">
             {pending !== null && <p className="text-sm text-muted-foreground">Calificando…</p>}
             {error && (
               <p role="alert" className="rounded-lg border border-danger/40 bg-danger-soft p-3 text-danger">
@@ -143,14 +153,19 @@ export function QuizStep({
             {result && (
               <div
                 className={cn(
-                  "rounded-lg border p-4",
-                  result.correct ? "border-success/40 bg-success-soft text-success" : "border-danger/40 bg-danger-soft text-danger"
+                  "rounded-2xl p-4",
+                  result.correct ? "bg-success-soft text-success" : "bg-danger-soft text-destructive"
                 )}
               >
-                <p className="font-semibold">{result.correct ? "Correcto" : "Incorrecto"}</p>
-                <p className="mt-1">{result.explanation}</p>
+                <p className="flex items-center gap-2 font-semibold">
+                  {result.correct ? <Check aria-hidden="true" className="size-4" /> : <X aria-hidden="true" className="size-4" />}
+                  {result.correct ? "¡Correcto!" : "Incorrecto"}
+                </p>
+                <p className="mt-1 leading-relaxed text-foreground">
+                  <InlineText text={result.explanation} />
+                </p>
                 {!result.correct && (
-                  <p className="mt-2">
+                  <p className="mt-2 leading-relaxed text-foreground">
                     <span className="font-medium">La correcta: </span>
                     {question.options[result.correctIndex].text}. {result.correctExplanation}
                   </p>
@@ -159,12 +174,6 @@ export function QuizStep({
             )}
           </div>
 
-          {result && (
-            <Button ref={nextButton} variant="secondary" onPress={advance}>
-              {current + 1 < total ? "Siguiente pregunta" : "Ver resultado"}
-              <ArrowRight data-icon="inline-end" aria-hidden="true" />
-            </Button>
-          )}
         </section>
       )}
 
@@ -185,7 +194,7 @@ export function QuizStep({
                   )}
                   <span>
                     <span className="sr-only">{g?.correct ? "Correcta: " : "Incorrecta: "}</span>
-                    {i + 1}. {q.prompt}
+                    {i + 1}. <InlineText text={q.prompt} />
                   </span>
                 </li>
               );

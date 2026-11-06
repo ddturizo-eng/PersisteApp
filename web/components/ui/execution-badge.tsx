@@ -4,7 +4,7 @@ import { executionLabels, type ExecutionKind } from "@/lib/execution";
 
 /**
  * Mandatory label on every practice output (REQ-07).
- * Uses text, icon and border style, never color alone (REQ-07 CA2).
+ * Text and icon carry the meaning, never color alone (REQ-07 CA2): a soft pill, no outline.
  */
 export function ExecutionBadge({
   kind,
@@ -22,10 +22,8 @@ export function ExecutionBadge({
       data-kind={kind}
       title={description}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-medium",
-        kind === "real"
-          ? "border-real/40 bg-real-soft text-real"
-          : "border-dashed border-simulated/60 bg-simulated-soft text-simulated",
+        "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
+        kind === "real" ? "bg-real-soft text-real" : "bg-simulated-soft text-simulated",
         className
       )}
     >
