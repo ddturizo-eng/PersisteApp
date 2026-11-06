@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Original AI illustrations (16 MB); the app ships the cut-out WebP files in public/ilustraciones
+/public/recursos/
