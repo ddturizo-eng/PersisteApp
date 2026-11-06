@@ -135,9 +135,16 @@
   html.dark {
     color-scheme: dark;
   }
-  /* Exposition mode (REQ-05): 16px base becomes 28px on the projector. */
+  /*
+   * Exposition mode (REQ-05): the base grows with the screen height, from 22px on a
+   * 1280x720 projector to 28px at 1080p, so the step still fits under the chrome.
+   */
   html[data-exposition] {
-    font-size: 175%;
+    font-size: clamp(1.375rem, 3.2vh, 1.75rem);
+  }
+  /* Lessons have their own exit (the Exposición toggle); hide the floating one there. */
+  body:has([data-lesson-player]) [data-exposition-exit] {
+    display: none !important;
   }
   body {
     @apply bg-background text-foreground;

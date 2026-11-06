@@ -16,7 +16,7 @@ export function StageIndicator({ states }: { states: { stage: Stage; state: Stag
         <li
           key={stage}
           aria-current={state === "current" ? "step" : undefined}
-          className="flex min-w-0 items-center gap-1.5"
+          className={cn("flex min-w-0 items-center gap-1.5", state === "current" && "shrink-0")}
         >
           <span
             aria-hidden="true"
@@ -32,14 +32,16 @@ export function StageIndicator({ states }: { states: { stage: Stage; state: Stag
           <span
             className={cn(
               "truncate text-sm",
-              state === "current" ? "font-medium text-foreground" : "sr-only text-muted-foreground md:not-sr-only"
+              state === "current"
+                ? "font-medium text-foreground"
+                : "sr-only text-muted-foreground md:not-sr-only exposition:md:sr-only"
             )}
           >
             {stageLabels[stage]}
             {state === "complete" && <span className="sr-only"> (completada)</span>}
           </span>
           {position < states.length - 1 && (
-            <span aria-hidden="true" className="hidden h-px w-3 bg-border md:block lg:w-6" />
+            <span aria-hidden="true" className="hidden h-px w-3 bg-border md:block lg:w-6 exposition:md:w-4" />
           )}
         </li>
       ))}

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ExpositionExit, ExpositionShortcut } from "@/components/exposition";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import { site } from "@/lib/site";
+import { expositionInitScript } from "@/lib/exposition";
 import { themeInitScript } from "@/lib/theme";
 
 const geistSans = Geist({
@@ -30,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript + expositionInitScript }} />
       </head>
       <body className="flex min-h-full flex-col">
         <a
@@ -40,6 +42,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Saltar al contenido
         </a>
         <Providers>
+          <ExpositionShortcut />
+          <ExpositionExit />
           <SiteHeader />
           <div id="contenido" className="flex flex-1 flex-col">
             {children}
