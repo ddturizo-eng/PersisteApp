@@ -44,7 +44,7 @@ Para que quepa en el plazo, pasan al backlog: buscador Ctrl K y Referencia (T-23
 
 | ID | Tarea | REQ | Est. | Estado |
 |---|---|---|---|---|
-| T-39 | Proyecto Supabase, `supabase/001_quiz.sql` y `db/001_schema.sql`, variables en Vercel | REQ-19, 28 | 0.75 h | ⬜ |
+| T-39 | Proyecto Supabase, `supabase/001_quiz.sql` y `db/001_schema.sql`, variables en Vercel | REQ-19, 28 | 0.75 h | ✅ |
 | T-40 | Sala: `joinRoom`, cookie httpOnly, página `/sala`, barra de sala | REQ-28 CA1–CA3 | 1.5 h | ⬜ |
 | T-41 | `startQuestion` y `submitAnswer`: tiempo medido en servidor, primer intento, puntaje y posición propia | REQ-29 CA3, CA5, REQ-30 CA1b | 1.25 h | ⬜ |
 | T-42 | Panel docente: clave, salas, pestañas En vivo, Por pregunta y Por estudiante, eliminar, cerrar, CSV | REQ-28 CA4–CA5, REQ-30 CA1, CA2, CA4, REQ-31 | 3 h | ⬜ |
