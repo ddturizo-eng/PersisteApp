@@ -30,8 +30,8 @@ constitution  →  requirements (QUÉ)  →  design (CÓMO)  →  tasks (PASOS) 
 ## Pila fijada
 
 - Next.js (App Router) + React + TypeScript + Tailwind CSS. Despliegue en Vercel.
-- Monaco Editor (solo lectura / huecos) para Java y SQL.
-- React Bits para portada y animaciones puntuales.
+- Shiki (resaltado en servidor) para Java y SQL; ejercicios con inputs nativos. Monaco queda para fase 2 (decisión del 6 nov 2026, ver `docs/ui-research.md`).
+- React Bits solo en la portada: `SplitText`, `TextType` y fondo `Threads` (ver `02-design.md` §8).
 - PGlite (PostgreSQL en WebAssembly) para el laboratorio SQL real, cargado bajo demanda.
 - Supabase (PostgreSQL) para la demo del docente con el CRUD Java.
 - CRUD Java 17 + Maven + HikariCP + JUnit 5 / AssertJ / Mockito + JaCoCo (≥ 70 % en `service`).

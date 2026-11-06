@@ -143,8 +143,34 @@ crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/
 ## 8. Diseño visual (REQ-09, P8)
 
 - Antes de maquetar, se ejecuta la skill `ui-reference-intelligence` sobre tres objetivos concretos: (1) reproductor de lección paso a paso, (2) modo exposición/presentación, (3) bloque de código con pestañas y ejercicios. Salida en `docs/ui-research.md`.
-- Tokens en `tailwind.config` (color, espacio, radio, tipografía mono para código). Tema claro/oscuro por `class`.
-- React Bits solo en portada y en un texto animado del título; nada decorativo dentro de las lecciones.
+- Tokens en Tailwind 4 `@theme` dentro de `app/globals.css` (color, espacio, radio, tipografía mono para código). Tema claro/oscuro por `class`.
+- Código resaltado con **Shiki** en servidor; ejercicios con inputs nativos. Monaco queda para fase 2 (decisión aprobada el 6 nov 2026).
+
+### 8.1 React Bits: dónde y qué
+
+Regla: animación solo en la portada (`/`), una vez por visita, y nunca dentro de una lección, del modo exposición ni de los simuladores. Se instalan en variante TypeScript + Tailwind (`-TS-TW`) en `web/components/bits/`, y luego se adaptan a los tokens del proyecto.
+
+| Componente | Categoría | Dónde | Para qué | Comportamiento |
+|---|---|---|---|---|
+| `SplitText` | Text Animations | `h1` "PersisteApp" de la portada | Entrada del título | Una sola vez al cargar; con `prefers-reduced-motion` se muestra estático. |
+| `TextType` | Text Animations | Lema bajo el título | El lema «Lo que registras, queda guardado» se escribe como un registro | Escribe una vez y queda fijo (sin bucle ni borrado); el texto completo está en el DOM para lectores de pantalla. |
+| `Threads` | Backgrounds | Fondo del bloque hero de la portada | Líneas que sugieren conexión app ↔ base de datos | Opacidad baja, detrás de un contraste AA verificado; se pausa fuera de pantalla y se desactiva con `prefers-reduced-motion` y en modo exposición. |
+
+Instalación (comando del README de React Bits):
+
+```bash
+npx shadcn@latest add @react-bits/SplitText-TS-TW @react-bits/TextType-TS-TW @react-bits/Threads-TS-TW
+```
+
+**Descartados y por qué**
+- `Carousel` para las lecciones: oculta módulos detrás de flechas; el índice debe verse completo y en orden (REQ-06).
+- `CountUp` para el progreso: animar "3 de 8" no aporta información (P8).
+- `ClickSpark`, `SpotlightCard`, `ShinyText`, `Particles`, `Aurora`: decorativos, sin función didáctica.
+- `DecryptedText` en el laboratorio de inyección: confundiría el SQL real que el estudiante debe leer.
+
+**Instalado el 6 nov 2026** con `shadcn init` (librería base React Aria, preset Nova: Lucide + Geist). Dependencias verificadas en el código: `SplitText` usa `gsap` + `@gsap/react` (plugins `SplitText` y `ScrollTrigger`); `TextType` usa `gsap`; `Threads` usa WebGL2 directo, sin dependencias. Lint de `components/bits/**` relajado solo en `react-hooks/refs` y `react-hooks/set-state-in-effect` (código de terceros).
+
+**Pendiente (PA-22):** medir el peso añadido a `/`. Si `Threads` añade más de ~50 KB gzip a la portada, se sustituye por un fondo CSS estático. Verificar que los tres respetan `prefers-reduced-motion`; si no, envolverlos.
 - La carpeta `.impeccable/` ya existe en el proyecto; la skill `impeccable` se usa el domingo para la revisión de acabado.
 
 ## 9. Pruebas y verificación

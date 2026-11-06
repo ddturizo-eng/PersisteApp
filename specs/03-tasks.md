@@ -50,7 +50,7 @@
 
 | ID | Tarea | REQ | Est. | Depende | DoD específico |
 |---|---|---|---|---|---|
-| T-22 | Portada (React Bits, mínimo) + índice del curso con tiempos + progreso en `localStorage` | REQ-06 | 1.5 h | T-18..20 | lecciones completadas se marcan tras recargar |
+| T-22 | Portada con React Bits (`SplitText`, `TextType`, `Threads`; ver 02-design §8.1) + índice del curso con tiempos + progreso en `localStorage` | REQ-06 | 1.5 h | T-18..20 | lecciones completadas se marcan tras recargar |
 | T-23 | `CommandPalette` Ctrl K + página Referencia (JDBC, patrones, errores) + `GlossaryTerm` | REQ-08 | 1.5 h | T-05 | busca lecciones y referencias; glosario con 4 términos |
 | T-24 | Pasada de accesibilidad y responsive (teclado, foco, 375 px, reduced motion) | REQ-09 | 1.25 h | todo UI | checklist de REQ-09 en verde |
 | T-25 | Auditoría de rótulos real/simulado en todas las salidas | REQ-07 | 0.5 h | todo UI | cero salidas sin rótulo |

@@ -29,7 +29,7 @@ Issue Id,Parent Id,Issue Type,Summary,Description,Priority,Story Points,Original
 19,104,Story,"Contenido modulos 5, 6 y 7","Modulo 7 usa el espejo. REQ-16.",Highest,3,5400,PA Sprint 2 · Sáb 7,T-19,2026-11-07
 20,104,Story,"Contenido modulo 8 (Spring Boot, opcional)","Tabla manual vs Spring Boot; rotulo Estudio autonomo. REQ-06/16.",Medium,1,1800,PA Sprint 2 · Sáb 7,T-20,2026-11-07
 21,103,Story,Stretch: PGlite real en el espejo y /lab/sql,"Solo si el spike PA-17 funciona. Carga diferida; boton restaurar. REQ-12/15.",Low,5,7200,PA Sprint 2 · Sáb 7,"T-21,stretch",2026-11-07
-22,106,Story,"Portada, indice del curso y progreso local","React Bits minimo; localStorage. REQ-06.",Medium,3,5400,PA Sprint 3 · Dom 8,T-22,2026-11-08
+22,106,Story,"Portada, indice del curso y progreso local","React Bits: SplitText, TextType, Threads (02-design 8.1); localStorage. REQ-06.",Medium,3,5400,PA Sprint 3 · Dom 8,T-22,2026-11-08
 23,106,Story,"Buscador Ctrl K, Referencia y glosario","Chuleta JDBC, patrones, errores; glosario pool/DAO/commit/DTO. REQ-08.",Medium,3,5400,PA Sprint 3 · Dom 8,T-23,2026-11-08
 24,106,Task,Pasada de accesibilidad y responsive,"Teclado, foco visible, 375 px, reduced motion. REQ-09.",Highest,3,4500,PA Sprint 3 · Dom 8,T-24,2026-11-08
 25,106,Task,Auditoria de rotulos real/simulado,"Cero salidas sin rotulo. REQ-07.",Highest,1,1800,PA Sprint 3 · Dom 8,T-25,2026-11-08
