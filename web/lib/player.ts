@@ -1,5 +1,6 @@
 import { isExercise } from "@/lib/exercises";
-import { stages, type Lesson, type Stage, type Step } from "@/lib/lesson-schema";
+import { stages, type Stage } from "@/lib/lesson-schema";
+import type { PublicLesson as Lesson, PublicStep as Step } from "@/lib/quiz";
 
 /**
  * Pure lesson-player rules (REQ-02, REQ-03), kept out of React so they can be tested.

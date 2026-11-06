@@ -7,10 +7,11 @@ import { Kbd } from "@/components/ui/kbd";
 import { ExpositionTimer, ExpositionToggle } from "@/components/exposition";
 import { StageIndicator } from "@/components/lesson/stage-indicator";
 import { StepOverview } from "@/components/lesson/step-overview";
+import { QuizStep } from "@/components/lesson/quiz-step";
 import { TraceStep } from "@/components/lesson/trace-step";
 import { CodeStep, QuestionStep, TextStep, VisualStep } from "@/components/lesson/steps";
 import type { Highlights } from "@/lib/highlight";
-import type { Lesson } from "@/lib/lesson-schema";
+import type { PublicLesson as Lesson } from "@/lib/quiz";
 import {
   canAdvance,
   clampIndex,
@@ -171,15 +172,14 @@ export function LessonPlayer({
           />
         )}
         {step.kind === "quiz" && (
-          <div key={index} className="space-y-4">
-            <p className="text-sm font-medium text-muted-foreground">Quiz</p>
-            <h2 ref={headingRef} tabIndex={-1} className="text-2xl font-semibold tracking-tight focus:outline-none">
-              {step.title ?? "Quiz del módulo"}
-            </h2>
-            <p className="text-muted-foreground">
-              {step.questions.length} preguntas. El quiz calificado llega en la siguiente tarea (T-38).
-            </p>
-          </div>
+          <QuizStep
+            key={index}
+            step={step}
+            lessonId={lesson.id}
+            stepKey={`${lesson.id}-${index}`}
+            onComplete={() => setSolved((current) => ({ ...current, [index]: true }))}
+            headingRef={headingRef}
+          />
         )}
       </section>
 

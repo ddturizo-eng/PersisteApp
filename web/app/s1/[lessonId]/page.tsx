@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { LessonPlayerFromUrl } from "@/components/lesson/lesson-player";
 import { findLesson, lessonsForSession } from "@/lib/content";
 import { highlightLesson } from "@/lib/highlight-server";
+import { toPublicLesson } from "@/lib/quiz";
 
 /** Every session 1 lesson is prerendered at build time. */
 export function generateStaticParams() {
@@ -30,5 +31,6 @@ async function Lesson({ params }: Pick<PageProps<"/s1/[lessonId]">, "params">) {
 
   // ?step= is read on the client; the static HTML starts at step 1.
   const highlights = await highlightLesson(lesson);
-  return <LessonPlayerFromUrl lesson={lesson} highlights={highlights} />;
+  // Quiz answers never reach the browser (constitution P10, REQ-29 CA2).
+  return <LessonPlayerFromUrl lesson={toPublicLesson(lesson)} highlights={highlights} />;
 }

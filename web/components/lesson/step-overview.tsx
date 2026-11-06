@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { cn } from "cn";
-import { stageLabels, type Lesson, type Step } from "@/lib/lesson-schema";
+import { stageLabels } from "@/lib/lesson-schema";
+import type { PublicLesson as Lesson, PublicStep as Step } from "@/lib/quiz";
 
 function stepTitle(step: Step): string {
   if (step.kind === "question") return step.prompt;

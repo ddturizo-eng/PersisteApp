@@ -1,4 +1,5 @@
 import type { Engine, Step } from "@/lib/lesson-schema";
+import type { PublicStep } from "@/lib/quiz";
 
 /** Pure rules for code exercises (REQ-04). No React, so they are unit-tested. */
 
@@ -103,8 +104,9 @@ export function checkGaps(
   return { solved: Object.values(results).every(Boolean), results };
 }
 
-/** Steps that must be solved before Continue: code exercises (not `read`) and the trace walkthrough. */
-export const isExercise = (step: Step) => (step.kind === "code" && step.mode !== "read") || step.kind === "trace";
+/** Steps that must be completed before Continue: code exercises (not `read`), the trace and the quiz. */
+export const isExercise = (step: PublicStep) =>
+  (step.kind === "code" && step.mode !== "read") || step.kind === "trace" || step.kind === "quiz";
 
 /** Failed checks after which «Ver solución» appears (REQ-04 CA5). */
 export const SOLUTION_AFTER_FAILURES = 2;
