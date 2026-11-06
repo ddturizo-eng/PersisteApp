@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button, LinkButton } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
@@ -142,9 +141,10 @@ export function LessonPlayer({ lesson, initialIndex = 0 }: { lesson: Lesson; ini
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
           Fuente:{" "}
-          <Link href={lesson.source.url} className="underline underline-offset-2" target="_blank" rel="noreferrer">
+          <a href={lesson.source.url} className="underline underline-offset-2" target="_blank" rel="noreferrer">
             {lesson.source.label}
-          </Link>
+            <span className="sr-only"> (se abre en otra pestaña)</span>
+          </a>
         </p>
       </footer>
     </main>

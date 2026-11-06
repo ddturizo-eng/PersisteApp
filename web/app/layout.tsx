@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import { site } from "@/lib/site";
 import { themeInitScript } from "@/lib/theme";
@@ -38,10 +39,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Saltar al contenido
         </a>
-        <SiteHeader />
-        <div id="contenido" className="flex flex-1 flex-col">
-          {children}
-        </div>
+        <Providers>
+          <SiteHeader />
+          <div id="contenido" className="flex flex-1 flex-col">
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );

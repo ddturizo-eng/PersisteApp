@@ -23,8 +23,14 @@ export function ThemeToggle() {
   const theme = useSyncExternalStore<Theme | null>(subscribe, readTheme, () => null);
 
   function toggle() {
+    const root = document.documentElement;
     const target = nextTheme(readTheme());
-    document.documentElement.classList.toggle("dark", target === "dark");
+    // Switch colors in one frame; otherwise every transition-colors element fades separately.
+    root.classList.add("theme-switching");
+    root.classList.toggle("dark", target === "dark");
+    // Flush styles, then re-enable transitions. setTimeout also runs in background tabs, unlike rAF.
+    void window.getComputedStyle(root).color;
+    window.setTimeout(() => root.classList.remove("theme-switching"), 1);
     try {
       localStorage.setItem(THEME_STORAGE_KEY, target);
     } catch {
@@ -32,11 +38,18 @@ export function ThemeToggle() {
     }
   }
 
-  const label = theme === "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
-
+  // Icons switch with CSS (.dark), so they are right before hydration too.
+  // The pressed state is only announced once the real theme is known.
   return (
-    <Button variant="ghost" size="icon" aria-label={label} onPress={toggle}>
-      {theme === "dark" ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label="Tema oscuro"
+      aria-pressed={theme === null ? undefined : theme === "dark"}
+      onPress={toggle}
+    >
+      <Moon aria-hidden="true" className="dark:hidden" />
+      <Sun aria-hidden="true" className="hidden dark:block" />
     </Button>
   );
 }

@@ -115,12 +115,16 @@ export function QuestionStep({
             <li key={index}>
               <button
                 type="button"
-                disabled={solved || isWrong}
+                // aria-disabled instead of disabled: a disabled button would drop keyboard focus.
+                aria-disabled={solved || isWrong}
                 aria-describedby={tried ? `${promptId}-fb` : undefined}
-                onClick={() => onPick(index)}
+                onClick={() => {
+                  if (!solved && !isWrong) onPick(index);
+                }}
                 className={cn(
                   "flex w-full items-start gap-3 rounded-lg border px-4 py-3 text-left text-base transition-colors",
-                  !tried && !solved && "hover:border-primary hover:bg-accent",
+                  !tried && !solved && "cursor-pointer hover:border-primary hover:bg-accent",
+                  (solved || isWrong) && "cursor-default",
                   isRight && "border-success/50 bg-success-soft text-success",
                   isWrong && "border-danger/40 bg-danger-soft text-danger",
                   solved && !tried && "opacity-60"
