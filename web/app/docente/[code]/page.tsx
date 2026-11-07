@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { AutoRefresh } from "@/components/quiz/quiz-screens";
+import { LogoutButton } from "@/components/teacher/logout-button";
 import { RoomPanel } from "@/components/teacher/room-panel";
 import { loadRoom } from "@/lib/teacher-data";
 import { isTeacher } from "@/lib/teacher";
@@ -13,9 +14,12 @@ export const metadata: Metadata = { title: "Sala · Panel docente · PersisteApp
 export default function TeacherRoomPage({ params }: PageProps<"/docente/[code]">) {
   return (
     <main className="mx-auto w-full min-w-0 max-w-5xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
-      <Link href="/docente" className="rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
-        ← Todas las salas
-      </Link>
+      <div className="flex items-center justify-between gap-4">
+        <Link href="/docente" className="rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+          ← Todas las salas
+        </Link>
+        <LogoutButton compact />
+      </div>
       <div className="mt-6">
         <Suspense fallback={<p className="text-muted-foreground">Cargando la sala…</p>}>
           <Room params={params} />

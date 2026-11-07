@@ -1,6 +1,8 @@
 "use client";
 
-import { useActionState, useId } from "react";
+import { useActionState, useId, useState } from "react";
+import { ArrowRight, Eye, EyeOff, LockKeyhole } from "lucide-react";
+import { cn } from "cn";
 import { createRoom, teacherLogin, type FormState } from "@/app/actions/teacher";
 import { Button } from "@/components/ui/button";
 
@@ -11,32 +13,52 @@ const inputClass =
 /** Teacher passcode (REQ-31). The server compares it in constant time. */
 export function TeacherLoginForm() {
   const [state, action, pending] = useActionState(teacherLogin, idle);
+  const [visible, setVisible] = useState(false);
   const id = useId();
   const error = state.status === "error" ? state.message : null;
   return (
-    <form action={action} className="max-w-sm space-y-4">
+    <form action={action} className="space-y-5">
       <div className="space-y-1.5">
         <label htmlFor={id} className="block font-medium">
           Clave del docente
         </label>
-        <input
-          id={id}
-          name="passcode"
-          type="password"
-          autoComplete="current-password"
-          required
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? `${id}-error` : undefined}
-          className={inputClass}
-        />
-        {error && (
+        <div className="relative">
+          <LockKeyhole aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            id={id}
+            name="passcode"
+            type={visible ? "text" : "password"}
+            autoComplete="current-password"
+            autoFocus
+            required
+            spellCheck={false}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? `${id}-error` : `${id}-help`}
+            className={cn(inputClass, "h-12 rounded-xl pr-12 pl-10")}
+          />
+          <button
+            type="button"
+            onClick={() => setVisible((v) => !v)}
+            aria-pressed={visible}
+            aria-label={visible ? "Ocultar la clave" : "Mostrar la clave"}
+            className="absolute top-1/2 right-1.5 flex size-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            {visible ? <EyeOff aria-hidden="true" className="size-4" /> : <Eye aria-hidden="true" className="size-4" />}
+          </button>
+        </div>
+        {error ? (
           <p id={`${id}-error`} role="alert" className="text-sm font-medium text-destructive">
-            {error}
+            {error} Revísala e inténtalo de nuevo.
+          </p>
+        ) : (
+          <p id={`${id}-help`} className="text-sm text-muted-foreground">
+            La sesión dura 12 horas en este navegador.
           </p>
         )}
       </div>
-      <Button type="submit" isDisabled={pending}>
+      <Button type="submit" size="lg" isDisabled={pending} className="w-full rounded-xl">
         {pending ? "Entrando…" : "Entrar al panel"}
+        {!pending && <ArrowRight data-icon="inline-end" aria-hidden="true" />}
       </Button>
     </form>
   );
