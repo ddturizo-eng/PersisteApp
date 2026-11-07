@@ -66,7 +66,7 @@ Segundo cambio aprobado por el autor (REQ-26 y REQ-29 cambiados, REQ-33 y REQ-34
 | T-18 | Módulo 2 «Primera conexión»: URL, driver, variables de entorno; recorrido reutilizado | REQ-16, 26, 27 | 1 h | ✅ |
 | T-13 | Modelo puro del pool con pruebas | REQ-10 | 0.75 h | ✅ |
 | T-14 | Simulador de pool y contenido del módulo 3 | REQ-10, 16 | 2.5 h | ✅ |
-| T-11 | CRUD Java `v0-messy` y `v1-layered` contra Supabase | REQ-17, 18 | 2.25 h | ⬜ |
+| T-11 | CRUD Java `v0-messy` y `v1-layered` contra Supabase | REQ-17, 18 | 2.25 h | ✅ |
 
 **Salida del sábado:** landing de conceptos, quiz final y panel docente funcionando de punta a punta con una sala de prueba; módulos 1–3 completos.
 

@@ -124,24 +124,32 @@ El adaptador `MirrorDb` permite empezar con `MemoryDb` el sábado y cambiar a PG
 
 ## 7. CRUD Java (REQ-17..19)
 
+> Implementado el 7 nov 2026. Se usa la columna `name` (no `title`) y se agrega la tabla `users`, porque las lecciones 1–4 ya publicadas usan `products.name` y el login de `users`.
+
 ```
 crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/
-├─ model/Product.java                 (id, title, price, stock)
-├─ model/Sale.java
-├─ persistence/ProductStore.java      save, update, delete, findById, findAll
-├─ persistence/JdbcProductRepository.java
-├─ persistence/ConnectionPool.java    HikariDataSource desde env (DB_URL, DB_USER, DB_PASSWORD)
+├─ model/Product.java                 record (id, name, price, stock)
+├─ model/Sale.java                    record (id, productId, quantity, total)
+├─ persistence/ProductStore.java      save, update, delete, findById, findAll, decreaseStock
+├─ persistence/SaleStore.java         save
+├─ persistence/JdbcRepository.java    base: conexión del pool por operación o conexión fija de una transacción
+├─ persistence/JdbcProductRepository.java, JdbcSaleRepository.java
+├─ persistence/TransactionRunner.java inTransaction((products, sales) -> …)
+├─ persistence/JdbcTransactionRunner.java  setAutoCommit(false) → commit | rollback
+├─ persistence/UserRepository.java    login con PreparedStatement (módulo 4)
+├─ persistence/ConnectionPool.java    HikariDataSource desde env (DB_URL, DB_USER, DB_PASSWORD), 5 conexiones
 ├─ persistence/DataAccessException.java
 ├─ service/ProductService.java        reglas + registerSale (transacción)
+├─ service/LoginService.java, ProductNotFoundException.java, InsufficientStockException.java
 ├─ ui/ConsoleMenu.java                mensajes en español
 └─ Main.java                          composición e inyección por constructor
 ```
 
-- `registerSale` obtiene una conexión, `setAutoCommit(false)`, inserta en `sales`, actualiza `stock` con `WHERE stock >= ?`, verifica filas afectadas, `commit`; ante cualquier fallo `rollback` y lanza excepción propia.
-  - Nota: la transacción vive en el servicio pero necesita la conexión; se resuelve con un método `ProductStore.registerSale(...)` o con un `TransactionRunner` en persistence. Decisión: **`TransactionRunner`** en `persistence`, para que el servicio no vea JDBC.
-- Perfil Maven `oracle` cambia dependencia de driver; la URL viene del entorno (REQ-18 CA5).
-- `v0-messy`: una clase `App.java` con `DriverManager.getConnection` en cada opción y `"SELECT ... WHERE title = '" + input + "'"`.
-- `db/001_schema.sql` con variantes `postgresql/` y `oracle/`; se aplica en Supabase con el SQL editor.
+- `registerSale` valida la cantidad y, dentro de `TransactionRunner.inTransaction`, busca el producto, **inserta la venta y luego** descuenta stock con `WHERE stock >= ?`; si no afectó filas lanza `InsufficientStockException` y el runner hace `rollback`, que borra la venta ya insertada. El servicio no ve JDBC: recibe `ProductStore` y `SaleStore` atados a la misma conexión.
+- Perfil Maven `oracle` cambia el driver (`ojdbc11`); la URL viene del entorno (REQ-18 CA5). Las claves generadas se piden con `prepareStatement(sql, new String[] {"id"})`, válido en los dos motores.
+- `v0-messy`: una clase `App.java` con `DriverManager.getConnection` en cada opción, búsqueda `"... WHERE name = '" + input + "'"`, el login concatenado del módulo 4 y una venta en dos sentencias con autocommit (deja la venta guardada sin descontar stock).
+- `crud/db/postgresql/` y `crud/db/oracle/`: `001_schema.sql` (idempotente en PostgreSQL, RLS sin políticas y `revoke` a `anon`/`authenticated`) y `002_seed.sql`. Se aplica en Supabase con el SQL editor.
+- Pruebas: JUnit 5 + Mockito (`ProductService`, `LoginService`, `JdbcTransactionRunner`); JaCoCo `check` ≥ 70 % de líneas en `service`. Integración probada a mano contra PostgreSQL 16 en Docker; guion en `crud/README.md`.
 
 ## 8. Diseño visual (REQ-09, P8)
 
