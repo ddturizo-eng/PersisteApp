@@ -9,6 +9,7 @@ export const illustrations = {
   "consulta-segura": { width: 1267, height: 1245, alt: "En una ventanilla, una estudiante entrega una tarjeta y, aparte, un sobre sellado." },
   "recorrido-modulos": { width: 1317, height: 733, alt: "Una estudiante avanza por un camino de siete piedras hacia una bandera." },
   "quiz-final": { width: 793, height: 912, alt: "Un estudiante surfea sobre un lápiz gigante encima de tres respuestas, una marcada como correcta." },
+  "credenciales-entorno": { width: 1107, height: 986, alt: "Una estudiante trabaja en su portátil mientras una llave sale de un armario en la pared y vuela hacia el equipo; en la papelera hay un papel arrugado." },
   "espera-docente": { width: 1261, height: 1229, alt: "Una persona espera sentada en una banca con una taza, mirando el reloj." },
 } as const;
 

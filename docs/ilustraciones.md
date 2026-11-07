@@ -107,7 +107,7 @@ Aspect ratio 1:1, small and simple.
 5. Peso: exportar a WebP calidad 85 antes de commitear (objetivo < 250 KB por imagen).
 
 ### 3.x Módulo 2 · `credenciales-entorno.png` (4:3)
-Qué comunica: la clave **no va escrita en el código**; la app la recibe del entorno al arrancar. Mientras no exista, el módulo 2 usa `piezas-driver`.
+Qué comunica: la clave **no va escrita en el código**; la app la recibe del entorno al arrancar. Generada el 6 nov 2026; se usa en el paso «La clave no va en el código» del módulo 2.
 
 ```text
 [STYLE block]

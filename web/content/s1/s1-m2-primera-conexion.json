@@ -66,7 +66,8 @@
       "kind": "text",
       "stage": "theory",
       "title": "La clave no va en el código",
-      "body": "Si escribes la clave dentro de `Main.java`, queda en cada copia del proyecto y en el historial de Git, aunque la borres después. Por eso la URL, el usuario y la clave se leen de variables de entorno al arrancar, con `System.getenv(\"DB_PASSWORD\")`. Cada equipo define las suyas: el código es el mismo en todos y cambiar de base no obliga a recompilar."
+      "body": "Si escribes la clave dentro de `Main.java`, queda en cada copia del proyecto y en el historial de Git, aunque la borres después. Por eso la URL, el usuario y la clave se leen de variables de entorno al arrancar, con `System.getenv(\"DB_PASSWORD\")`. Cada equipo define las suyas: el código es el mismo en todos y cambiar de base no obliga a recompilar.",
+      "image": "credenciales-entorno"
     },
     {
       "kind": "code",
@@ -88,60 +89,108 @@
       "title": "¿Dónde ocurre? Tu primera conexión",
       "intro": "Ejecutas `Database.main` en tu portátil. Sigue la conexión desde antes de arrancar hasta que se cierra y elige, en cada momento, dónde pasa.",
       "locations": [
-        { "id": "env", "label": "Variables de entorno (sistema operativo)", "kind": "file" },
-        { "id": "pom", "label": "Dependencias de Maven (pom.xml)", "kind": "file" },
-        { "id": "app", "label": "Tu código (Database.java)", "kind": "class" },
-        { "id": "driver", "label": "Driver JDBC (postgresql.jar)", "kind": "file" },
-        { "id": "db", "label": "Motor PostgreSQL", "kind": "db" }
+        {
+          "id": "env",
+          "label": "Variables de entorno (sistema operativo)",
+          "kind": "file"
+        },
+        {
+          "id": "pom",
+          "label": "Dependencias de Maven (pom.xml)",
+          "kind": "file"
+        },
+        {
+          "id": "app",
+          "label": "Tu código (Database.java)",
+          "kind": "class"
+        },
+        {
+          "id": "driver",
+          "label": "Driver JDBC (postgresql.jar)",
+          "kind": "file"
+        },
+        {
+          "id": "db",
+          "label": "Motor PostgreSQL",
+          "kind": "db"
+        }
       ],
       "events": [
         {
           "moment": "Antes de ejecutar",
           "description": "Maven descarga `postgresql.jar` y lo deja al alcance del proyecto.",
-          "options": ["pom", "app", "db"],
+          "options": [
+            "pom",
+            "app",
+            "db"
+          ],
           "answer": "pom",
           "why": {
             "app": "Tu código no descarga librerías: las usa cuando ya están en el proyecto.",
             "db": "El motor no entrega drivers: los publica el fabricante y los trae Maven."
           },
           "explanation": "La dependencia del `pom.xml` pone el .jar en el proyecto. Si falta, aparece «No suitable driver found» aunque la URL esté bien escrita.",
-          "code": { "language": "xml", "source": "<artifactId>postgresql</artifactId>" }
+          "code": {
+            "language": "xml",
+            "source": "<artifactId>postgresql</artifactId>"
+          }
         },
         {
           "moment": "Al arrancar",
           "description": "`System.getenv(\"DB_PASSWORD\")` devuelve la clave de la base.",
-          "options": ["env", "app", "pom"],
+          "options": [
+            "env",
+            "app",
+            "pom"
+          ],
           "answer": "env",
           "why": {
             "app": "Tu código pide el valor, pero no lo tiene escrito: se lo entrega el sistema operativo.",
             "pom": "El pom.xml declara librerías, nunca credenciales."
           },
           "explanation": "El valor vive en el sistema operativo de cada equipo. Si la variable no existe, `getenv` devuelve `null` y la conexión falla al intentar autenticarse.",
-          "code": { "language": "java", "source": "private static final String PASSWORD = System.getenv(\"DB_PASSWORD\");" }
+          "code": {
+            "language": "java",
+            "source": "private static final String PASSWORD = System.getenv(\"DB_PASSWORD\");"
+          }
         },
         {
           "moment": "Al conectar",
           "description": "Alguien comprueba que el usuario y la clave son válidos y decide si te deja entrar.",
-          "options": ["db", "driver", "app"],
+          "options": [
+            "db",
+            "driver",
+            "app"
+          ],
           "answer": "db",
           "why": {
             "driver": "El driver solo envía las credenciales: no conoce a los usuarios de la base.",
             "app": "Tu código no puede validar la clave: los usuarios viven en el motor."
           },
           "explanation": "Si la clave no coincide, el error lo produce el motor: «password authentication failed for user». La red y el driver hicieron bien su parte.",
-          "code": { "language": "java", "source": "DriverManager.getConnection(URL, USER, PASSWORD)" }
+          "code": {
+            "language": "java",
+            "source": "DriverManager.getConnection(URL, USER, PASSWORD)"
+          }
         },
         {
           "moment": "Al terminar",
           "description": "Sale del bloque `try` y la conexión se libera, haya error o no.",
-          "options": ["app", "db", "driver"],
+          "options": [
+            "app",
+            "db",
+            "driver"
+          ],
           "answer": "app",
           "why": {
             "db": "El motor libera la sesión cuando le llega el cierre, pero quien lo pide es tu código.",
             "driver": "El driver envía el mensaje de cierre solo cuando tu código llama a `close()`."
           },
           "explanation": "El `try (...)` llama a `close()` al salir del bloque. Sin él, cada conexión olvidada sigue ocupando un lugar en el motor.",
-          "code": { "language": "java", "source": "try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {" }
+          "code": {
+            "language": "java",
+            "source": "try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {"
+          }
         }
       ]
     },
@@ -182,15 +231,29 @@
         {
           "id": 1,
           "label": "Método de System que lee una variable de entorno",
-          "answers": ["getenv"],
-          "choices": ["getenv", "getPassword", "readLine", "loadEnv"],
+          "answers": [
+            "getenv"
+          ],
+          "choices": [
+            "getenv",
+            "getPassword",
+            "readLine",
+            "loadEnv"
+          ],
           "hint": "Es el mismo método del paso «Tu primera conexión, completa»."
         },
         {
           "id": 2,
           "label": "Tipo que devuelve DriverManager.getConnection",
-          "answers": ["Connection"],
-          "choices": ["Connection", "Statement", "DriverManager", "ResultSet"],
+          "answers": [
+            "Connection"
+          ],
+          "choices": [
+            "Connection",
+            "Statement",
+            "DriverManager",
+            "ResultSet"
+          ],
           "hint": "Es lo que se abre y luego se cierra solo al salir del try."
         }
       ],
