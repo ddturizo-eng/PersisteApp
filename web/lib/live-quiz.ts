@@ -59,5 +59,7 @@ export function bandFor(rows: RankingRow[], participantId: string): Band | undef
   const index = sorted.findIndex((row) => row.participant_id === participantId);
   if (index === -1) return undefined;
   const position = sorted.findIndex((row) => compareRanking(row, sorted[index]) === 0) + 1;
+  // No correct answers is never a top band, even when alone or tied at the top.
+  if (sorted[index].score === 0) return "keepPracticing";
   return bandOf(position, rows.length);
 }

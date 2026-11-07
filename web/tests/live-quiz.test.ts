@@ -61,5 +61,6 @@ describe("bands (REQ-29 CA5)", () => {
     expect(bandFor(rows, "c")).toBe("keepPracticing");
     expect(bandFor(rows, "d")).toBe("keepPracticing");
     expect(bandFor(rows, "x")).toBeUndefined();
+    expect(bandFor([{ participant_id: "solo", score: 0, correct_seconds: 0 }], "solo")).toBe("keepPracticing");
   });
 });

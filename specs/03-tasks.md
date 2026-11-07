@@ -59,10 +59,10 @@ Segundo cambio aprobado por el autor (REQ-26 y REQ-29 cambiados, REQ-33 y REQ-34
 | T-40 | Sala: `joinRoom`, cookie httpOnly, página `/sala`, barra de sala | REQ-28 CA1–CA3 | 1.5 h | ✅ |
 | T-46 | Quiz final: `content/s1/quiz.json` (10 preguntas + reserva) con esquema propio; módulos 1 y 4 sin etapa Quiz; «Siguiente módulo» al terminar; «Ir al quiz» en el encabezado | REQ-26, 29 CA1, 34 CA4 | 1.25 h | ✅ |
 | T-47 | Landing de conceptos: hero UPC, mapa interactivo de las 4 piezas, conexión y pool, consulta segura, recorrido de la clase | REQ-33, REQ-06 | 3.5 h | 🔄 |
-| T-41 | `/s1/quiz` «Prepárate para el quiz» con entrada a sala; `002_quiz_live.sql`; `startQuestion` y `submitAnswer` con límite por pregunta en servidor, primer intento y quiz abierto; nota, franja y explicaciones al cerrar | REQ-29, REQ-30 CA1b, REQ-34, REQ-35 CA1–CA2 | 2.5 h | 🔄 |
-| T-48 | Integridad: salidas de pestaña con aviso y bloqueo, sin copiar, marca de agua | REQ-35 CA3, CA5–CA7 | 1 h | 🔄 |
-| T-42 | Panel docente: clave, salas, **abrir/cerrar quiz**, pestañas En vivo (con nota y salidas), Por pregunta y Por estudiante, **Rehabilitar**, eliminar, cerrar, CSV | REQ-28 CA4–CA5, REQ-30 CA1, CA2, CA4, REQ-31, REQ-35 CA4 | 3.5 h | ⬜ |
-| T-43 | Ranking proyectado (top 10, nombre + inicial) | REQ-30 CA3 | 0.5 h | ⬜ |
+| T-41 | `/s1/quiz` «Prepárate para el quiz» con entrada a sala; `002_quiz_live.sql`; `startQuestion` y `submitAnswer` con límite por pregunta en servidor, primer intento y quiz abierto; nota, franja y explicaciones al cerrar | REQ-29, REQ-30 CA1b, REQ-34, REQ-35 CA1–CA2 | 2.5 h | ✅ |
+| T-48 | Integridad: salidas de pestaña con aviso y bloqueo, sin copiar, marca de agua | REQ-35 CA3, CA5–CA7 | 1 h | ✅ |
+| T-42 | Panel docente: clave, salas, **abrir/cerrar quiz**, pestañas En vivo (con nota y salidas), Por pregunta y Por estudiante, **Rehabilitar**, eliminar, cerrar, CSV | REQ-28 CA4–CA5, REQ-30 CA1, CA2, CA4, REQ-31, REQ-35 CA4 | 3.5 h | ✅ |
+| T-43 | Ranking proyectado (top 10, nombre + inicial) | REQ-30 CA3 | 0.5 h | ✅ |
 | T-18 | Módulo 2 «Primera conexión»: URL, driver, variables de entorno; recorrido reutilizado | REQ-16, 26, 27 | 1 h | ⬜ |
 | T-13 | Modelo puro del pool con pruebas | REQ-10 | 0.75 h | ⬜ |
 | T-14 | Simulador de pool y contenido del módulo 3 | REQ-10, 16 | 2.5 h | ⬜ |

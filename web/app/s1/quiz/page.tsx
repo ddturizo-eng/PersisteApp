@@ -129,12 +129,15 @@ async function QuizGate() {
   }
 
   return (
-    <LiveQuiz
-      key={state.answered.length}
-      order={state.order}
-      answered={state.answered}
-      exits={state.exits}
-      watermark={`${participant.name} · ${maskDocument(participant.studentCode)}`}
-    />
+    <>
+      <LiveQuiz
+        order={state.order}
+        answered={state.answered}
+        exits={state.exits}
+        watermark={`${participant.name} · ${maskDocument(participant.studentCode)}`}
+      />
+      {/* Picks up the teacher closing the quiz, or a block, while a question is on screen. */}
+      <AutoRefresh />
+    </>
   );
 }

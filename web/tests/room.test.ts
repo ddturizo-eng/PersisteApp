@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isRoomCode, joinRoomInput, normalizeRoomCode, positionOf, shortName, maskDocument, displayName } from "@/lib/room";
+import { isRoomCode, joinRoomInput, normalizeRoomCode, positionOf, shortName, maskDocument, displayName, generateRoomCode } from "@/lib/room";
 
 describe("room code", () => {
   it("normalizes case, spaces and dashes", () => {
@@ -78,5 +78,21 @@ describe("positionOf", () => {
 
   it("returns undefined for someone outside the room", () => {
     expect(positionOf(rows, "z")).toBeUndefined();
+  });
+});
+
+describe("generateRoomCode (REQ-28 CA1)", () => {
+  it("always mixes letters and digits and is a valid code", () => {
+    for (let i = 0; i < 500; i++) {
+      const code = generateRoomCode((n) => Math.floor(Math.random() * n));
+      expect(isRoomCode(code)).toBe(true);
+      expect(code).toMatch(/[A-Z]/);
+      expect(code).toMatch(/[2-9]/);
+    }
+  });
+
+  it("retries when a draw is all letters", () => {
+    const draws = [0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0];
+    expect(generateRoomCode(() => draws.shift() ?? 0)).toBe("A8AAAA");
   });
 });

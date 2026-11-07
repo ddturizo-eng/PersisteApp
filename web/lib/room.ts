@@ -105,3 +105,14 @@ export function displayName(name: string): string {
   if (words.length >= 4) return `${words[0]} ${words[2]}`;
   return words.slice(0, 2).join(" ");
 }
+
+/**
+ * New room code (REQ-28 CA1): 6 characters from ROOM_CODE_ALPHABET, always mixing letters and
+ * digits so it never reads as a word. `pick(n)` returns a random integer in [0, n).
+ */
+export function generateRoomCode(pick: (n: number) => number): string {
+  for (;;) {
+    const code = Array.from({ length: ROOM_CODE_LENGTH }, () => ROOM_CODE_ALPHABET[pick(ROOM_CODE_ALPHABET.length)]).join("");
+    if (/[A-Z]/.test(code) && /[2-9]/.test(code)) return code;
+  }
+}

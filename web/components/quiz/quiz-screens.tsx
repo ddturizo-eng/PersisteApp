@@ -67,7 +67,7 @@ export function QuizResult({ result }: { result: LiveResult }) {
         <h2 id="nota" className="text-sm font-medium">
           Tu nota
         </h2>
-        <p className="text-6xl font-semibold tracking-tight tabular-nums">{result.grade.toFixed(1)}</p>
+        <p className="text-6xl font-semibold tracking-tight tabular-nums">{result.grade.toFixed(1).replace(".", ",")}</p>
         <p className="tabular-nums">
           {result.correct} de {result.total} aciertos
           {result.band && (

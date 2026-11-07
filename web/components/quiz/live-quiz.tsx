@@ -36,7 +36,8 @@ export function LiveQuiz({
   const router = useRouter();
   const id = useId();
   const total = order.length;
-  const pendingIds = order.filter((q) => !answered.includes(q));
+  // Fixed at mount: the 5 s server refresh must not skip a question or restart its timer.
+  const [pendingIds] = useState(() => order.filter((q) => !answered.includes(q)));
   const [position, setPosition] = useState(0);
   const currentId = pendingIds[position];
   const number = total - pendingIds.length + position + 1;
