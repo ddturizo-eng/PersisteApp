@@ -86,7 +86,7 @@ export function QuizStep({
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium text-muted-foreground">Quiz final</p>
+        <p className="text-sm font-medium text-muted-foreground">Calentamiento</p>
         <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
           Sin puntaje · modo práctica
         </span>
@@ -200,7 +200,7 @@ export function QuizStep({
             })}
           </ol>
           <p className="text-sm text-muted-foreground">
-            Este intento no suma al ranking. Para sumar puntos, entra a la sala de tu grupo con el código que proyecta el docente.
+            El calentamiento no cuenta para la nota. El quiz real tiene otras preguntas: entra a la sala de tu grupo con el código que proyecta el docente.
           </p>
         </section>
       )}

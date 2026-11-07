@@ -14,7 +14,7 @@ describe("content/ lessons", () => {
   });
 
   it("include a valid final quiz for session 1 (REQ-29)", () => {
-    expect(loadQuiz(1).questions).toHaveLength(12);
+    expect(loadQuiz(1).questions).toHaveLength(10);
   });
 
   it("close every inline code span (`…`)", () => {
@@ -201,23 +201,37 @@ describe("loadLessons", () => {
       { text: "otra", correct: false, explanation: "y" },
     ],
   });
-  const quiz = (modules: number[]) => ({ session: 1, title: "Quiz final", questions: modules.map((m, i) => question(`q${i}`, m)) });
+  const quiz = (modules: number[]) => ({
+    session: 1,
+    title: "Quiz final",
+    questions: modules.map((m, i) => ({ ...question(`q${i}`, m), prompt: `¿Cuál ${i}?` })),
+    practice: [1, 2, 3].map((n) => ({ ...question(`cal-${n}`, 1), prompt: `¿Calentamiento ${n}?` })),
+  });
+
+  it("rejects a warm-up that repeats a real question (REQ-29 CA4)", () => {
+    dir = mkdtempSync(path.join(tmpdir(), "lessons-"));
+    write("s1-m1-demo.json", validLesson);
+    const leaky = quiz(Array(10).fill(1));
+    leaky.practice[0].prompt = leaky.questions[3].prompt;
+    write("quiz.json", leaky);
+    expect(problemsOf(() => loadQuiz(1, dir)).join("\n")).toContain("no puede repetir");
+  });
 
   it("does not read quiz.json as a lesson and validates it apart (design §12.1)", () => {
     dir = mkdtempSync(path.join(tmpdir(), "lessons-"));
     write("s1-m1-demo.json", validLesson);
-    write("quiz.json", quiz(Array(12).fill(1)));
+    write("quiz.json", quiz(Array(10).fill(1)));
     expect(loadLessons(dir)).toHaveLength(1);
-    expect(loadQuiz(1, dir).questions).toHaveLength(12);
+    expect(loadQuiz(1, dir).questions).toHaveLength(10);
   });
 
-  it("requires exactly 12 questions and one per published module (REQ-29 CA1)", () => {
+  it("requires exactly 10 questions and one per published module (REQ-29 CA1)", () => {
     dir = mkdtempSync(path.join(tmpdir(), "lessons-"));
     write("s1-m1-demo.json", validLesson);
     write("s1-m2-demo.json", { ...validLesson, id: "s1-m2-demo", module: 2 });
-    write("quiz.json", quiz(Array(11).fill(1)));
-    expect(problemsOf(() => loadQuiz(1, dir)).join("\n")).toContain("exactamente 12 preguntas");
-    write("quiz.json", quiz(Array(12).fill(1)));
+    write("quiz.json", quiz(Array(9).fill(1)));
+    expect(problemsOf(() => loadQuiz(1, dir)).join("\n")).toContain("exactamente 10 preguntas");
+    write("quiz.json", quiz(Array(10).fill(1)));
     expect(problemsOf(() => loadQuiz(1, dir))).toEqual([expect.stringContaining("módulo 2")]);
   });
 

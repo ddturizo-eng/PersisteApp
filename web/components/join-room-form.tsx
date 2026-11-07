@@ -15,6 +15,7 @@ const fields: {
   inputMode?: "text" | "numeric";
   maxLength: number;
   mono?: boolean;
+  digitsOnly?: boolean;
 }[] = [
   {
     name: "code",
@@ -27,12 +28,21 @@ const fields: {
   { name: "name", label: "Nombre y apellido", help: "En el ranking apareces con tu nombre y una inicial, por ejemplo «Daniel T.».", autoComplete: "name", maxLength: 60 },
   {
     name: "studentCode",
-    label: "Código estudiantil",
-    help: "Si vuelves a entrar con el mismo código, conservas tus puntos.",
+    label: "Número de documento",
+    help: "Tu cédula o tarjeta de identidad, solo números. Con el mismo número recuperas tus respuestas desde otro equipo. Solo lo ve el docente.",
     autoComplete: "off",
-    maxLength: 20,
+    inputMode: "numeric",
+    maxLength: 12,
+    digitsOnly: true,
   },
 ];
+
+/** Keeps only digits while typing or pasting («1.065.123.456» → «1065123456»), up to 12 (REQ-28 CA2). */
+function keepDigits(event: React.FormEvent<HTMLInputElement>) {
+  const input = event.currentTarget;
+  const digits = input.value.replace(/\D/g, "").slice(0, 12);
+  if (digits !== input.value) input.value = digits;
+}
 
 /** Join form for /sala (REQ-28 CA1). Validation runs on the server; errors are announced. */
 export function JoinRoomForm() {
@@ -56,7 +66,10 @@ export function JoinRoomForm() {
               required
               autoComplete={field.autoComplete}
               inputMode={field.inputMode}
-              maxLength={field.maxLength}
+              // Paste can carry dots or letters past maxLength: filter after the paste lands.
+              maxLength={field.digitsOnly ? undefined : field.maxLength}
+              pattern={field.digitsOnly ? "[0-9]*" : undefined}
+              onInput={field.digitsOnly ? keepDigits : undefined}
               spellCheck={false}
               autoCapitalize={field.name === "code" ? "characters" : field.name === "name" ? "words" : "none"}
               defaultValue={error?.values[field.name]}

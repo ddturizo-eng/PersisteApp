@@ -272,7 +272,7 @@ export type Stage = (typeof stages)[number];
 export type Engine = (typeof engines)[number];
 
 /** Questions in the session's final quiz (REQ-29 CA1). */
-export const FINAL_QUIZ_QUESTIONS = 12;
+export const FINAL_QUIZ_QUESTIONS = 10;
 
 const quizQuestion = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/, "id en minúsculas, números y guiones"),
@@ -298,6 +298,20 @@ export const quizSchema = z.object({
     .array(quizQuestion)
     .length(FINAL_QUIZ_QUESTIONS, `debe tener exactamente ${FINAL_QUIZ_QUESTIONS} preguntas`)
     .refine((questions) => new Set(questions.map((q) => q.id)).size === questions.length, "los id de las preguntas deben ser únicos"),
+  /** Spare questions to swap in when a module changes; never sent to the browser or graded. */
+  reserve: z.array(quizQuestion).optional(),
+  /**
+   * Warm-up for practice mode (REQ-29 CA4): simpler questions, different from the real ones, so
+   * practicing never reveals the quiz. Only these are graded without a room.
+   */
+  practice: z.array(quizQuestion).min(3, "entre 3 y 5 preguntas de calentamiento").max(5, "entre 3 y 5 preguntas de calentamiento"),
+}).superRefine((quiz, ctx) => {
+  const real = new Set([...quiz.questions, ...(quiz.reserve ?? [])].flatMap((q) => [q.id, q.prompt]));
+  quiz.practice.forEach((q, i) => {
+    if (real.has(q.id) || real.has(q.prompt)) {
+      ctx.addIssue({ code: "custom", path: ["practice", i], message: "el calentamiento no puede repetir una pregunta del quiz ni de la reserva" });
+    }
+  });
 });
 
 export type Quiz = z.infer<typeof quizSchema>;

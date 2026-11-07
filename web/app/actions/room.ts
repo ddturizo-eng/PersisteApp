@@ -66,7 +66,8 @@ export async function joinRoom(_prev: JoinRoomState, form: FormData): Promise<Jo
     path: "/",
     maxAge: PARTICIPANT_COOKIE_MAX_AGE,
   });
-  redirect("/");
+  // Joining is for the final quiz (design §12.3): go back to «Prepárate para el quiz».
+  redirect("/s1/quiz");
 }
 
 /** Leave the room on this device; the answers stay in the room. */

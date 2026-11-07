@@ -22,6 +22,16 @@ export function isRoomCode(code: string): boolean {
   return ROOM_CODE_PATTERN.test(code);
 }
 
+/** Drops spaces, dots and dashes: «1.065.123.456» → «1065123456». */
+export function normalizeDocument(raw: string): string {
+  return raw.replace(/[\s.-]/g, "");
+}
+
+/** Last 4 digits only (REQ-35 CA6): enough to tell whose screenshot it is without exposing the document. */
+export function maskDocument(document: string): string {
+  return `doc. …${document.slice(-4)}`;
+}
+
 /** Trims and collapses inner spaces: «  Ana   María » → «Ana María». */
 export function normalizeName(raw: string): string {
   return raw.trim().replace(/\s+/g, " ");
@@ -36,16 +46,14 @@ export const joinRoomInput = z.object({
     .string()
     .transform(normalizeName)
     .pipe(z.string().min(2, "Escribe tu nombre (mínimo 2 letras).").max(60, "El nombre admite hasta 60 caracteres.")),
+  /**
+   * Identity document number (cédula or tarjeta de identidad), stored in student_code (REQ-28 CA2).
+   * Students know it by heart and the teacher records grades with it; no roster needed.
+   */
   studentCode: z
     .string()
-    .transform((value) => value.trim())
-    .pipe(
-      z
-        .string()
-        .min(3, "El código estudiantil tiene al menos 3 caracteres.")
-        .max(20, "El código estudiantil admite hasta 20 caracteres.")
-        .regex(/^[A-Za-z0-9-]+$/, "Usa solo letras, números y guiones.")
-    ),
+    .transform(normalizeDocument)
+    .pipe(z.string().regex(/^\d{6,12}$/, "Escribe tu número de documento: solo números, entre 6 y 12 dígitos.")),
 });
 
 export type JoinRoomField = keyof z.input<typeof joinRoomInput>;
@@ -80,4 +88,20 @@ export function positionOf(rows: RankingRow[], participantId: string): number | 
   if (index === -1) return undefined;
   const me = sorted[index];
   return sorted.findIndex((row) => compareRanking(row, me) === 0) + 1;
+}
+
+/** «Grupo 8:00» → «Sala Grupo 8:00», but «Sala de prueba» stays as is. */
+export function roomTitle(label: string): string {
+  return /^sala\b/i.test(label) ? label : `Sala ${label}`;
+}
+
+/**
+ * First name and first surname for the student's own screen: «Ana María Pérez Gómez» → «Ana Pérez».
+ * With four or more words the usual Colombian order is two names and two surnames; with three it is
+ * ambiguous, so the first two words are kept. The projected ranking still uses shortName (REQ-30 CA3).
+ */
+export function displayName(name: string): string {
+  const words = normalizeName(name).split(" ");
+  if (words.length >= 4) return `${words[0]} ${words[2]}`;
+  return words.slice(0, 2).join(" ");
 }

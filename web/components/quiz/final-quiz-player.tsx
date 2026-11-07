@@ -8,7 +8,7 @@ import type { StepNav } from "@/components/lesson/step-nav";
 import type { PublicQuiz } from "@/lib/quiz";
 
 /**
- * Final quiz screen (REQ-29): the quiz takes over the single footer «Continuar» like any step with
+ * Practice run of the final quiz (REQ-29 CA4): the quiz takes over the single footer «Continuar» like any step with
  * inner screens (step-nav pattern); after the summary it leads back to the start.
  */
 export function FinalQuizPlayer({ quiz }: { quiz: PublicQuiz }) {
@@ -17,11 +17,11 @@ export function FinalQuizPlayer({ quiz }: { quiz: PublicQuiz }) {
   const finished = nav !== null && !nav.advance;
 
   return (
-    <main className="mx-auto flex w-full max-w-lesson flex-1 flex-col px-4 sm:px-6">
-      <section aria-label="Quiz final" className="flex-1 py-6 sm:py-10">
+    <div className="flex flex-col">
+      <section aria-label="Quiz de práctica" className="py-4">
         <QuizStep quiz={quiz} stepKey={`s${quiz.session}-quiz`} onNav={setNav} headingRef={headingRef} />
       </section>
-      <footer className="sticky bottom-0 -mx-4 border-t bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6">
+      <footer className="sticky bottom-0 border-t bg-background/95 py-4 backdrop-blur">
         <div className="flex flex-col items-end gap-1">
           {finished ? (
             <LinkButton href="/">Volver al inicio</LinkButton>
@@ -34,6 +34,6 @@ export function FinalQuizPlayer({ quiz }: { quiz: PublicQuiz }) {
           {!finished && !nav?.canAdvance && nav?.hint && <p className="text-xs text-muted-foreground">{nav.hint}</p>}
         </div>
       </footer>
-    </main>
+    </div>
   );
 }

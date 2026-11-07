@@ -4,7 +4,7 @@ import Link from "next/link";
 import { leaveRoom } from "@/app/actions/room";
 import { JoinRoomForm } from "@/components/join-room-form";
 import { getCurrentParticipant } from "@/lib/participant";
-import { shortName } from "@/lib/room";
+import { maskDocument, shortName } from "@/lib/room";
 import { site } from "@/lib/site";
 import { roomsEnabled } from "@/lib/supabase-server";
 
@@ -53,8 +53,8 @@ async function RoomContent() {
           <dd className="font-mono tracking-widest">{participant.room.code}</dd>
           <dt className="text-muted-foreground">En el ranking</dt>
           <dd>{shortName(participant.name)}</dd>
-          <dt className="text-muted-foreground">Código estudiantil</dt>
-          <dd className="font-mono">{participant.studentCode}</dd>
+          <dt className="text-muted-foreground">Documento</dt>
+          <dd className="font-mono">{maskDocument(participant.studentCode)}</dd>
         </dl>
         {participant.room.closed && <p className="text-sm">El docente cerró esta sala: tus respuestas ya no suman puntos.</p>}
         <div className="flex flex-wrap gap-3">

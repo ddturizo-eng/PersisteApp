@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isRoomCode, joinRoomInput, normalizeRoomCode, positionOf, shortName } from "@/lib/room";
+import { isRoomCode, joinRoomInput, normalizeRoomCode, positionOf, shortName, maskDocument, displayName } from "@/lib/room";
 
 describe("room code", () => {
   it("normalizes case, spaces and dashes", () => {
@@ -16,8 +16,8 @@ describe("room code", () => {
 
 describe("joinRoomInput", () => {
   it("accepts and normalizes a valid form", () => {
-    const parsed = joinRoomInput.parse({ code: "abc 234", name: "  Ana   María  ", studentCode: " 2024-001 " });
-    expect(parsed).toEqual({ code: "ABC234", name: "Ana María", studentCode: "2024-001" });
+    const parsed = joinRoomInput.parse({ code: "abc 234", name: "  Ana   María  ", studentCode: " 1.065.123.456 " });
+    expect(parsed).toEqual({ code: "ABC234", name: "Ana María", studentCode: "1065123456" });
   });
 
   it("reports each invalid field", () => {
@@ -25,6 +25,28 @@ describe("joinRoomInput", () => {
     expect(result.success).toBe(false);
     const fields = new Set(result.error?.issues.map((issue) => issue.path[0]));
     expect(fields).toEqual(new Set(["code", "name", "studentCode"]));
+  });
+});
+
+describe("document number (REQ-28 CA2)", () => {
+  it("accepts only 6 to 12 digits", () => {
+    expect(joinRoomInput.shape.studentCode.safeParse("12345").success).toBe(false);
+    expect(joinRoomInput.shape.studentCode.safeParse("1065-123").success).toBe(true);
+    expect(joinRoomInput.shape.studentCode.safeParse("CC1065123").success).toBe(false);
+    expect(joinRoomInput.shape.studentCode.safeParse("1234567890123").success).toBe(false);
+  });
+
+  it("shows only the last 4 digits", () => {
+    expect(maskDocument("1065123456")).toBe("doc. …3456");
+  });
+});
+
+describe("displayName", () => {
+  it("shows first name and first surname on the student's own screen", () => {
+    expect(displayName("Ana María Pérez Gómez")).toBe("Ana Pérez");
+    expect(displayName("Ana Ávila")).toBe("Ana Ávila");
+    expect(displayName("  Daniel   Turizo Chacón ")).toBe("Daniel Turizo");
+    expect(displayName("Ana")).toBe("Ana");
   });
 });
 
