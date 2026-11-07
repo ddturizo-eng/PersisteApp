@@ -7,13 +7,11 @@ import { Kbd } from "@/components/ui/kbd";
 import { ExpositionTimer, ExpositionToggle } from "@/components/exposition";
 import { StageIndicator } from "@/components/lesson/stage-indicator";
 import { StepOverview } from "@/components/lesson/step-overview";
-import { QuizStep } from "@/components/lesson/quiz-step";
 import { TraceStep } from "@/components/lesson/trace-step";
 import { CodeStep, QuestionStep, TextStep, VisualStep } from "@/components/lesson/steps";
 import type { StepNav } from "@/components/lesson/step-nav";
 import type { Highlights } from "@/lib/highlight";
-import { stageLabels } from "@/lib/lesson-schema";
-import type { PublicLesson as Lesson } from "@/lib/quiz";
+import { stageLabels, type Lesson } from "@/lib/lesson-schema";
 import {
   canAdvance,
   clampIndex,
@@ -31,22 +29,27 @@ const readStepParam = () => new URLSearchParams(window.location.search).get("ste
  * Mounts the player at ?step= (1-based). The server and the first client render use step 1;
  * once the URL is known the player remounts at the requested step.
  */
-export function LessonPlayerFromUrl({ lesson, highlights }: { lesson: Lesson; highlights: Highlights }) {
+export function LessonPlayerFromUrl({ lesson, highlights, next }: { lesson: Lesson; highlights: Highlights; next: NextStop }) {
   const stepParam = useSyncExternalStore(subscribeToNothing, readStepParam, () => null);
   const initialIndex = stepIndexFromParam(stepParam, lesson.steps.length);
   return (
-    <LessonPlayer key={stepParam ?? "server"} lesson={lesson} highlights={highlights} initialIndex={initialIndex} />
+    <LessonPlayer key={stepParam ?? "server"} lesson={lesson} highlights={highlights} next={next} initialIndex={initialIndex} />
   );
 }
+
+/** Where the last step leads: the next module, or the final quiz after the last one (REQ-26 CA4). */
+export type NextStop = { href: string; label: string };
 
 /** One idea per screen with Continue/Back and ← → shortcuts (REQ-02, REQ-03). */
 export function LessonPlayer({
   lesson,
   highlights,
+  next: nextStop,
   initialIndex = 0,
 }: {
   lesson: Lesson;
   highlights: Highlights;
+  next: NextStop;
   initialIndex?: number;
 }) {
   const total = lesson.steps.length;
@@ -57,7 +60,7 @@ export function LessonPlayer({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
 
-  // Steps with inner screens (trace moments, quiz questions) take over «Continuar» while they last.
+  // Steps with inner screens (trace moments) take over «Continuar» while they last.
   const [nav, setNav] = useState<{ index: number; nav: StepNav } | null>(null);
   const innerNav = nav?.index === index ? nav.nav : null;
   const onNav = useCallback((next: StepNav) => setNav({ index, nav: next }), [index]);
@@ -189,17 +192,6 @@ export function LessonPlayer({
             headingRef={headingRef}
           />
         )}
-        {step.kind === "quiz" && (
-          <QuizStep
-            key={index}
-            step={step}
-            lessonId={lesson.id}
-            stepKey={`${lesson.id}-${index}`}
-            onComplete={() => setSolved((current) => ({ ...current, [index]: true }))}
-            onNav={onNav}
-            headingRef={headingRef}
-          />
-        )}
       </section>
 
       <footer className="sticky bottom-0 -mx-4 border-t bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 exposition:py-2">
@@ -220,7 +212,10 @@ export function LessonPlayer({
           </div>
           <div className="flex flex-col items-end gap-1">
             {isLast && !innerNav?.advance ? (
-              <LinkButton href="/">Terminar lección</LinkButton>
+              <LinkButton href={nextStop.href}>
+                {nextStop.label}
+                <ArrowRight data-icon="inline-end" aria-hidden="true" />
+              </LinkButton>
             ) : (
               <Button isDisabled={!advanceAllowed} onPress={next}>
                 Continuar

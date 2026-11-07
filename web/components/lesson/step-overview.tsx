@@ -4,14 +4,13 @@ import { useEffect, useRef } from "react";
 import { cn } from "cn";
 import { plainText } from "@/lib/inline-code";
 import { stageLabels } from "@/lib/lesson-schema";
-import type { PublicLesson as Lesson, PublicStep as Step } from "@/lib/quiz";
+import type { Lesson, Step } from "@/lib/lesson-schema";
 
 function stepTitle(step: Step): string {
   if (step.kind === "question") return plainText(step.prompt);
   if (step.kind === "visual") return plainText(step.caption);
   if (step.kind === "code") return step.title ?? "Código";
   if (step.kind === "trace") return step.title;
-  if (step.kind === "quiz") return step.title ?? "Quiz";
   return step.title ?? stageLabels[step.stage];
 }
 

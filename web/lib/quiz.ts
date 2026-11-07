@@ -1,36 +1,28 @@
-import type { Lesson, Step } from "@/lib/lesson-schema";
+import type { Quiz } from "@/lib/lesson-schema";
 
 /**
- * Quiz rules (REQ-29, constitution P10): correct answers and explanations stay on the server.
- * The browser receives a PublicLesson; grading runs in a Server Action that calls gradeAnswer.
+ * Final quiz rules (REQ-29, constitution P10): correct answers and explanations stay on the server.
+ * The browser receives a PublicQuiz; grading runs in a Server Action that calls gradeAnswer.
  */
 
-type QuizStep = Extract<Step, { kind: "quiz" }>;
+/** `lesson_id` of the final quiz in quiz_answers (design §12.1). */
+export const quizLessonId = (session: number) => `s${session}-quiz`;
 
-/** What the browser may see of a quiz: prompts and option texts only. */
-export type PublicQuizStep = Omit<QuizStep, "questions"> & {
-  questions: { id: string; context?: string; prompt: string; options: { text: string }[] }[];
-};
-export type PublicStep = Exclude<Step, { kind: "quiz" }> | PublicQuizStep;
-export type PublicLesson = Omit<Lesson, "steps"> & { steps: PublicStep[] };
+/** What the browser may see of the quiz: prompts and option texts only. */
+export type PublicQuizQuestion = { id: string; module: number; context?: string; prompt: string; options: { text: string }[] };
+export type PublicQuiz = Omit<Quiz, "questions"> & { questions: PublicQuizQuestion[] };
 
-/** Removes `correct` and `explanation` from every quiz option before sending the lesson to the client. */
-export function toPublicLesson(lesson: Lesson): PublicLesson {
+/** Removes `correct` and `explanation` from every option before sending the quiz to the client. */
+export function toPublicQuiz(quiz: Quiz): PublicQuiz {
   return {
-    ...lesson,
-    steps: lesson.steps.map((step) =>
-      step.kind !== "quiz"
-        ? step
-        : {
-            ...step,
-            questions: step.questions.map(({ id, context, prompt, options }) => ({
-              id,
-              ...(context ? { context } : {}),
-              prompt,
-              options: options.map(({ text }) => ({ text })),
-            })),
-          }
-    ),
+    ...quiz,
+    questions: quiz.questions.map(({ id, module, context, prompt, options }) => ({
+      id,
+      module,
+      ...(context ? { context } : {}),
+      prompt,
+      options: options.map(({ text }) => ({ text })),
+    })),
   };
 }
 
@@ -45,22 +37,18 @@ export type GradeResult =
     }
   | { ok: false; error: string };
 
-/** Grades one quiz answer against the lesson on the server. */
-export function gradeAnswer(lesson: Lesson, questionId: string, optionIndex: number): GradeResult {
-  for (const step of lesson.steps) {
-    if (step.kind !== "quiz") continue;
-    const question = step.questions.find((q) => q.id === questionId);
-    if (!question) continue;
-    const chosen = question.options[optionIndex];
-    if (!chosen) return { ok: false, error: "Opción inválida." };
-    const correctIndex = question.options.findIndex((option) => option.correct);
-    return {
-      ok: true,
-      correct: chosen.correct,
-      explanation: chosen.explanation,
-      correctIndex,
-      correctExplanation: question.options[correctIndex].explanation,
-    };
-  }
-  return { ok: false, error: "Pregunta no encontrada." };
+/** Grades one quiz answer on the server. */
+export function gradeAnswer(quiz: Quiz, questionId: string, optionIndex: number): GradeResult {
+  const question = quiz.questions.find((q) => q.id === questionId);
+  if (!question) return { ok: false, error: "Pregunta no encontrada." };
+  const chosen = question.options[optionIndex];
+  if (!chosen) return { ok: false, error: "Opción inválida." };
+  const correctIndex = question.options.findIndex((option) => option.correct);
+  return {
+    ok: true,
+    correct: chosen.correct,
+    explanation: chosen.explanation,
+    correctIndex,
+    correctExplanation: question.options[correctIndex].explanation,
+  };
 }

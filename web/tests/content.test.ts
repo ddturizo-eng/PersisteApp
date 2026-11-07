@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { ContentError, loadLessons } from "@/lib/content";
+import { ContentError, loadLessons, loadQuiz, nextAfter } from "@/lib/content";
 import { lengthGiveaway, lessonSchema } from "@/lib/lesson-schema";
 import { hasUnclosedCode, plainText, splitInlineCode } from "@/lib/inline-code";
 
@@ -11,6 +11,10 @@ describe("content/ lessons", () => {
   it("are all valid", () => {
     const lessons = loadLessons();
     expect(lessons.length).toBeGreaterThan(0);
+  });
+
+  it("include a valid final quiz for session 1 (REQ-29)", () => {
+    expect(loadQuiz(1).questions).toHaveLength(12);
   });
 
   it("close every inline code span (`…`)", () => {
@@ -22,6 +26,7 @@ describe("content/ lessons", () => {
       else if (value && typeof value === "object") for (const [k, v] of Object.entries(value)) walk(v, `${where}.${k}`);
     };
     for (const lesson of loadLessons()) walk(lesson, lesson.id);
+    walk(loadQuiz(1), "quiz");
     expect(unclosed).toEqual([]);
   });
 });
@@ -83,30 +88,27 @@ const validLesson = {
       result: { kind: "simulated", output: "1" },
     },
     { kind: "text", stage: "practice", body: "d", reflection: true },
-    {
-      kind: "quiz",
-      stage: "quiz",
-      questions: [
-        { id: "q1", prompt: "uno", options: [{ text: "a", correct: true, explanation: "x" }, { text: "b", correct: false, explanation: "y" }] },
-        { id: "q2", prompt: "dos", options: [{ text: "a", correct: true, explanation: "x" }, { text: "b", correct: false, explanation: "y" }] },
-        { id: "q3", prompt: "tres", options: [{ text: "a", correct: true, explanation: "x" }, { text: "b", correct: false, explanation: "y" }] },
-      ],
-    },
   ],
 };
 
 const clone = () => structuredClone(validLesson) as Record<string, unknown> & typeof validLesson;
 
 describe("lessonSchema", () => {
-  it("accepts a lesson covering the three stages", () => {
+  it("accepts a lesson covering both stages", () => {
     expect(lessonSchema.safeParse(validLesson).success).toBe(true);
   });
 
   it("rejects stages that go backwards", () => {
     const lesson = clone();
-    lesson.steps[1].stage = "quiz";
+    lesson.steps[4].stage = "theory";
     const result = lessonSchema.safeParse(lesson);
     expect(result.success).toBe(false);
+  });
+
+  it("rejects the old quiz stage inside a lesson (REQ-26)", () => {
+    const lesson = clone();
+    lesson.steps[5].stage = "quiz";
+    expect(lessonSchema.safeParse(lesson).success).toBe(false);
   });
 
   it("rejects a core lesson missing a stage", () => {
@@ -188,6 +190,46 @@ describe("loadLessons", () => {
     dir = mkdtempSync(path.join(tmpdir(), "lessons-"));
     write("s1-m1-demo.json", validLesson);
     expect(loadLessons(dir).map((l) => l.id)).toEqual(["s1-m1-demo"]);
+  });
+
+  const question = (id: string, module: number) => ({
+    id,
+    module,
+    prompt: "¿Cuál?",
+    options: [
+      { text: "esta", correct: true, explanation: "x" },
+      { text: "otra", correct: false, explanation: "y" },
+    ],
+  });
+  const quiz = (modules: number[]) => ({ session: 1, title: "Quiz final", questions: modules.map((m, i) => question(`q${i}`, m)) });
+
+  it("does not read quiz.json as a lesson and validates it apart (design §12.1)", () => {
+    dir = mkdtempSync(path.join(tmpdir(), "lessons-"));
+    write("s1-m1-demo.json", validLesson);
+    write("quiz.json", quiz(Array(12).fill(1)));
+    expect(loadLessons(dir)).toHaveLength(1);
+    expect(loadQuiz(1, dir).questions).toHaveLength(12);
+  });
+
+  it("requires exactly 12 questions and one per published module (REQ-29 CA1)", () => {
+    dir = mkdtempSync(path.join(tmpdir(), "lessons-"));
+    write("s1-m1-demo.json", validLesson);
+    write("s1-m2-demo.json", { ...validLesson, id: "s1-m2-demo", module: 2 });
+    write("quiz.json", quiz(Array(11).fill(1)));
+    expect(problemsOf(() => loadQuiz(1, dir)).join("\n")).toContain("exactamente 12 preguntas");
+    write("quiz.json", quiz(Array(12).fill(1)));
+    expect(problemsOf(() => loadQuiz(1, dir))).toEqual([expect.stringContaining("módulo 2")]);
+  });
+
+  it("sends each module to the next one and the last to the quiz (REQ-26 CA4)", () => {
+    dir = mkdtempSync(path.join(tmpdir(), "lessons-"));
+    write("s1-m1-demo.json", validLesson);
+    write("s1-m4-demo.json", { ...validLesson, id: "s1-m4-demo", module: 4 });
+    write("s1-m8-demo.json", { ...validLesson, id: "s1-m8-demo", module: 8, optional: true });
+    const [m1, m4, m8] = loadLessons(dir);
+    expect(nextAfter(m1, dir)).toEqual({ href: "/s1/s1-m4-demo", label: "Siguiente módulo" });
+    expect(nextAfter(m4, dir)).toEqual({ href: "/s1/quiz", label: "Prepárate para el quiz" });
+    expect(nextAfter(m8, dir).href).toBe("/");
   });
 });
 

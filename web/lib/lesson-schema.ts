@@ -8,14 +8,13 @@ import { illustrationNames } from "@/lib/illustrations";
  */
 
 export const engines = ["oracle", "postgresql"] as const;
-/** Theory first, then practice, then the scored quiz (constitution P6, REQ-26). */
-export const stages = ["theory", "practice", "quiz"] as const;
+/** Theory first, then practice (constitution P6, REQ-26). The scored quiz is the session's final quiz. */
+export const stages = ["theory", "practice"] as const;
 export const simulators = ["pool", "injection", "mirror", "system-map", "request-tracer"] as const;
 
 export const stageLabels: Record<(typeof stages)[number], string> = {
   theory: "Teoría",
   practice: "Práctica",
-  quiz: "Quiz",
 };
 
 const text = z.string().trim().min(1, "no puede estar vacío");
@@ -227,34 +226,7 @@ const traceStep = z
     });
   });
 
-/** Scored quiz (REQ-29). Correct answers stay on the server; see toPublicQuiz. */
-const quizStep = z
-  .object({
-    kind: z.literal("quiz"),
-    stage: z.literal("quiz"),
-    title: text.optional(),
-    questions: z
-      .array(
-        z.object({
-          id: z.string().regex(/^[a-z0-9-]+$/, "id en minúsculas, números y guiones"),
-          context: questionContext,
-          prompt: text,
-          options: z
-            .array(choice)
-            .min(2, "necesita al menos 2 opciones")
-            .refine(exactlyOneCorrect, "debe tener exactamente una opción correcta")
-            .superRefine(balancedChoices),
-        })
-      )
-      .min(3, "entre 3 y 8 preguntas")
-      .max(8, "entre 3 y 8 preguntas"),
-  })
-  .refine((step) => new Set(step.questions.map((q) => q.id)).size === step.questions.length, {
-    message: "los id de las preguntas deben ser únicos",
-    path: ["questions"],
-  });
-
-export const stepSchema = z.union([textStep, visualStep, questionStep, codeStep, traceStep, quizStep]);
+export const stepSchema = z.union([textStep, visualStep, questionStep, codeStep, traceStep]);
 
 export const lessonSchema = z
   .object({
@@ -271,7 +243,7 @@ export const lessonSchema = z
     steps: z.array(stepSchema).min(1, "necesita al menos 1 paso"),
   })
   .superRefine((lesson, ctx) => {
-    // Stages must move forward: Teoría → Práctica → Quiz (constitution P6, REQ-26).
+    // Stages must move forward: Teoría → Práctica (constitution P6, REQ-26).
     let last = -1;
     lesson.steps.forEach((step, index) => {
       const position = stages.indexOf(step.stage);
@@ -284,7 +256,7 @@ export const lessonSchema = z
       }
       last = Math.max(last, position);
     });
-    // Core lessons must cover the three stages (REQ-26 CA1).
+    // Core lessons must cover both stages (REQ-26 CA1).
     if (!lesson.optional) {
       const covered = new Set(lesson.steps.map((step) => step.stage));
       const missing = stages.filter((s) => !covered.has(s));
@@ -298,3 +270,35 @@ export type Lesson = z.infer<typeof lessonSchema>;
 export type Step = z.infer<typeof stepSchema>;
 export type Stage = (typeof stages)[number];
 export type Engine = (typeof engines)[number];
+
+/** Questions in the session's final quiz (REQ-29 CA1). */
+export const FINAL_QUIZ_QUESTIONS = 12;
+
+const quizQuestion = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/, "id en minúsculas, números y guiones"),
+  /** Module the question checks; every published core module needs at least one. */
+  module: z.number().int().min(1).max(8),
+  context: questionContext,
+  prompt: text,
+  options: z
+    .array(choice)
+    .min(2, "necesita al menos 2 opciones")
+    .refine(exactlyOneCorrect, "debe tener exactamente una opción correcta")
+    .superRefine(balancedChoices),
+});
+
+/**
+ * Final quiz of a session (REQ-29, design §12.1): content/<session>/quiz.json, the same fixed
+ * questions for everyone. Correct answers stay on the server; see toPublicQuiz.
+ */
+export const quizSchema = z.object({
+  session: z.union([z.literal(1), z.literal(2)]),
+  title: text,
+  questions: z
+    .array(quizQuestion)
+    .length(FINAL_QUIZ_QUESTIONS, `debe tener exactamente ${FINAL_QUIZ_QUESTIONS} preguntas`)
+    .refine((questions) => new Set(questions.map((q) => q.id)).size === questions.length, "los id de las preguntas deben ser únicos"),
+});
+
+export type Quiz = z.infer<typeof quizSchema>;
+export type QuizQuestion = z.infer<typeof quizQuestion>;

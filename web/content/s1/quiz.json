@@ -1,0 +1,282 @@
+{
+  "session": 1,
+  "title": "Quiz final de la sesión 1",
+  "questions": [
+    {
+      "id": "m1-q1",
+      "module": 1,
+      "context": "Al ejecutar la app aparece:\n\njava.sql.SQLException: No suitable driver found for jdbc:postgresql://localhost:5432/tienda",
+      "prompt": "¿En qué pieza está el problema?",
+      "options": [
+        {
+          "text": "En el driver: falta el .jar de PostgreSQL en el proyecto",
+          "correct": true,
+          "explanation": "JDBC no encontró ningún driver que acepte el prefijo `jdbc:postgresql:`. Se arregla agregando la dependencia del driver."
+        },
+        {
+          "text": "En el motor: la base tienda no existe en el servidor",
+          "correct": false,
+          "explanation": "Si la base no existiera, el error vendría del motor después de conectarse, con otro mensaje."
+        },
+        {
+          "text": "En la red: el puerto 5432 está cerrado o bloqueado",
+          "correct": false,
+          "explanation": "Un puerto cerrado da «Connection refused». Aquí ni siquiera se intentó abrir la conexión."
+        }
+      ]
+    },
+    {
+      "id": "m1-q2",
+      "module": 1,
+      "context": "Al ejecutar la app aparece:\n\norg.postgresql.util.PSQLException: Connection to localhost:5432 refused",
+      "prompt": "¿Qué es lo más probable?",
+      "options": [
+        {
+          "text": "El servidor PostgreSQL está apagado o escucha en otro puerto",
+          "correct": true,
+          "explanation": "El driver sí se cargó (el error es de org.postgresql), pero nadie respondió en ese puerto."
+        },
+        {
+          "text": "Falta agregar el driver de PostgreSQL a las dependencias",
+          "correct": false,
+          "explanation": "Si faltara el driver, no existiría una PSQLException: el error sería «No suitable driver found»."
+        },
+        {
+          "text": "La clave del usuario de la base de datos es incorrecta",
+          "correct": false,
+          "explanation": "Con la clave mala el motor responde «password authentication failed»: para eso tuvo que aceptar la conexión."
+        }
+      ]
+    },
+    {
+      "id": "m1-q3",
+      "module": 1,
+      "context": "`ProductRepository` solo usa las interfaces `Connection`, `PreparedStatement` y `ResultSet` del paquete java.sql.",
+      "prompt": "¿Qué pieza traduce esas llamadas al protocolo propio del motor?",
+      "options": [
+        {
+          "text": "El driver JDBC del fabricante del motor",
+          "correct": true,
+          "explanation": "El driver implementa las interfaces de java.sql para un motor concreto."
+        },
+        {
+          "text": "La máquina virtual de Java al compilar",
+          "correct": false,
+          "explanation": "La JVM ejecuta tu programa, pero no conoce el protocolo de ningún motor."
+        },
+        {
+          "text": "El motor, que entiende objetos de Java",
+          "correct": false,
+          "explanation": "El motor no sabe nada de Java: recibe mensajes de su propio protocolo."
+        }
+      ]
+    },
+    {
+      "id": "m1-q4",
+      "module": 1,
+      "context": "Un método abre una conexión con DriverManager.getConnection, ejecuta un SELECT y termina sin llamar a close() ni usar try-with-resources. Se llama cientos de veces.",
+      "prompt": "¿Qué termina pasando?",
+      "options": [
+        {
+          "text": "El motor alcanza su límite de conexiones y rechaza nuevas",
+          "correct": true,
+          "explanation": "Cada conexión abierta ocupa un lugar en el servidor. Sin cerrarlas, se agotan y las siguientes fallan."
+        },
+        {
+          "text": "Java cierra cada conexión al terminar el método, sin costo",
+          "correct": false,
+          "explanation": "Salir del método no cierra la conexión: sigue abierta en el motor hasta que alguien llame a `close()`."
+        },
+        {
+          "text": "Las consultas siguientes devuelven las filas de la primera",
+          "correct": false,
+          "explanation": "Cada consulta tiene su propio resultado; el problema es la cantidad de conexiones abiertas."
+        }
+      ]
+    },
+    {
+      "id": "m1-q5",
+      "module": 1,
+      "context": "La app y el servidor PostgreSQL están instalados en el mismo portátil y la URL usa `localhost`.",
+      "prompt": "¿Cómo llegan los datos del motor a la app en ese caso?",
+      "options": [
+        {
+          "text": "Por una conexión TCP local, igual que con un servidor remoto",
+          "correct": true,
+          "explanation": "`localhost` sigue siendo red: el driver abre un socket TCP al puerto 5432, solo que sin salir del equipo."
+        },
+        {
+          "text": "Java lee directamente los archivos de la tabla en el disco",
+          "correct": false,
+          "explanation": "Las tablas solo las lee el motor. Tu app siempre pide los datos al servidor."
+        },
+        {
+          "text": "Sin red: el driver ejecuta el SQL dentro de la misma JVM",
+          "correct": false,
+          "explanation": "El driver no ejecuta SQL. Lo envía al motor, que es otro programa aunque esté en el mismo equipo."
+        }
+      ]
+    },
+    {
+      "id": "m2-q1",
+      "module": 2,
+      "context": "La app debe conectarse a una base PostgreSQL llamada `tienda` que corre en el mismo equipo, en el puerto por defecto.",
+      "prompt": "¿Cuál es la URL de conexión JDBC correcta?",
+      "options": [
+        {
+          "text": "`jdbc:postgresql://localhost:5432/tienda`",
+          "correct": true,
+          "explanation": "Prefijo `jdbc:`, subprotocolo del driver (`postgresql`), equipo, puerto y nombre de la base."
+        },
+        {
+          "text": "`postgresql://localhost:5432/tienda?jdbc=true`",
+          "correct": false,
+          "explanation": "Sin el prefijo `jdbc:` el `DriverManager` no reconoce la URL y ningún driver la acepta."
+        },
+        {
+          "text": "`jdbc:localhost:5432/postgresql/tienda`",
+          "correct": false,
+          "explanation": "Después de `jdbc:` va el subprotocolo del driver, no el equipo: ningún driver acepta esa URL."
+        }
+      ]
+    },
+    {
+      "id": "m3-q1",
+      "module": 3,
+      "context": "Una app abre una conexión nueva con `DriverManager.getConnection` en cada consulta y la cierra al terminar. Con 30 estudiantes a la vez se vuelve lenta.",
+      "prompt": "¿Por qué un pool de conexiones la hace más rápida?",
+      "options": [
+        {
+          "text": "Reutiliza conexiones ya abiertas en vez de abrir una por consulta",
+          "correct": true,
+          "explanation": "Abrir una conexión cuesta red, autenticación y memoria en el motor. El pool paga ese costo una vez y presta la conexión."
+        },
+        {
+          "text": "Guarda en memoria los resultados y no vuelve a consultar el motor",
+          "correct": false,
+          "explanation": "Eso sería una caché de resultados. El pool no guarda filas: cada consulta sí llega al motor."
+        },
+        {
+          "text": "Junta varias consultas en una sola para enviarlas al mismo tiempo",
+          "correct": false,
+          "explanation": "Eso se parece al procesamiento por lotes (`addBatch`). El pool solo administra conexiones."
+        }
+      ]
+    },
+    {
+      "id": "m4-q1",
+      "module": 4,
+      "context": "Un compañero entrega este método de login:\n\nString sql = \"SELECT id FROM users WHERE name = '\" + user + \"'\";\nResultSet rs = statement.executeQuery(sql);",
+      "prompt": "¿Cuál es el problema principal de esa línea de SQL?",
+      "options": [
+        {
+          "text": "Permite inyección SQL: lo que escribe la persona se vuelve parte del SQL",
+          "correct": true,
+          "explanation": "Una comilla en el nombre cierra el texto y lo que sigue se ejecuta como SQL."
+        },
+        {
+          "text": "Falla con nombres que tienen tildes porque `Statement` no maneja UTF-8",
+          "correct": false,
+          "explanation": "Statement maneja UTF-8 sin problema; el riesgo real es la inyección."
+        },
+        {
+          "text": "Es lenta porque cada consulta abre una conexión nueva con la base",
+          "correct": false,
+          "explanation": "Esa línea no abre conexiones; el problema está en cómo arma el texto del SQL."
+        }
+      ]
+    },
+    {
+      "id": "m4-q2",
+      "module": 4,
+      "context": "En el repositorio seguro la consulta es:\n\nSELECT id FROM users WHERE name = ? AND password = ?",
+      "prompt": "¿Qué representa cada signo `?` para el driver JDBC?",
+      "options": [
+        {
+          "text": "El lugar de un valor que viaja separado del texto SQL",
+          "correct": true,
+          "explanation": "El driver envía la consulta y los valores por separado; el valor nunca se interpreta como SQL."
+        },
+        {
+          "text": "Un comodín que acepta cualquier texto, como el % de LIKE",
+          "correct": false,
+          "explanation": "El comodín de LIKE es %; el ? solo marca dónde va un valor."
+        },
+        {
+          "text": "Un valor opcional que la base ignora si llega vacío",
+          "correct": false,
+          "explanation": "Cada ? debe recibir un valor con setXxx; si falta, la consulta falla."
+        }
+      ]
+    },
+    {
+      "id": "m4-q3",
+      "module": 4,
+      "context": "Tu proyecto se sube a un repositorio público de GitHub para que el docente y otros equipos lo revisen.",
+      "prompt": "¿Dónde deben quedar `DB_URL`, `DB_USER` y `DB_PASSWORD`?",
+      "options": [
+        {
+          "text": "En variables de entorno que la app lee al arrancar",
+          "correct": true,
+          "explanation": "No quedan en Git y se pueden cambiar sin recompilar el proyecto."
+        },
+        {
+          "text": "Como constantes `private static final` en `Main.java`",
+          "correct": false,
+          "explanation": "Quedarían publicadas en el repositorio a la vista de cualquiera."
+        },
+        {
+          "text": "En application.properties dentro de src/main/resources",
+          "correct": false,
+          "explanation": "Ese archivo se sube a Git con el código; las claves quedarían expuestas igual."
+        }
+      ]
+    },
+    {
+      "id": "m4-q4",
+      "module": 4,
+      "context": "La app de login tiene tres clases: `LoginMenu` lee lo que escribe la persona, `LoginService` decide si puede entrar y `UserRepository` habla con la base.",
+      "prompt": "¿En cuál de estas clases debe estar el texto SQL de la consulta?",
+      "options": [
+        {
+          "text": "Solo en `UserRepository`, la única que habla con la base",
+          "correct": true,
+          "explanation": "Si el SQL vive en una sola clase, cambiar de motor o corregir la consulta no toca el resto de la app."
+        },
+        {
+          "text": "En `LoginService`, porque ahí se decide si el login vale",
+          "correct": false,
+          "explanation": "El servicio decide reglas, pero delega el acceso a datos al repositorio."
+        },
+        {
+          "text": "En `LoginMenu`, porque ahí se leen el usuario y la clave",
+          "correct": false,
+          "explanation": "SQL en la interfaz es justo el error encontrado en los proyectos revisados."
+        }
+      ]
+    },
+    {
+      "id": "m4-q5",
+      "module": 4,
+      "context": "`UserRepository` obtiene la conexión con `dataSource.getConnection()` dentro de un try-with-resources, y `dataSource` es un pool HikariCP.",
+      "prompt": "¿Qué pasa con la conexión al salir del bloque try?",
+      "options": [
+        {
+          "text": "Vuelve al pool y queda abierta para la siguiente consulta",
+          "correct": true,
+          "explanation": "Con pool, `close()` no corta la conexión física: la devuelve para reutilizarla."
+        },
+        {
+          "text": "Se cierra en la base y el pool abre otra la próxima vez",
+          "correct": false,
+          "explanation": "Eso pasaría sin pool, y es justo lo caro que el pool evita."
+        },
+        {
+          "text": "Sigue reservada para `UserRepository` hasta que la app termine",
+          "correct": false,
+          "explanation": "Si quedara reservada, el pool se quedaría sin conexiones para otras peticiones."
+        }
+      ]
+    }
+  ]
+}

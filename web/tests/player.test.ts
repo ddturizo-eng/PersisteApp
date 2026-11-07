@@ -22,7 +22,7 @@ const lesson = {
       ],
     },
     { kind: "code", stage: "practice", mode: "pick-line", language: "java", prompt: "p", variants: { java: "x" }, options: [] },
-    { kind: "text", stage: "quiz", body: "b" },
+    { kind: "text", stage: "practice", body: "b" },
   ],
 } as unknown as Lesson;
 
@@ -60,7 +60,7 @@ describe("canAdvance", () => {
 describe("stageStates", () => {
   it("marks earlier stages complete and the step's stage current", () => {
     const states = stageStates(lesson, 2);
-    expect(states.map((s) => s.state)).toEqual(["complete", "current", "upcoming"]);
+    expect(states.map((s) => s.state)).toEqual(["complete", "current"]);
   });
 });
 

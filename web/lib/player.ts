@@ -1,6 +1,5 @@
 import { isExercise } from "@/lib/exercises";
-import { stages, type Stage } from "@/lib/lesson-schema";
-import type { PublicLesson as Lesson, PublicStep as Step } from "@/lib/quiz";
+import { stages, type Lesson, type Stage, type Step } from "@/lib/lesson-schema";
 
 /**
  * Pure lesson-player rules (REQ-02, REQ-03), kept out of React so they can be tested.
@@ -54,9 +53,9 @@ export function canAdvance(
 
 export type StageState = "complete" | "current" | "upcoming";
 
-/** State of each of the six stages for the stage indicator. */
+/** State of each stage (Teoría, Práctica) for the stage indicator. */
 export function stageStates(lesson: Lesson, index: number): { stage: Stage; state: StageState }[] {
-  const current = stages.indexOf(lesson.steps[index]?.stage ?? "problem");
+  const current = stages.indexOf(lesson.steps[index]?.stage ?? "theory");
   return stages.map((stage, position) => ({
     stage,
     state: position < current ? "complete" : position === current ? "current" : "upcoming",

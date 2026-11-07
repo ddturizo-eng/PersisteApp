@@ -6,33 +6,31 @@ import { cn } from "cn";
 import { submitQuizAnswer } from "@/app/actions/quiz";
 import { Context } from "@/components/code/exercises";
 import { optionOrder } from "@/lib/exercises";
-import type { GradeResult, PublicQuizStep } from "@/lib/quiz";
+import type { GradeResult, PublicQuiz } from "@/lib/quiz";
 import { InlineText } from "@/components/lesson/inline-text";
 import type { StepNav } from "@/components/lesson/step-nav";
 
 type Graded = Extract<GradeResult, { ok: true }> & { chosen: number };
 
 /**
- * Module quiz (REQ-29): one question per screen, graded by the server, first answer is final.
- * Practice mode for now: nothing is stored and it is labelled «Sin puntaje» (CA4).
+ * Final quiz of the session (REQ-29): one question per screen, graded by the server, first answer
+ * is final. Practice mode for now: nothing is stored and it is labelled «Sin puntaje» (CA4).
  */
 export function QuizStep({
-  step,
-  lessonId,
+  quiz,
   stepKey,
   onComplete,
   onNav,
   headingRef,
 }: {
-  step: PublicQuizStep;
-  lessonId: string;
+  quiz: PublicQuiz;
   stepKey: string;
-  onComplete: () => void;
+  onComplete?: () => void;
   onNav: (nav: StepNav) => void;
   headingRef: Ref<HTMLHeadingElement>;
 }) {
   const id = useId();
-  const total = step.questions.length;
+  const total = quiz.questions.length;
   const [current, setCurrent] = useState(0);
   const [graded, setGraded] = useState<Record<string, Graded>>({});
   const [pending, setPending] = useState<number | null>(null);
@@ -48,7 +46,7 @@ export function QuizStep({
   });
 
   const done = current >= total;
-  const question = step.questions[current];
+  const question = quiz.questions[current];
   const result = question ? graded[question.id] : undefined;
   const score = Object.values(graded).filter((g) => g.correct).length;
 
@@ -57,7 +55,7 @@ export function QuizStep({
     setPending(optionIndex);
     setError(null);
     try {
-      const outcome = await submitQuizAnswer(lessonId, question.id, optionIndex);
+      const outcome = await submitQuizAnswer(question.id, optionIndex);
       if (!outcome.ok) {
         setError(outcome.error);
         return;
@@ -65,7 +63,7 @@ export function QuizStep({
       const next = { ...graded, [question.id]: { ...outcome, chosen: optionIndex } };
       setGraded(next);
       focusTarget.current = "feedback";
-      if (Object.keys(next).length === total) onComplete();
+      if (Object.keys(next).length === total) onComplete?.();
     } catch {
       setError("No se pudo calificar la respuesta. Revisa la conexión y vuelve a elegir.");
     } finally {
@@ -88,13 +86,13 @@ export function QuizStep({
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium text-muted-foreground">Quiz</p>
+        <p className="text-sm font-medium text-muted-foreground">Quiz final</p>
         <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
           Sin puntaje · modo práctica
         </span>
       </div>
       <h2 ref={headingRef} tabIndex={-1} className="text-2xl font-semibold tracking-tight text-balance focus:outline-none">
-        {step.title ?? "Quiz del módulo"}
+        {quiz.title}
       </h2>
 
       {!done && question && (
@@ -167,7 +165,8 @@ export function QuizStep({
                 {!result.correct && (
                   <p className="mt-2 leading-relaxed text-foreground">
                     <span className="font-medium">La correcta: </span>
-                    {question.options[result.correctIndex].text}. {result.correctExplanation}
+                    <InlineText text={question.options[result.correctIndex].text} />.{" "}
+                    <InlineText text={result.correctExplanation} />
                   </p>
                 )}
               </div>
@@ -183,7 +182,7 @@ export function QuizStep({
             Acertaste {score} de {total}
           </h3>
           <ol className="space-y-2">
-            {step.questions.map((q, i) => {
+            {quiz.questions.map((q, i) => {
               const g = graded[q.id];
               return (
                 <li key={q.id} className="flex items-start gap-2">
