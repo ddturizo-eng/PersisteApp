@@ -8,7 +8,7 @@ import type { Lesson } from "@/lib/lesson-schema";
 const themes = { light: "github-light-default", dark: "github-dark-default" } as const;
 
 /** Every code string a lesson shows: variants, pick-line options, order blocks and trace snippets. */
-type Language = "java" | "sql" | "properties";
+type Language = "java" | "sql" | "properties" | "xml";
 
 function codeStrings(lesson: Lesson): { language: Language; code: string }[] {
   const found: { language: Language; code: string }[] = [];

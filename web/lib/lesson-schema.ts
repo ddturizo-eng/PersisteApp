@@ -103,7 +103,7 @@ const codeBase = {
   kind: z.literal("code"),
   stage,
   title: text.optional(),
-  language: z.enum(["java", "sql"]),
+  language: z.enum(["java", "sql", "xml"]),
   variants: codeVariants,
   result: executionResult.optional(),
 };
@@ -203,7 +203,7 @@ const traceStep = z
           why: z.record(z.string(), text),
           explanation: text,
           code: z
-            .object({ language: z.enum(["java", "sql", "properties"]), source: text })
+            .object({ language: z.enum(["java", "sql", "properties", "xml"]), source: text })
             .optional(),
         })
       )

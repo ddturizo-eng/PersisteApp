@@ -143,6 +143,7 @@ Reemplaza las seis etapas de REQ-16 CA2. *(Cambiado el 6 nov 2026, tarde: el qui
 - **CA2.** El indicador de etapas debe mostrar las dos etapas con su estado.
 - **CA4.** Al terminar un módulo, el sistema debe llevar al siguiente; al terminar el último módulo de la sesión, a la página «Prepárate para el quiz» (REQ-34).
 - **CA3.** La bitácora de IA (REQ-16 CA3) se mantiene como último paso de la Práctica.
+- **CA5.** La suma de minutos de los módulos 1 a 7 (publicados y planeados) no supera **100 minutos**, para que la clase de dos horas deje espacio al quiz final sin sobrecargar a los estudiantes. El build falla si se supera. *(Agregado el 6 nov 2026, noche.)*
 
 ### REQ-27 · Recorrido «¿Dónde ocurre?» — **M**
 Reemplaza al ejercicio de ordenar bloques en el módulo 4 y se reutiliza en el módulo 2.

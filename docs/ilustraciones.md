@@ -105,3 +105,13 @@ Aspect ratio 1:1, small and simple.
 3. Manos con 5 dedos y sin deformaciones.
 4. Fondo transparente o `#F7F6EF` liso.
 5. Peso: exportar a WebP calidad 85 antes de commitear (objetivo < 250 KB por imagen).
+
+### 3.x Módulo 2 · `credenciales-entorno.png` (4:3)
+Qué comunica: la clave **no va escrita en el código**; la app la recibe del entorno al arrancar. Mientras no exista, el módulo 2 usa `piezas-driver`.
+
+```text
+[STYLE block]
+SCENE: A young woman student sits at a desk with an open laptop (white screen, no text). Behind her, mounted on the wall, a small deep green #1E7B34 key cabinet with its little door open; a sun-yellow #F2D21B key floats out of the cabinet toward the laptop along a dotted curved line. On the desk, a crumpled paper ball in the trash bin next to her (the password she did not write in the code). She smiles, oversized hands resting on the keyboard. She wears a teal #1BA39C hoodie; straight dark hair in a ponytail. Two small yellow sparkles near the key.
+Aspect ratio 4:3, subject slightly to the left, empty space on the right.
+```
+

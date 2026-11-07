@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { ContentError, loadLessons, loadQuiz, nextAfter } from "@/lib/content";
+import { courseStops, MODULES_BUDGET_MINUTES, modulesMinutes } from "@/lib/course";
 import { lengthGiveaway, lessonSchema } from "@/lib/lesson-schema";
 import { hasUnclosedCode, plainText, splitInlineCode } from "@/lib/inline-code";
 
@@ -11,6 +12,10 @@ describe("content/ lessons", () => {
   it("are all valid", () => {
     const lessons = loadLessons();
     expect(lessons.length).toBeGreaterThan(0);
+  });
+
+  it("keep modules 1–7 under the 100-minute budget, published and planned", () => {
+    expect(modulesMinutes(courseStops(loadLessons()))).toBeLessThanOrEqual(MODULES_BUDGET_MINUTES);
   });
 
   it("include a valid final quiz for session 1 (REQ-29)", () => {

@@ -49,29 +49,6 @@
       ]
     },
     {
-      "id": "m1-q3",
-      "module": 1,
-      "context": "`ProductRepository` solo usa las interfaces `Connection`, `PreparedStatement` y `ResultSet` del paquete java.sql.",
-      "prompt": "¿Qué pieza traduce esas llamadas al protocolo propio del motor?",
-      "options": [
-        {
-          "text": "El driver JDBC del fabricante del motor",
-          "correct": true,
-          "explanation": "El driver implementa las interfaces de java.sql para un motor concreto."
-        },
-        {
-          "text": "La máquina virtual de Java al compilar",
-          "correct": false,
-          "explanation": "La JVM ejecuta tu programa, pero no conoce el protocolo de ningún motor."
-        },
-        {
-          "text": "El motor, que entiende objetos de Java",
-          "correct": false,
-          "explanation": "El motor no sabe nada de Java: recibe mensajes de su propio protocolo."
-        }
-      ]
-    },
-    {
       "id": "m1-q4",
       "module": 1,
       "context": "Un método abre una conexión con DriverManager.getConnection, ejecuta un SELECT y termina sin llamar a close() ni usar try-with-resources. Se llama cientos de veces.",
@@ -114,6 +91,29 @@
           "text": "`jdbc:localhost:5432/postgresql/tienda`",
           "correct": false,
           "explanation": "Después de `jdbc:` va el subprotocolo del driver, no el equipo: ningún driver acepta esa URL."
+        }
+      ]
+    },
+    {
+      "id": "m2-q2",
+      "module": 2,
+      "context": "Tu proyecto se sube a un repositorio público de GitHub para que el docente y otros equipos lo revisen.",
+      "prompt": "¿Dónde deben quedar `DB_URL`, `DB_USER` y `DB_PASSWORD`?",
+      "options": [
+        {
+          "text": "En variables de entorno que la app lee al arrancar",
+          "correct": true,
+          "explanation": "No quedan en Git y se pueden cambiar sin recompilar el proyecto."
+        },
+        {
+          "text": "Como constantes `private static final` en `Main.java`",
+          "correct": false,
+          "explanation": "Quedarían publicadas en el repositorio a la vista de cualquiera."
+        },
+        {
+          "text": "En application.properties dentro de src/main/resources",
+          "correct": false,
+          "explanation": "Ese archivo se sube a Git con el código; las claves quedarían expuestas igual."
         }
       ]
     },
@@ -258,25 +258,25 @@
       ]
     },
     {
-      "id": "m4-q3",
-      "module": 4,
-      "context": "Tu proyecto se sube a un repositorio público de GitHub para que el docente y otros equipos lo revisen.",
-      "prompt": "¿Dónde deben quedar `DB_URL`, `DB_USER` y `DB_PASSWORD`?",
+      "id": "m1-q3",
+      "module": 1,
+      "context": "`ProductRepository` solo usa las interfaces `Connection`, `PreparedStatement` y `ResultSet` del paquete java.sql.",
+      "prompt": "¿Qué pieza traduce esas llamadas al protocolo propio del motor?",
       "options": [
         {
-          "text": "En variables de entorno que la app lee al arrancar",
+          "text": "El driver JDBC del fabricante del motor",
           "correct": true,
-          "explanation": "No quedan en Git y se pueden cambiar sin recompilar el proyecto."
+          "explanation": "El driver implementa las interfaces de java.sql para un motor concreto."
         },
         {
-          "text": "Como constantes `private static final` en `Main.java`",
+          "text": "La máquina virtual de Java al compilar",
           "correct": false,
-          "explanation": "Quedarían publicadas en el repositorio a la vista de cualquiera."
+          "explanation": "La JVM ejecuta tu programa, pero no conoce el protocolo de ningún motor."
         },
         {
-          "text": "En application.properties dentro de src/main/resources",
+          "text": "El motor, que entiende objetos de Java",
           "correct": false,
-          "explanation": "Ese archivo se sube a Git con el código; las claves quedarían expuestas igual."
+          "explanation": "El motor no sabe nada de Java: recibe mensajes de su propio protocolo."
         }
       ]
     }
