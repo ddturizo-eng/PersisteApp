@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ClipboardCheck, Menu, X } from "lucide-react";
 import { cn } from "cn";
@@ -32,11 +31,14 @@ function scrollsSideways(target: EventTarget | null): boolean {
 export function ModulesMenu({ modules }: { modules: MenuModule[] }) {
   const [open, setOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
-  const pathname = usePathname();
+  // Read on open, not via usePathname(): the header is in the root layout, and that hook outside
+  // <Suspense> blocks prerendering of dynamic routes such as /docente/[code] (build failure, 7 Nov 2026).
+  const [pathname, setPathname] = useState<string | null>(null);
 
   useEffect(() => {
     const element = dialog.current;
     if (!element) return;
+    if (open) setPathname(window.location.pathname);
     if (open && !element.open) element.showModal();
     else if (!open && element.open) element.close();
   }, [open]);
