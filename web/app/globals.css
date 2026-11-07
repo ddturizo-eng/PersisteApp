@@ -150,6 +150,15 @@
     color-scheme: dark;
   }
   /*
+   * Big monitors at 100 % scaling: the base grows from 16px (1600px wide) to 20px
+   * (2560px), capped by height so a lesson step still fits. Laptops (≤1536px) keep 16px.
+   */
+  @media (min-width: 1600px) {
+    html:not([data-exposition]) {
+      font-size: clamp(1rem, min(0.45vw + 0.5625rem, 1.85vh), 1.25rem);
+    }
+  }
+  /*
    * Exposition mode (REQ-05): the base grows with the screen height, from 22px on a
    * 1280x720 projector to 28px at 1080p, so the step still fits under the chrome.
    */
