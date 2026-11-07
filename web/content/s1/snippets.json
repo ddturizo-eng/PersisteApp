@@ -1,0 +1,189 @@
+{
+  "snippets": [
+    {
+      "id": "crud-v0/App.venta",
+      "title": "Registrar venta en el CRUD v0",
+      "origin": "CRUD v0 · App.java (opción 4)",
+      "language": "java",
+      "variants": {
+        "java": "} else if (option.equals(\"4\")) {\n    System.out.print(\"Id del producto: \");\n    String id = in.nextLine();\n    System.out.print(\"Cantidad: \");\n    String quantity = in.nextLine();\n    Connection c = DriverManager.getConnection(url, user, password);\n    Statement st = c.createStatement();\n    // Sin transacción: cada sentencia se confirma sola (autocommit).\n    // Si la segunda falla, la venta queda guardada y el stock no baja.\n    st.executeUpdate(\"INSERT INTO sales (product_id, quantity, total) SELECT id, \"\n            + quantity + \", price * \" + quantity + \" FROM products WHERE id = \" + id);\n    System.out.println(\"Venta guardada\");\n    int rows = st.executeUpdate(\"UPDATE products SET stock = stock - \" + quantity\n            + \" WHERE id = \" + id + \" AND stock >= \" + quantity);\n    if (rows == 0) {\n        System.out.println(\"No había stock suficiente... pero la venta ya quedó guardada\");\n    } else {\n        System.out.println(\"Stock descontado\");\n    }"
+      },
+      "file": "crud/v0-messy/src/main/java/co/edu/unicesar/persisteapp/App.java"
+    },
+    {
+      "id": "crud-v1/Main",
+      "title": "Main arma la aplicación",
+      "origin": "CRUD v1 · Main.java",
+      "language": "java",
+      "variants": {
+        "java": "public static void main(String[] args) {\n    // try-with-resources: al salir se cierra el pool y sus conexiones\n    try (HikariDataSource dataSource = ConnectionPool.create()) {\n        ProductService products = new ProductService(\n                new JdbcProductRepository(dataSource),\n                new JdbcTransactionRunner(dataSource));\n        LoginService login = new LoginService(new UserRepository(dataSource));\n        new ConsoleMenu(products, login, new Scanner(System.in), System.out).show();\n    } catch (IllegalStateException e) {\n        System.out.println(e.getMessage());\n    }\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/Main.java"
+    },
+    {
+      "id": "crud-v1/ConsoleMenu.constructor",
+      "title": "ConsoleMenu: campos y constructor",
+      "origin": "CRUD v1 · ui/ConsoleMenu.java",
+      "language": "java",
+      "variants": {
+        "java": "private final ProductService products;\nprivate final LoginService login;\nprivate final Scanner in;\nprivate final PrintStream out;\n\npublic ConsoleMenu(ProductService products, LoginService login, Scanner in, PrintStream out) {\n    this.products = products;\n    this.login = login;\n    this.in = in;\n    this.out = out;\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/ui/ConsoleMenu.java"
+    },
+    {
+      "id": "crud-v1/ConsoleMenu.show",
+      "title": "ConsoleMenu: show() y run()",
+      "origin": "CRUD v1 · ui/ConsoleMenu.java",
+      "language": "java",
+      "variants": {
+        "java": "public void show() {\n    while (true) {\n        out.println();\n        out.println(\"== Tienda v1 ==\");\n        out.println(\"1. Listar productos\");\n        out.println(\"2. Ver producto\");\n        out.println(\"3. Crear producto\");\n        out.println(\"4. Editar producto\");\n        out.println(\"5. Borrar producto\");\n        out.println(\"6. Registrar venta\");\n        out.println(\"7. Iniciar sesión\");\n        out.println(\"0. Salir\");\n        String option = ask(\">\");\n        if (option.equals(\"0\")) {\n            return;\n        }\n        try {\n            run(option);\n        } catch (ProductNotFoundException | InsufficientStockException | IllegalArgumentException e) {\n            out.println(\"No se pudo: \" + e.getMessage());\n        } catch (DataAccessException e) {\n            out.println(\"Error de base de datos: \" + e.getMessage());\n        }\n    }\n}\n\nprivate void run(String option) {\n    switch (option) {\n        case \"1\" -> products.list().forEach(this::print);\n        case \"2\" -> print(products.find(askInt(\"Id\")));\n        case \"3\" -> print(products.create(ask(\"Nombre:\"), askMoney(\"Precio\"), askInt(\"Stock\")));\n        case \"4\" -> print(products.update(askInt(\"Id\"), ask(\"Nombre:\"), askMoney(\"Precio\"), askInt(\"Stock\")));\n        case \"5\" -> {\n            products.delete(askInt(\"Id\"));\n            out.println(\"Producto borrado\");\n        }\n        case \"6\" -> {\n            Sale sale = products.registerSale(askInt(\"Id del producto\"), askInt(\"Cantidad\"));\n            out.println(\"Venta \" + sale.id() + \" registrada por $\" + sale.total() + \" (commit)\");\n        }\n        case \"7\" -> out.println(login.login(ask(\"Usuario:\"), ask(\"Clave:\"))\n                ? \"Bienvenido\" : \"Usuario o clave incorrectos\");\n        default -> out.println(\"Opción no válida\");\n    }\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/ui/ConsoleMenu.java"
+    },
+    {
+      "id": "crud-v1/ProductService.constructor",
+      "title": "ProductService: campos y constructor",
+      "origin": "CRUD v1 · service/ProductService.java",
+      "language": "java",
+      "variants": {
+        "java": "private final ProductStore products;\nprivate final TransactionRunner transactions;\n\npublic ProductService(ProductStore products, TransactionRunner transactions) {\n    this.products = products;\n    this.transactions = transactions;\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/service/ProductService.java"
+    },
+    {
+      "id": "crud-v1/ProductService.registerSale",
+      "title": "ProductService.registerSale",
+      "origin": "CRUD v1 · service/ProductService.java",
+      "language": "java",
+      "variants": {
+        "java": "/**\n * Vender = guardar la venta + descontar el stock. Las dos cosas o ninguna:\n * si no alcanza el stock, el rollback borra también la venta ya insertada.\n */\npublic Sale registerSale(int productId, int quantity) {\n    if (quantity <= 0) {\n        throw new IllegalArgumentException(\"La cantidad debe ser mayor que cero\");\n    }\n    return transactions.inTransaction((txProducts, txSales) -> {\n        Product product = txProducts.findById(productId)\n                .orElseThrow(() -> new ProductNotFoundException(productId));\n        BigDecimal total = product.price().multiply(BigDecimal.valueOf(quantity));\n        Sale sale = txSales.save(new Sale(null, productId, quantity, total));\n        if (!txProducts.decreaseStock(productId, quantity)) {\n            throw new InsufficientStockException(product.name(), product.stock(), quantity);\n        }\n        return sale;\n    });\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/service/ProductService.java"
+    },
+    {
+      "id": "crud-v1/ProductStore",
+      "title": "La interfaz ProductStore",
+      "origin": "CRUD v1 · persistence/ProductStore.java",
+      "language": "java",
+      "variants": {
+        "java": "public interface ProductStore {\n\n    /** Inserta y devuelve el producto con el id que asignó la base. */\n    Product save(Product product);\n\n    /** @return false si no existe un producto con ese id. */\n    boolean update(Product product);\n\n    /** @return false si no existe un producto con ese id. */\n    boolean delete(int id);\n\n    Optional<Product> findById(int id);\n\n    List<Product> findAll();\n\n    /** Resta stock solo si alcanza. @return false si no había stock suficiente. */\n    boolean decreaseStock(int id, int quantity);\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/persistence/ProductStore.java"
+    },
+    {
+      "id": "crud-v1/SaleStore",
+      "title": "La interfaz SaleStore",
+      "origin": "CRUD v1 · persistence/SaleStore.java",
+      "language": "java",
+      "variants": {
+        "java": "public interface SaleStore {\n\n    /** Inserta y devuelve la venta con el id que asignó la base. */\n    Sale save(Sale sale);\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/persistence/SaleStore.java"
+    },
+    {
+      "id": "crud-v1/JdbcTransactionRunner.inTransaction",
+      "title": "JdbcTransactionRunner.inTransaction",
+      "origin": "CRUD v1 · persistence/JdbcTransactionRunner.java",
+      "language": "java",
+      "variants": {
+        "java": "public <T> T inTransaction(Work<T> work) {\n    try (Connection connection = dataSource.getConnection()) {\n        connection.setAutoCommit(false);              // desde aquí nada se guarda solo\n        try {\n            T result = work.run(new JdbcProductRepository(connection),\n                                new JdbcSaleRepository(connection));\n            connection.commit();                      // todo salió bien: se guarda todo\n            return result;\n        } catch (RuntimeException e) {\n            connection.rollback();                    // algo falló: no se guarda nada\n            throw e;\n        } finally {\n            connection.setAutoCommit(true);           // la conexión vuelve limpia al pool\n        }\n    } catch (SQLException e) {\n        throw new DataAccessException(\"Falló la transacción: \" + e.getMessage(), e);\n    }\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/persistence/JdbcTransactionRunner.java"
+    },
+    {
+      "id": "crud-v1/JdbcProductRepository.decreaseStock",
+      "title": "JdbcProductRepository.decreaseStock",
+      "origin": "CRUD v1 · persistence/JdbcProductRepository.java",
+      "language": "java",
+      "variants": {
+        "java": "public boolean decreaseStock(int id, int quantity) {\n    // La condición stock >= ? evita vender lo que no hay, aunque dos cajas vendan a la vez\n    String sql = \"UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?\";\n    return withConnection(\"descontar el stock\", connection -> {\n        try (PreparedStatement ps = connection.prepareStatement(sql)) {\n            ps.setInt(1, quantity);\n            ps.setInt(2, id);\n            ps.setInt(3, quantity);\n            return ps.executeUpdate() == 1;\n        }\n    });\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/persistence/JdbcProductRepository.java"
+    },
+    {
+      "id": "crud-v1/UserRepository.login",
+      "title": "UserRepository.login (versión segura)",
+      "origin": "CRUD v1 · persistence/UserRepository.java",
+      "language": "java",
+      "variants": {
+        "java": "public boolean login(String user, String password) {\n    String sql = \"SELECT id FROM users WHERE name = ? AND password = ?\";\n    return withConnection(\"validar el usuario\", connection -> {\n        try (PreparedStatement ps = connection.prepareStatement(sql)) {\n            ps.setString(1, user);\n            ps.setString(2, password);\n            try (ResultSet rs = ps.executeQuery()) {\n                return rs.next();\n            }\n        }\n    });\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/persistence/UserRepository.java"
+    },
+    {
+      "id": "crud-v1/LoginService",
+      "title": "LoginService",
+      "origin": "CRUD v1 · service/LoginService.java",
+      "language": "java",
+      "variants": {
+        "java": "public class LoginService {\n\n    private final UserRepository users;\n\n    public LoginService(UserRepository users) {\n        this.users = users;\n    }\n\n    public boolean login(String user, String password) {\n        if (user == null || user.isBlank() || password == null || password.isEmpty()) {\n            return false;\n        }\n        return users.login(user.trim(), password);\n    }\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/service/LoginService.java"
+    },
+    {
+      "id": "crud-v1/ProductServiceTest.setup",
+      "title": "ProductServiceTest: mocks y preparación",
+      "origin": "CRUD v1 · ProductServiceTest.java (pruebas)",
+      "language": "java",
+      "variants": {
+        "java": "@Mock ProductStore products;\n@Mock ProductStore txProducts;\n@Mock SaleStore txSales;\n@Mock TransactionRunner transactions;\n\nProductService service;\n\nstatic final Product KEYBOARD = new Product(1, \"Teclado\", new BigDecimal(\"100.50\"), 3);\n\n@BeforeEach\nvoid setUp() {\n    service = new ProductService(products, transactions);\n}"
+      },
+      "file": "crud/v1-layered/src/test/java/co/edu/unicesar/persisteapp/service/ProductServiceTest.java"
+    },
+    {
+      "id": "m1/cuatro-piezas",
+      "title": "Las cuatro piezas en el código",
+      "origin": "Módulo 1 · ejemplo",
+      "language": "java",
+      "variants": {
+        "java": "// 1. Aplicación: tu código decide qué pedir\nString url = \"jdbc:postgresql://localhost:5432/tienda\";\n\n// 2. Driver: JDBC busca el driver que entiende \"jdbc:postgresql:\"\n// 3. Red: el driver abre una conexión TCP a localhost:5432\n// 4. Motor: PostgreSQL valida el usuario y la clave\ntry (Connection connection = DriverManager.getConnection(url, user, password);\n     PreparedStatement ps = connection.prepareStatement(\"SELECT name FROM products\");\n     ResultSet rs = ps.executeQuery()) {   // el motor ejecuta el SELECT\n    while (rs.next()) {                    // el driver entrega fila por fila\n        System.out.println(rs.getString(\"name\"));\n    }\n}"
+      }
+    },
+    {
+      "id": "m2/url",
+      "title": "La URL cambia con el motor",
+      "origin": "Módulo 2 · ejemplo",
+      "language": "java",
+      "variants": {
+        "oracle": "// jdbc:oracle:thin:@//servidor:puerto/servicio\nString url = \"jdbc:oracle:thin:@//localhost:1521/FREEPDB1\";",
+        "postgresql": "// jdbc:postgresql://servidor:puerto/base\nString url = \"jdbc:postgresql://localhost:5432/tienda\";"
+      }
+    },
+    {
+      "id": "m2/database",
+      "title": "Database.java: tu primera conexión",
+      "origin": "Módulo 2 · Database.java",
+      "language": "java",
+      "variants": {
+        "java": "public final class Database {\n\n    // Se leen al arrancar: nunca quedan escritas en el código\n    private static final String URL = System.getenv(\"DB_URL\");\n    private static final String USER = System.getenv(\"DB_USER\");\n    private static final String PASSWORD = System.getenv(\"DB_PASSWORD\");\n\n    public static void main(String[] args) throws SQLException {\n        // try-with-resources cierra la conexión aunque algo falle\n        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {\n            DatabaseMetaData meta = connection.getMetaData();\n            System.out.println(\"Conectado a \" + meta.getDatabaseProductName()\n                    + \" \" + meta.getDatabaseProductVersion());\n        }\n    }\n}"
+      }
+    },
+    {
+      "id": "m3/hikari",
+      "title": "Un pool con HikariCP",
+      "origin": "Módulo 3 · ejemplo",
+      "language": "java",
+      "variants": {
+        "java": "// Se crea UNA vez, al arrancar la app\nHikariConfig config = new HikariConfig();\nconfig.setJdbcUrl(System.getenv(\"DB_URL\"));\nconfig.setUsername(System.getenv(\"DB_USER\"));\nconfig.setPassword(System.getenv(\"DB_PASSWORD\"));\nconfig.setMaximumPoolSize(4);              // conexiones abiertas a la vez\nDataSource dataSource = new HikariDataSource(config);\n\n// En cada consulta\ntry (Connection connection = dataSource.getConnection()) {   // la pide prestada\n    // ... preparar y ejecutar la consulta ...\n}                                                            // close() la devuelve al pool"
+      }
+    },
+    {
+      "id": "m4/user-repository-v0",
+      "title": "UserRepository, versión v0",
+      "origin": "Módulo 4 · login inseguro",
+      "language": "java",
+      "variants": {
+        "java": "public boolean login(String user, String password) throws SQLException {\n    String sql = \"SELECT id FROM users WHERE name = '\" + user\n               + \"' AND password = '\" + password + \"'\";\n    try (Statement st = connection.createStatement();\n         ResultSet rs = st.executeQuery(sql)) {\n        return rs.next();\n    }\n}"
+      }
+    },
+    {
+      "id": "m5/venta-sin-transaccion",
+      "title": "registerSale sin transacción",
+      "origin": "Módulo 5 · ejemplo",
+      "language": "java",
+      "variants": {
+        "java": "public void registerSale(int productId, int quantity) throws SQLException {\n    try (Connection connection = dataSource.getConnection()) {\n        // autocommit está encendido: cada executeUpdate() se guarda al terminar\n        insertSale(connection, productId, quantity);        // 1. INSERT INTO sales ...\n        int rows = decreaseStock(connection, productId, quantity);\n        // 2. UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?\n        if (rows == 0) {\n            throw new InsufficientStockException(productId, quantity);\n            // ...pero la venta del paso 1 ya está guardada\n        }\n    }\n}"
+      }
+    }
+  ]
+}

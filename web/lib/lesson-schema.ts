@@ -60,6 +60,13 @@ const exactlyOneCorrect = (options: { correct: boolean }[]) =>
 const questionContext = text.optional();
 
 /**
+ * Snippets (content/<session>/snippets.json) the step opens in the «Ver código» modal, so the
+ * student never has to go back to an earlier step. `[]` means «no modal on purpose»: any snippet
+ * would give the answer away. Validated against the snippets file by lib/content.ts.
+ */
+const refs = z.array(z.string()).max(4, "máximo 4 fragmentos").optional();
+
+/**
  * REQ-32 CA3: the right option must not stand out by length — at most 20 % longer than the
  * longest wrong option and at most 20 % shorter than the shortest wrong one.
  */
@@ -82,6 +89,7 @@ const questionStep = z.object({
   kind: z.literal("question"),
   stage,
   context: questionContext,
+  refs,
   prompt: text,
   options: z
     .array(choice)
@@ -106,9 +114,11 @@ const codeBase = {
   language: z.enum(["java", "sql", "xml"]),
   variants: codeVariants,
   result: executionResult.optional(),
+  refs,
 };
 
-const readCode = z.object({ ...codeBase, mode: z.literal("read") });
+/** `snippet`: the read step shows that snippet; lib/content.ts copies its code into `variants`. */
+const readCode = z.object({ ...codeBase, mode: z.literal("read"), snippet: z.string().optional() });
 
 const pickLineCode = z.object({
   ...codeBase,
@@ -125,6 +135,7 @@ const pickLineCode = z.object({
 const orderCode = z.object({
   ...codeBase,
   mode: z.literal("order"),
+  context: questionContext,
   prompt: text,
   /** Blocks in the correct order; the player shuffles them. */
   blocks: z.array(text).min(3, "necesita al menos 3 bloques"),
@@ -139,6 +150,7 @@ const fillCode = z
   .object({
     ...codeBase,
     mode: z.literal("fill"),
+    context: questionContext,
     prompt: text,
     /** Shown one per failed check; after 2 failures «Ver solución» appears (REQ-04 CA5). */
     hints: z.array(text).optional(),
@@ -191,6 +203,7 @@ const traceStep = z
     stage,
     title: text,
     intro: text,
+    refs,
     locations: z.array(traceLocation).min(3, "necesita al menos 3 lugares"),
     events: z
       .array(

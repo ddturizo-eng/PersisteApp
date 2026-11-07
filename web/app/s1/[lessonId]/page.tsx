@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { LessonPlayerFromUrl } from "@/components/lesson/lesson-player";
-import { findLesson, lessonsForSession, nextAfter } from "@/lib/content";
+import { findLesson, lessonsForSession, nextAfter, snippetsForLesson } from "@/lib/content";
 import { highlightLesson } from "@/lib/highlight-server";
 
 /** Every session 1 lesson is prerendered at build time. */
@@ -29,6 +29,7 @@ async function Lesson({ params }: Pick<PageProps<"/s1/[lessonId]">, "params">) {
   if (!lesson || lesson.session !== 1) notFound();
 
   // ?step= is read on the client; the static HTML starts at step 1.
-  const highlights = await highlightLesson(lesson);
-  return <LessonPlayerFromUrl lesson={lesson} highlights={highlights} next={nextAfter(lesson)} />;
+  const snippets = snippetsForLesson(lesson);
+  const highlights = await highlightLesson(lesson, Object.values(snippets));
+  return <LessonPlayerFromUrl lesson={lesson} highlights={highlights} snippets={snippets} next={nextAfter(lesson)} />;
 }

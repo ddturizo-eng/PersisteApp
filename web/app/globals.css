@@ -221,3 +221,11 @@
   padding-left: 4ch;
   text-indent: -4ch;
 }
+
+/* «Ver código» modal: lines keep their shape and the code scrolls sideways (7 Nov 2026). */
+.code-nowrap .code-line {
+  white-space: pre;
+  overflow-wrap: normal;
+  padding-left: 0;
+  text-indent: 0;
+}

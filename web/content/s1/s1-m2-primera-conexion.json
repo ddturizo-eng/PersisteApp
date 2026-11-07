@@ -34,16 +34,16 @@
       "mode": "read",
       "language": "java",
       "title": "La URL cambia con el motor",
-      "variants": {
-        "oracle": "// jdbc:oracle:thin:@//servidor:puerto/servicio\nString url = \"jdbc:oracle:thin:@//localhost:1521/FREEPDB1\";",
-        "postgresql": "// jdbc:postgresql://servidor:puerto/base\nString url = \"jdbc:postgresql://localhost:5432/tienda\";"
-      }
+      "snippet": "m2/url"
     },
     {
       "kind": "question",
       "stage": "theory",
       "context": "La base tienda se mudó de tu portátil al servidor del laboratorio, cuya dirección es 10.0.0.25. El motor sigue siendo PostgreSQL en su puerto por defecto.",
       "prompt": "¿Qué parte de `jdbc:postgresql://localhost:5432/tienda` tienes que cambiar?",
+      "refs": [
+        "m2/url"
+      ],
       "options": [
         {
           "text": "Solo el servidor: `localhost` pasa a ser `10.0.0.25`",
@@ -75,19 +75,20 @@
       "mode": "read",
       "language": "java",
       "title": "Tu primera conexión, completa",
-      "variants": {
-        "java": "public final class Database {\n\n    // Se leen al arrancar: nunca quedan escritas en el código\n    private static final String URL = System.getenv(\"DB_URL\");\n    private static final String USER = System.getenv(\"DB_USER\");\n    private static final String PASSWORD = System.getenv(\"DB_PASSWORD\");\n\n    public static void main(String[] args) throws SQLException {\n        // try-with-resources cierra la conexión aunque algo falle\n        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {\n            DatabaseMetaData meta = connection.getMetaData();\n            System.out.println(\"Conectado a \" + meta.getDatabaseProductName()\n                    + \" \" + meta.getDatabaseProductVersion());\n        }\n    }\n}"
-      },
       "result": {
         "kind": "simulated",
         "output": "Conectado a PostgreSQL 16.4"
-      }
+      },
+      "snippet": "m2/database"
     },
     {
       "kind": "trace",
       "stage": "practice",
       "title": "¿Dónde ocurre? Tu primera conexión",
       "intro": "Ejecutas `Database.main` en tu portátil. Sigue la conexión desde antes de arrancar hasta que se cierra y elige, en cada momento, dónde pasa.",
+      "refs": [
+        "m2/database"
+      ],
       "locations": [
         {
           "id": "env",
@@ -198,7 +199,10 @@
       "kind": "question",
       "stage": "practice",
       "context": "Al ejecutar `Database.main` en el laboratorio aparece:\n\norg.postgresql.util.PSQLException: FATAL: password authentication failed for user \"tienda_app\"",
-      "prompt": "¿Qué revisas primero?",
+      "prompt": "¿Qué revisas primero para corregir ese error?",
+      "refs": [
+        "m2/database"
+      ],
       "options": [
         {
           "text": "El valor de la variable `DB_PASSWORD` en este equipo",
@@ -223,6 +227,7 @@
       "mode": "fill",
       "language": "java",
       "title": "Completa la clase Database",
+      "context": "Es la clase `Database` del paso 6, con dos huecos: cómo se lee la clave y cómo se abre la conexión para que se cierre sola.",
       "prompt": "Elige en cada lista lo que corresponde para leer la clave del entorno y cerrar la conexión sola.",
       "variants": {
         "java": "private static final String PASSWORD = System.{{1}}(\"DB_PASSWORD\");\n\npublic static void main(String[] args) throws SQLException {\n    try ({{2}} connection = DriverManager.getConnection(URL, USER, PASSWORD)) {\n        System.out.println(\"Conectado\");\n    }\n}"

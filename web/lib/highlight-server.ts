@@ -4,6 +4,7 @@ import { codeToTokens } from "shiki";
 import { toSentinels } from "@/lib/exercises";
 import { highlightKey, type Highlights, type TokenLines } from "@/lib/highlight";
 import type { Lesson } from "@/lib/lesson-schema";
+import type { Snippet } from "@/lib/snippets";
 
 const themes = { light: "github-light-default", dark: "github-dark-default" } as const;
 
@@ -31,12 +32,15 @@ function codeStrings(lesson: Lesson): { language: Language; code: string }[] {
 }
 
 /** Highlights a lesson's code with Shiki at build time (decision of 6 Nov 2026: Shiki, not Monaco). */
-export async function highlightLesson(lesson: Lesson): Promise<Highlights> {
+export async function highlightLesson(lesson: Lesson, snippets: Snippet[] = []): Promise<Highlights> {
   "use cache";
   // Content only changes with a new deploy, so the result never expires.
   cacheLife("max");
   const highlights: Highlights = {};
-  for (const { language, code } of codeStrings(lesson)) {
+  const snippetCode = snippets.flatMap((snippet) =>
+    Object.values(snippet.variants).flatMap((code) => (code ? [{ language: snippet.language, code }] : []))
+  );
+  for (const { language, code } of [...codeStrings(lesson), ...snippetCode]) {
     const key = highlightKey(language, code);
     if (highlights[key]) continue;
     const { tokens } = await codeToTokens(code, { lang: language, themes });

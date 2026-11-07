@@ -59,9 +59,7 @@
       "mode": "read",
       "language": "java",
       "title": "Un pool con HikariCP",
-      "variants": {
-        "java": "// Se crea UNA vez, al arrancar la app\nHikariConfig config = new HikariConfig();\nconfig.setJdbcUrl(System.getenv(\"DB_URL\"));\nconfig.setUsername(System.getenv(\"DB_USER\"));\nconfig.setPassword(System.getenv(\"DB_PASSWORD\"));\nconfig.setMaximumPoolSize(4);              // conexiones abiertas a la vez\nDataSource dataSource = new HikariDataSource(config);\n\n// En cada consulta\ntry (Connection connection = dataSource.getConnection()) {   // la pide prestada\n    // ... preparar y ejecutar la consulta ...\n}                                                            // close() la devuelve al pool"
-      }
+      "snippet": "m3/hikari"
     },
     {
       "kind": "visual",
@@ -98,60 +96,107 @@
       "stage": "practice",
       "title": "¿Dónde ocurre? Una consulta con pool",
       "intro": "`ProductRepository` lista los productos usando el pool. Sigue la conexión desde que arranca la app hasta que vuelve al pool y elige, en cada momento, dónde pasa.",
+      "refs": [
+        "m3/hikari"
+      ],
       "locations": [
-        { "id": "app", "label": "Tu código (ProductRepository.java)", "kind": "class" },
-        { "id": "pool", "label": "Pool de conexiones (HikariCP)", "kind": "class" },
-        { "id": "red", "label": "Red (TCP, puerto 5432)", "kind": "network" },
-        { "id": "db", "label": "Motor PostgreSQL", "kind": "db" }
+        {
+          "id": "app",
+          "label": "Tu código (ProductRepository.java)",
+          "kind": "class"
+        },
+        {
+          "id": "pool",
+          "label": "Pool de conexiones (HikariCP)",
+          "kind": "class"
+        },
+        {
+          "id": "red",
+          "label": "Red (TCP, puerto 5432)",
+          "kind": "network"
+        },
+        {
+          "id": "db",
+          "label": "Motor PostgreSQL",
+          "kind": "db"
+        }
       ],
       "events": [
         {
           "moment": "Al arrancar la app",
           "description": "Se abren 4 conexiones y quedan listas, antes de que llegue la primera consulta.",
-          "options": ["pool", "app", "db"],
+          "options": [
+            "pool",
+            "app",
+            "db"
+          ],
           "answer": "pool",
           "why": {
             "app": "Tu código solo crea el pool con `new HikariDataSource(config)`; abrir las conexiones lo hace el pool.",
             "db": "El motor acepta las conexiones, pero quien las abre por adelantado es el pool."
           },
           "explanation": "HikariCP abre sus conexiones al crearse. Ese es el único momento en que se paga el costo de conectarse.",
-          "code": { "language": "java", "source": "DataSource dataSource = new HikariDataSource(config);" }
+          "code": {
+            "language": "java",
+            "source": "DataSource dataSource = new HikariDataSource(config);"
+          }
         },
         {
           "moment": "Llega una consulta",
           "description": "`getConnection()` entrega una conexión que ya estaba abierta.",
-          "options": ["pool", "red", "db"],
+          "options": [
+            "pool",
+            "red",
+            "db"
+          ],
           "answer": "pool",
           "why": {
             "red": "No viaja nada por la red: la conexión ya existía.",
             "db": "El motor no se entera del préstamo: para él la conexión siguió abierta todo el tiempo."
           },
           "explanation": "El pool presta una conexión libre en microsegundos. Si no hay ninguna libre, la consulta espera en fila.",
-          "code": { "language": "java", "source": "try (Connection connection = dataSource.getConnection()) {" }
+          "code": {
+            "language": "java",
+            "source": "try (Connection connection = dataSource.getConnection()) {"
+          }
         },
         {
           "moment": "Se ejecuta el SELECT",
           "description": "Se leen las filas de la tabla products.",
-          "options": ["db", "pool", "app"],
+          "options": [
+            "db",
+            "pool",
+            "app"
+          ],
           "answer": "db",
           "why": {
             "pool": "El pool solo presta conexiones: no ejecuta SQL.",
             "app": "Tu código envía la consulta, pero las filas las lee el motor."
           },
           "explanation": "La consulta viaja por la conexión prestada y el motor la ejecuta, igual que sin pool.",
-          "code": { "language": "sql", "source": "SELECT name, price FROM products" }
+          "code": {
+            "language": "sql",
+            "source": "SELECT name, price FROM products"
+          }
         },
         {
           "moment": "Sale del try",
           "description": "Se llama a `close()` sobre la conexión.",
-          "options": ["pool", "db", "app"],
+          "options": [
+            "pool",
+            "db",
+            "app"
+          ],
           "answer": "pool",
           "why": {
             "db": "El motor no cierra nada: la conexión sigue abierta para la siguiente consulta.",
             "app": "Tu código llama a `close()`, pero lo que pasa con la conexión lo decide el pool."
           },
           "explanation": "Con pool, `close()` devuelve la conexión en vez de cortarla. Por eso hay que llamarlo siempre: una conexión que no se devuelve deja al pool con una menos.",
-          "code": { "language": "java", "source": "}   // close(): la conexión vuelve al pool" }
+          "code": {
+            "language": "java",
+            "source": "}   // close(): la conexión vuelve al pool"
+          }
         }
       ]
     },

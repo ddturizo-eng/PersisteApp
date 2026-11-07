@@ -22,9 +22,7 @@
       "mode": "read",
       "language": "java",
       "title": "UserRepository, versión v0",
-      "variants": {
-        "java": "public boolean login(String user, String password) throws SQLException {\n    String sql = \"SELECT id FROM users WHERE name = '\" + user\n               + \"' AND password = '\" + password + \"'\";\n    try (Statement st = connection.createStatement();\n         ResultSet rs = st.executeQuery(sql)) {\n        return rs.next();\n    }\n}"
-      }
+      "snippet": "m4/user-repository-v0"
     },
     {
       "kind": "code",
@@ -50,7 +48,10 @@
     {
       "kind": "question",
       "stage": "theory",
-      "prompt": "Repaso: ¿qué devuelve `login()` en ese caso?",
+      "prompt": "Con esa entrada, ¿qué devuelve `login()`?",
+      "refs": [
+        "m4/user-repository-v0"
+      ],
       "options": [
         {
           "text": "true, porque la condición OR '1'='1' se cumple en todas las filas",
@@ -84,6 +85,9 @@
       "language": "java",
       "title": "Elige la consulta segura",
       "prompt": "¿Cuál de estas líneas debe definir sql para que el login sea seguro?",
+      "refs": [
+        "m4/user-repository-v0"
+      ],
       "variants": {
         "java": "String sql = /* aquí va la línea */;\ntry (PreparedStatement ps = connection.prepareStatement(sql)) { ... }"
       },
@@ -116,6 +120,11 @@
       "stage": "practice",
       "title": "¿Dónde ocurre? Un login de principio a fin",
       "intro": "Sigue un login desde antes de arrancar la app hasta que la conexión vuelve al pool. En cada momento, elige en qué archivo o clase pasa.",
+      "refs": [
+        "crud-v1/Main",
+        "crud-v1/UserRepository.login",
+        "crud-v1/LoginService"
+      ],
       "locations": [
         {
           "id": "env",
@@ -134,7 +143,7 @@
         },
         {
           "id": "ui",
-          "label": "LoginMenu.java",
+          "label": "ConsoleMenu.java",
           "kind": "class"
         },
         {
@@ -214,7 +223,7 @@
           "explanation": "`Main` arma las piezas una sola vez y las inyecta por constructor: pool → repositorio → servicio → interfaz.",
           "code": {
             "language": "java",
-            "source": "DataSource dataSource = ConnectionPool.create();\nUserRepository users = new UserRepository(dataSource);\nLoginService login = new LoginService(users);\nnew LoginMenu(login).show();"
+            "source": "DataSource dataSource = ConnectionPool.create();\nUserRepository users = new UserRepository(dataSource);\nLoginService login = new LoginService(users);\n// products es el servicio de la tienda (módulo 6)\nnew ConsoleMenu(products, login, new Scanner(System.in), System.out).show();"
           }
         },
         {
@@ -330,7 +339,11 @@
       "mode": "fill",
       "language": "java",
       "title": "Corrige el repositorio",
+      "context": "Es el `login()` de `UserRepository` ya con `PreparedStatement`: falta elegir cómo se pasa cada dato a su signo `?`.",
       "prompt": "Elige en cada lista el método que corresponde para enviar el usuario y la clave como parámetros.",
+      "refs": [
+        "m4/user-repository-v0"
+      ],
       "variants": {
         "java": "public boolean login(String user, String password) throws SQLException {\n    String sql = \"SELECT id FROM users WHERE name = ? AND password = ?\";\n    try (PreparedStatement ps = connection.{{1}}(sql)) {\n        ps.{{2}}(1, user);\n        ps.{{2}}(2, password);\n        try (ResultSet rs = ps.executeQuery()) {\n            return rs.next();\n        }\n    }\n}"
       },

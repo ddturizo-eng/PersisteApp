@@ -22,15 +22,15 @@
       "mode": "read",
       "language": "java",
       "title": "registerSale sin transacción",
-      "variants": {
-        "java": "public void registerSale(int productId, int quantity) throws SQLException {\n    try (Connection connection = dataSource.getConnection()) {\n        // autocommit está encendido: cada executeUpdate() se guarda al terminar\n        insertSale(connection, productId, quantity);        // 1. INSERT INTO sales ...\n        int rows = decreaseStock(connection, productId, quantity);\n        // 2. UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?\n        if (rows == 0) {\n            throw new InsufficientStockException(productId, quantity);\n            // ...pero la venta del paso 1 ya está guardada\n        }\n    }\n}"
-      }
+      "snippet": "m5/venta-sin-transaccion"
     },
     {
       "kind": "visual",
       "stage": "theory",
       "component": "mirror",
-      "props": { "mode": "autocommit" },
+      "props": {
+        "mode": "autocommit"
+      },
       "title": "Mira cómo queda a medias",
       "caption": "Vende 3 memorias USB cuando solo hay 2. A la izquierda, lo que ejecuta tu app; a la derecha, lo que queda guardado en la base."
     },
@@ -39,6 +39,9 @@
       "stage": "theory",
       "context": "Sin transacción, `registerSale(4, 3)` inserta la venta y luego el UPDATE no cambia ninguna fila porque solo había 2 memorias USB.",
       "prompt": "¿Qué queda guardado en la base después del error?",
+      "refs": [
+        "m5/venta-sin-transaccion"
+      ],
       "options": [
         {
           "text": "La venta de 3 unidades, con el stock todavía en 2",
@@ -87,14 +90,53 @@
       "mode": "fill",
       "language": "java",
       "title": "Completa la transacción",
+      "context": "Es la venta del paso 2, ahora dentro de una transacción: la conexión sale del pool y `decreaseStockOrThrow` lanza una excepción si no alcanza el stock.",
       "prompt": "Elige lo que falta para que la venta y el stock se guarden juntos o no se guarde ninguno.",
+      "refs": [
+        "m5/venta-sin-transaccion"
+      ],
       "variants": {
         "java": "try (Connection connection = dataSource.getConnection()) {\n    connection.setAutoCommit({{1}});\n    try {\n        insertSale(connection, productId, quantity);\n        decreaseStockOrThrow(connection, productId, quantity);\n        connection.{{2}}();\n    } catch (RuntimeException e) {\n        connection.{{3}}();\n        throw e;\n    } finally {\n        connection.setAutoCommit(true);\n    }\n}"
       },
       "gaps": [
-        { "id": 1, "label": "Apagar el autocommit", "answers": ["false"], "choices": ["true", "false"], "hint": "Mientras dure la venta, nada debe guardarse solo." },
-        { "id": 2, "label": "Guardar todo", "answers": ["commit"], "choices": ["commit", "rollback", "close"], "hint": "Este va cuando las dos sentencias funcionaron." },
-        { "id": 3, "label": "Deshacer todo", "answers": ["rollback"], "choices": ["commit", "rollback", "close"], "hint": "Este va cuando algo falló." }
+        {
+          "id": 1,
+          "label": "Apagar el autocommit",
+          "answers": [
+            "false"
+          ],
+          "choices": [
+            "true",
+            "false"
+          ],
+          "hint": "Mientras dure la venta, nada debe guardarse solo."
+        },
+        {
+          "id": 2,
+          "label": "Guardar todo",
+          "answers": [
+            "commit"
+          ],
+          "choices": [
+            "commit",
+            "rollback",
+            "close"
+          ],
+          "hint": "Este va cuando las dos sentencias funcionaron."
+        },
+        {
+          "id": 3,
+          "label": "Deshacer todo",
+          "answers": [
+            "rollback"
+          ],
+          "choices": [
+            "commit",
+            "rollback",
+            "close"
+          ],
+          "hint": "Este va cuando algo falló."
+        }
       ],
       "hints": [
         "Con `setAutoCommit(true)` cada sentencia se confirmaría sola y no habría nada que deshacer.",
@@ -106,6 +148,9 @@
       "stage": "practice",
       "context": "La conexión viene de un pool HikariCP. Un compañero borra el `finally` con `connection.setAutoCommit(true)` porque «la transacción ya terminó».",
       "prompt": "¿Qué le puede pasar a la siguiente consulta que reciba esa conexión del pool?",
+      "refs": [
+        "crud-v1/JdbcTransactionRunner.inTransaction"
+      ],
       "options": [
         {
           "text": "Sus cambios quedan pendientes y nunca se confirman",

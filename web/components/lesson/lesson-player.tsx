@@ -8,6 +8,8 @@ import { ExpositionTimer, ExpositionToggle } from "@/components/exposition";
 import { StageIndicator } from "@/components/lesson/stage-indicator";
 import { StepOverview } from "@/components/lesson/step-overview";
 import { TraceStep } from "@/components/lesson/trace-step";
+import { SnippetsProvider } from "@/components/lesson/code-refs";
+import { laterUses, type SnippetMap } from "@/lib/snippets";
 import { CodeStep, QuestionStep, TextStep, VisualStep } from "@/components/lesson/steps";
 import type { StepNav } from "@/components/lesson/step-nav";
 import type { Highlights } from "@/lib/highlight";
@@ -29,11 +31,23 @@ const readStepParam = () => new URLSearchParams(window.location.search).get("ste
  * Mounts the player at ?step= (1-based). The server and the first client render use step 1;
  * once the URL is known the player remounts at the requested step.
  */
-export function LessonPlayerFromUrl({ lesson, highlights, next }: { lesson: Lesson; highlights: Highlights; next: NextStop }) {
+export function LessonPlayerFromUrl({
+  lesson,
+  highlights,
+  snippets = {},
+  next,
+}: {
+  lesson: Lesson;
+  highlights: Highlights;
+  snippets?: SnippetMap;
+  next: NextStop;
+}) {
   const stepParam = useSyncExternalStore(subscribeToNothing, readStepParam, () => null);
   const initialIndex = stepIndexFromParam(stepParam, lesson.steps.length);
   return (
-    <LessonPlayer key={stepParam ?? "server"} lesson={lesson} highlights={highlights} next={next} initialIndex={initialIndex} />
+    <SnippetsProvider value={{ snippets, highlights }}>
+      <LessonPlayer key={stepParam ?? "server"} lesson={lesson} highlights={highlights} next={next} initialIndex={initialIndex} />
+    </SnippetsProvider>
   );
 }
 
@@ -66,6 +80,7 @@ export function LessonPlayer({
   const onNav = useCallback((next: StepNav) => setNav({ index, nav: next }), [index]);
 
   const step = lesson.steps[index];
+  const stepRefs = lesson.steps.map((s) => ({ refs: "refs" in s ? s.refs : undefined }));
   const isLast = index === total - 1;
   const stepDone = canAdvance(lesson, index, attempts, solved);
   const advanceAllowed = innerNav ? innerNav.canAdvance : stepDone;
@@ -97,7 +112,8 @@ export function LessonPlayer({
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-      if (isTypingTarget(event.target) || overviewOpen) return;
+      // An open dialog («Ver código», overview) owns the keyboard: ← → must not change step behind it.
+      if (isTypingTarget(event.target) || overviewOpen || document.querySelector("dialog[open]")) return;
       if (event.key === "o" || event.key === "O") {
         event.preventDefault();
         setOverviewOpen(true);
@@ -179,6 +195,7 @@ export function LessonPlayer({
             solved={solved[index] === true}
             onSolved={() => setSolved((current) => ({ ...current, [index]: true }))}
             headingRef={headingRef}
+            laterSteps={step.mode === "read" && step.snippet ? laterUses(stepRefs, index, step.snippet) : []}
           />
         )}
         {step.kind === "trace" && (

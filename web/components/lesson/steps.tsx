@@ -17,6 +17,7 @@ import { InlineText } from "@/components/lesson/inline-text";
 import { PoolDemo } from "@/components/landing/pool-demo";
 import { PoolSimulator } from "@/components/lesson/pool-simulator";
 import { MirrorSimulator } from "@/components/lesson/mirror-simulator";
+import { AttentionNote, CodeRefs } from "@/components/lesson/code-refs";
 import { SafeQueryDemo } from "@/components/landing/safe-query-demo";
 import { SystemMap } from "@/components/landing/system-map";
 import { illustrations, illustrationSrc, type IllustrationName } from "@/lib/illustrations";
@@ -160,6 +161,7 @@ export function QuestionStep({
     <div className="space-y-6">
       <p className="text-sm font-medium text-muted-foreground">{stageLabels[step.stage]}</p>
       {step.context && <Context text={step.context} />}
+      <CodeRefs refs={step.refs} />
       <div id={promptId}>
         <StepHeading headingRef={headingRef}>
           <InlineText text={step.prompt} />
@@ -239,6 +241,7 @@ export function CodeStep({
   solved,
   onSolved,
   headingRef,
+  laterSteps = [],
 }: {
   step: StepOf<"code">;
   stepKey: string;
@@ -246,6 +249,8 @@ export function CodeStep({
   solved: boolean;
   onSolved: () => void;
   headingRef: Ref<HTMLHeadingElement>;
+  /** Later steps that ask about this read step's code: shows the attention note. */
+  laterSteps?: number[];
 }) {
   const [engine, setEngine] = useEngine();
   const lookup = (code: string) => highlights[highlightKey(step.language, toSentinels(code))];
@@ -264,6 +269,9 @@ export function CodeStep({
     <div className="space-y-6">
       <p className="text-sm font-medium text-muted-foreground">{stageLabels[step.stage]}</p>
       <StepHeading headingRef={headingRef}>{step.title ?? "Código"}</StepHeading>
+      {step.mode === "read" && <AttentionNote steps={laterSteps} />}
+      {step.mode !== "read" && <CodeRefs refs={step.refs} />}
+      {(step.mode === "fill" || step.mode === "order") && step.context && <Context text={step.context} />}
 
       {step.mode === "read" && wrapTabs(<CodeView lines={lookup(code)} fallback={code} />)}
       {step.mode === "pick-line" && (

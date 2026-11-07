@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState, type Ref } from "react";
 import { Check, Database, FileCode2, FileKey2, Network, X } from "lucide-react";
 import { cn } from "cn";
+import { CodeRefs } from "@/components/lesson/code-refs";
 import { CodeView } from "@/components/code/code-view";
 import { highlightKey, type Highlights } from "@/lib/highlight";
 import { stageLabels } from "@/lib/lesson-schema";
@@ -108,6 +109,7 @@ export function TraceStep({
             <InlineText text={step.intro} />
           </p>
         )}
+        <CodeRefs refs={step.refs} />
       </div>
 
       {/* Segmented progress: one segment per moment, then the summary. */}
