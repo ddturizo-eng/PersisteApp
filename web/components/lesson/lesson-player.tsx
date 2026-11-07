@@ -24,7 +24,15 @@ import {
   type SolvedExercises,
 } from "@/lib/player";
 
-const subscribeToNothing = () => () => {};
+/**
+ * The URL never changes on its own, but React may keep the server snapshot (null) after
+ * hydration until something else re-renders. One notification right after subscribing makes it
+ * read ?step= at once (bug of 7 Nov 2026: links with ?step= opened at step 1).
+ */
+const subscribeOnce = (onChange: () => void) => {
+  const timer = setTimeout(onChange, 0);
+  return () => clearTimeout(timer);
+};
 const readStepParam = () => new URLSearchParams(window.location.search).get("step");
 
 /**
@@ -42,7 +50,7 @@ export function LessonPlayerFromUrl({
   snippets?: SnippetMap;
   next: NextStop;
 }) {
-  const stepParam = useSyncExternalStore(subscribeToNothing, readStepParam, () => null);
+  const stepParam = useSyncExternalStore(subscribeOnce, readStepParam, () => null);
   const initialIndex = stepIndexFromParam(stepParam, lesson.steps.length);
   return (
     <SnippetsProvider value={{ snippets, highlights }}>
