@@ -10,7 +10,7 @@ import { illustrationNames } from "@/lib/illustrations";
 export const engines = ["oracle", "postgresql"] as const;
 /** Theory first, then practice (constitution P6, REQ-26). The scored quiz is the session's final quiz. */
 export const stages = ["theory", "practice"] as const;
-export const simulators = ["pool", "injection", "mirror", "system-map", "request-tracer"] as const;
+export const simulators = ["pool", "pool-simulator", "injection", "mirror", "system-map", "request-tracer"] as const;
 
 export const stageLabels: Record<(typeof stages)[number], string> = {
   theory: "Teoría",

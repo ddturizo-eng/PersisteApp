@@ -141,6 +141,29 @@
       ]
     },
     {
+      "id": "m3-q2",
+      "module": 3,
+      "context": "`UserRepository` obtiene la conexión con `dataSource.getConnection()` dentro de un try-with-resources, y `dataSource` es un pool HikariCP.",
+      "prompt": "¿Qué pasa con la conexión al salir del bloque try?",
+      "options": [
+        {
+          "text": "Vuelve al pool y queda abierta para la siguiente consulta",
+          "correct": true,
+          "explanation": "Con pool, `close()` no corta la conexión física: la devuelve para reutilizarla."
+        },
+        {
+          "text": "Se cierra en la base y el pool abre otra la próxima vez",
+          "correct": false,
+          "explanation": "Eso pasaría sin pool, y es justo lo caro que el pool evita."
+        },
+        {
+          "text": "Sigue reservada para `UserRepository` hasta que la app termine",
+          "correct": false,
+          "explanation": "Si quedara reservada, el pool se quedaría sin conexiones para otras peticiones."
+        }
+      ]
+    },
+    {
       "id": "m4-q1",
       "module": 4,
       "context": "Un compañero entrega este método de login:\n\nString sql = \"SELECT id FROM users WHERE name = '\" + user + \"'\";\nResultSet rs = statement.executeQuery(sql);",
@@ -206,29 +229,6 @@
           "text": "En `LoginMenu`, porque ahí se leen el usuario y la clave",
           "correct": false,
           "explanation": "SQL en la interfaz es justo el error encontrado en los proyectos revisados."
-        }
-      ]
-    },
-    {
-      "id": "m4-q5",
-      "module": 4,
-      "context": "`UserRepository` obtiene la conexión con `dataSource.getConnection()` dentro de un try-with-resources, y `dataSource` es un pool HikariCP.",
-      "prompt": "¿Qué pasa con la conexión al salir del bloque try?",
-      "options": [
-        {
-          "text": "Vuelve al pool y queda abierta para la siguiente consulta",
-          "correct": true,
-          "explanation": "Con pool, `close()` no corta la conexión física: la devuelve para reutilizarla."
-        },
-        {
-          "text": "Se cierra en la base y el pool abre otra la próxima vez",
-          "correct": false,
-          "explanation": "Eso pasaría sin pool, y es justo lo caro que el pool evita."
-        },
-        {
-          "text": "Sigue reservada para `UserRepository` hasta que la app termine",
-          "correct": false,
-          "explanation": "Si quedara reservada, el pool se quedaría sin conexiones para otras peticiones."
         }
       ]
     }

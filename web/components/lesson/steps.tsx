@@ -15,6 +15,7 @@ import { stageLabels, type Step } from "@/lib/lesson-schema";
 import { correctOptionIndex } from "@/lib/player";
 import { InlineText } from "@/components/lesson/inline-text";
 import { PoolDemo } from "@/components/landing/pool-demo";
+import { PoolSimulator } from "@/components/lesson/pool-simulator";
 import { SafeQueryDemo } from "@/components/landing/safe-query-demo";
 import { SystemMap } from "@/components/landing/system-map";
 import { illustrations, illustrationSrc, type IllustrationName } from "@/lib/illustrations";
@@ -111,6 +112,8 @@ export function VisualStep({ step, headingRef }: { step: StepOf<"visual">; headi
       <SystemMap />
     ) : step.component === "pool" ? (
       <PoolDemo />
+    ) : step.component === "pool-simulator" ? (
+      <PoolSimulator />
     ) : step.component === "injection" ? (
       <SafeQueryDemo mode={step.props?.mode === "vulnerable" ? "vulnerable" : "both"} />
     ) : (
