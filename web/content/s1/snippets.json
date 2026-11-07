@@ -131,6 +131,76 @@
       "file": "crud/v1-layered/src/test/java/co/edu/unicesar/persisteapp/service/ProductServiceTest.java"
     },
     {
+      "id": "crud-v1/ProductService.crud",
+      "title": "ProductService: listar, buscar, crear, editar y borrar",
+      "origin": "CRUD v1 · service/ProductService.java",
+      "language": "java",
+      "variants": {
+        "java": "public List<Product> list() {\n    return products.findAll();\n}\n\npublic Product find(int id) {\n    return products.findById(id).orElseThrow(() -> new ProductNotFoundException(id));\n}\n\npublic Product create(String name, BigDecimal price, int stock) {\n    Product product = new Product(null, cleanName(name), checkPrice(price), checkStock(stock));\n    return products.save(product);\n}\n\npublic Product update(int id, String name, BigDecimal price, int stock) {\n    Product product = new Product(id, cleanName(name), checkPrice(price), checkStock(stock));\n    if (!products.update(product)) {\n        throw new ProductNotFoundException(id);\n    }\n    return product;\n}\n\npublic void delete(int id) {\n    if (!products.delete(id)) {\n        throw new ProductNotFoundException(id);\n    }\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/service/ProductService.java"
+    },
+    {
+      "id": "crud-v1/JdbcProductRepository.save",
+      "title": "JdbcProductRepository.save (INSERT)",
+      "origin": "CRUD v1 · persistence/JdbcProductRepository.java",
+      "language": "java",
+      "variants": {
+        "java": "public Product save(Product product) {\n    String sql = \"INSERT INTO products (name, price, stock) VALUES (?, ?, ?)\";\n    return withConnection(\"guardar el producto\", connection -> {\n        // Pedir la columna id funciona igual en PostgreSQL y en Oracle\n        try (PreparedStatement ps = connection.prepareStatement(sql, new String[] {\"id\"})) {\n            ps.setString(1, product.name());\n            ps.setBigDecimal(2, product.price());\n            ps.setInt(3, product.stock());\n            ps.executeUpdate();\n            try (ResultSet keys = ps.getGeneratedKeys()) {\n                keys.next();\n                return product.withId(keys.getInt(1));\n            }\n        }\n    });\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/persistence/JdbcProductRepository.java"
+    },
+    {
+      "id": "crud-v1/JdbcProductRepository.update",
+      "title": "JdbcProductRepository.update (UPDATE)",
+      "origin": "CRUD v1 · persistence/JdbcProductRepository.java",
+      "language": "java",
+      "variants": {
+        "java": "public boolean update(Product product) {\n    String sql = \"UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?\";\n    return withConnection(\"actualizar el producto\", connection -> {\n        try (PreparedStatement ps = connection.prepareStatement(sql)) {\n            ps.setString(1, product.name());\n            ps.setBigDecimal(2, product.price());\n            ps.setInt(3, product.stock());\n            ps.setInt(4, product.id());\n            return ps.executeUpdate() == 1;\n        }\n    });\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/persistence/JdbcProductRepository.java"
+    },
+    {
+      "id": "crud-v1/JdbcProductRepository.delete",
+      "title": "JdbcProductRepository.delete (DELETE)",
+      "origin": "CRUD v1 · persistence/JdbcProductRepository.java",
+      "language": "java",
+      "variants": {
+        "java": "public boolean delete(int id) {\n    String sql = \"DELETE FROM products WHERE id = ?\";\n    return withConnection(\"borrar el producto\", connection -> {\n        try (PreparedStatement ps = connection.prepareStatement(sql)) {\n            ps.setInt(1, id);\n            return ps.executeUpdate() == 1;\n        }\n    });\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/persistence/JdbcProductRepository.java"
+    },
+    {
+      "id": "crud-v1/JdbcProductRepository.findById",
+      "title": "JdbcProductRepository.findById (SELECT de una fila)",
+      "origin": "CRUD v1 · persistence/JdbcProductRepository.java",
+      "language": "java",
+      "variants": {
+        "java": "public Optional<Product> findById(int id) {\n    String sql = \"SELECT \" + COLUMNS + \" FROM products WHERE id = ?\";\n    return withConnection(\"buscar el producto\", connection -> {\n        try (PreparedStatement ps = connection.prepareStatement(sql)) {\n            ps.setInt(1, id);\n            try (ResultSet rs = ps.executeQuery()) {\n                return rs.next() ? Optional.of(map(rs)) : Optional.empty();\n            }\n        }\n    });\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/persistence/JdbcProductRepository.java"
+    },
+    {
+      "id": "crud-v1/JdbcProductRepository.findAll",
+      "title": "JdbcProductRepository.findAll (SELECT de todas)",
+      "origin": "CRUD v1 · persistence/JdbcProductRepository.java",
+      "language": "java",
+      "variants": {
+        "java": "public List<Product> findAll() {\n    String sql = \"SELECT \" + COLUMNS + \" FROM products ORDER BY id\";\n    return withConnection(\"listar los productos\", connection -> {\n        try (PreparedStatement ps = connection.prepareStatement(sql);\n             ResultSet rs = ps.executeQuery()) {\n            List<Product> products = new ArrayList<>();\n            while (rs.next()) {\n                products.add(map(rs));\n            }\n            return products;\n        }\n    });\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/persistence/JdbcProductRepository.java"
+    },
+    {
+      "id": "crud-v1/JdbcProductRepository.map",
+      "title": "JdbcProductRepository.map: de fila a Product",
+      "origin": "CRUD v1 · persistence/JdbcProductRepository.java",
+      "language": "java",
+      "variants": {
+        "java": "private static Product map(ResultSet rs) throws SQLException {\n    return new Product(rs.getInt(\"id\"), rs.getString(\"name\"), rs.getBigDecimal(\"price\"), rs.getInt(\"stock\"));\n}"
+      },
+      "file": "crud/v1-layered/src/main/java/co/edu/unicesar/persisteapp/persistence/JdbcProductRepository.java"
+    },
+    {
       "id": "m1/cuatro-piezas",
       "title": "Las cuatro piezas en el código",
       "origin": "Módulo 1 · ejemplo",

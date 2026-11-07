@@ -1,0 +1,209 @@
+{
+  "id": "s1-m7-crud-completo",
+  "session": 1,
+  "module": 7,
+  "title": "Lo que ves es lo que se guarda: el CRUD completo",
+  "summary": "Cada opción del menú es un viaje a la base: crear es un INSERT, listar un SELECT, editar un UPDATE y borrar un DELETE. La app no guarda una copia propia: lo que muestra es lo que la base respondió, y la base pone el id y las reglas finales.",
+  "estimatedMinutes": 12,
+  "source": {
+    "label": "The Java Tutorials · Processing SQL Statements with JDBC",
+    "url": "https://docs.oracle.com/javase/tutorial/jdbc/basics/processingsqlstatements.html"
+  },
+  "steps": [
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "Cada opción del menú es un viaje a la base",
+      "body": "El menú del CRUD v1 tiene cuatro operaciones sobre `products`. Cada una termina en una sentencia SQL y en un método de JDBC:\n\n1. Crear: `INSERT`, con `executeUpdate()`.\n\n2. Listar y ver: `SELECT`, con `executeQuery()`, que devuelve un `ResultSet` con las filas.\n\n3. Editar: `UPDATE`, con `executeUpdate()`.\n\n4. Borrar: `DELETE`, con `executeUpdate()`.\n\n`executeUpdate()` devuelve cuántas filas cambiaron. La app no guarda su propia lista de productos: cada vez que eliges «Listar» vuelve a preguntarle a la base. Por eso lo que ves en pantalla es lo que está guardado."
+    },
+    {
+      "kind": "code",
+      "stage": "theory",
+      "mode": "read",
+      "language": "java",
+      "title": "Crear: el INSERT y el id que pone la base",
+      "snippet": "crud-v1/JdbcProductRepository.save"
+    },
+    {
+      "kind": "question",
+      "stage": "theory",
+      "context": "La tabla tiene 5 productos. Eliges «Crear producto» y escribes «Cargador USB-C», precio 45000 y stock 8. El `Product` que llega a `save` tiene `id` en `null`.",
+      "prompt": "¿Quién decide el id del producto nuevo?",
+      "refs": [
+        "crud-v1/JdbcProductRepository.save"
+      ],
+      "options": [
+        {
+          "text": "La base, al insertar la fila con su columna identity",
+          "correct": true,
+          "explanation": "`id` es `generated always as identity`: la base lo asigna. `getGeneratedKeys()` lo trae de vuelta y `withId` arma el producto con ese número."
+        },
+        {
+          "text": "El servicio, contando cuántos productos ya existen",
+          "correct": false,
+          "explanation": "Contar falla si dos personas crean a la vez o si se borró un producto. Por eso el número lo pone la base."
+        },
+        {
+          "text": "El repositorio, que escribe el id dentro del INSERT",
+          "correct": false,
+          "explanation": "El `INSERT` solo lleva `name`, `price` y `stock`. El repositorio pide el id generado; no lo inventa."
+        }
+      ]
+    },
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "Leer y cambiar: el ResultSet y las filas afectadas",
+      "body": "Un `SELECT` devuelve un `ResultSet`, un cursor que empieza antes de la primera fila. Cada `rs.next()` avanza una fila y devuelve `false` cuando ya no quedan. En cada fila, `map(rs)` lee las columnas y arma un `Product`.\n\n`findById` devuelve un `Optional`: vacío si ninguna fila tiene ese id. Así el servicio decide qué hacer si no existe.\n\nCon `UPDATE` y `DELETE` se mira el número que devuelve `executeUpdate()`: 1 si cambió la fila, 0 si ninguna fila cumplió el `WHERE`. Un 0 no es un error de la base. Es el servicio el que lo convierte en «No existe un producto con id …»."
+    },
+    {
+      "kind": "code",
+      "stage": "theory",
+      "mode": "read",
+      "language": "java",
+      "title": "Editar: el UPDATE y las filas que cambió",
+      "snippet": "crud-v1/JdbcProductRepository.update"
+    },
+    {
+      "kind": "question",
+      "stage": "theory",
+      "context": "En la tabla hay productos con id del 1 al 5. Eliges «Editar producto» y escribes el id 99.",
+      "prompt": "¿Qué pasa con el UPDATE y qué ves en pantalla?",
+      "refs": [
+        "crud-v1/JdbcProductRepository.update",
+        "crud-v1/ProductService.crud"
+      ],
+      "options": [
+        {
+          "text": "Cambia 0 filas y ves «No existe un producto con id 99»",
+          "correct": true,
+          "explanation": "El `UPDATE` corre sin error, pero ninguna fila tiene id 99. `update` devuelve false y `ProductService` lanza `ProductNotFoundException`."
+        },
+        {
+          "text": "La base lanza un error porque el id 99 no existe",
+          "correct": false,
+          "explanation": "Para la base, un `WHERE` que no encuentra filas es normal: responde «0 filas cambiadas», no un error."
+        },
+        {
+          "text": "Se crea un producto nuevo con id 99 y esos datos",
+          "correct": false,
+          "explanation": "`UPDATE` solo cambia filas que ya existen. Crear es trabajo del `INSERT`, y el id lo pone la base."
+        }
+      ]
+    },
+    {
+      "kind": "code",
+      "stage": "practice",
+      "mode": "pick-line",
+      "language": "java",
+      "title": "Completa «Listar productos»",
+      "context": "Es `findAll` en `JdbcProductRepository`. El `while` recorre las filas que devolvió la base y `map(rs)` convierte cada una en un `Product`.",
+      "prompt": "¿Qué línea falta para traer las filas del SELECT?",
+      "refs": [
+        "crud-v1/JdbcProductRepository.findById",
+        "crud-v1/JdbcProductRepository.map"
+      ],
+      "variants": {
+        "java": "String sql = \"SELECT id, name, price, stock FROM products ORDER BY id\";\nPreparedStatement ps = connection.prepareStatement(sql);\n/* aquí va la línea */\nList<Product> products = new ArrayList<>();\nwhile (rs.next()) {\n    products.add(map(rs));\n}\nreturn products;"
+      },
+      "options": [
+        {
+          "line": "ResultSet rs = ps.executeQuery();",
+          "correct": true,
+          "explanation": "Un `SELECT` se ejecuta con `executeQuery()`, que devuelve un `ResultSet` con las filas. El `while` lo recorre con `rs.next()`."
+        },
+        {
+          "line": "int rs = ps.executeUpdate();",
+          "correct": false,
+          "explanation": "`executeUpdate()` es para INSERT, UPDATE y DELETE: devuelve cuántas filas cambiaron, no las filas. Con un número no hay nada que recorrer."
+        },
+        {
+          "line": "ResultSet rs = ps.getGeneratedKeys();",
+          "correct": false,
+          "explanation": "`getGeneratedKeys()` trae el id que la base puso después de un INSERT (paso 2). Aquí la sentencia ni siquiera se ha ejecutado."
+        }
+      ]
+    },
+    {
+      "kind": "code",
+      "stage": "practice",
+      "mode": "fill",
+      "language": "java",
+      "title": "Completa «Borrar producto»",
+      "context": "Es `delete(int id)` en `JdbcProductRepository`. Debe borrar la fila con ese id y devolver `true` solo si de verdad borró una.",
+      "prompt": "Elige la sentencia y el método de JDBC que faltan.",
+      "refs": [
+        "crud-v1/JdbcProductRepository.update"
+      ],
+      "variants": {
+        "java": "String sql = \"{{1}} FROM products WHERE id = ?\";\nreturn withConnection(\"borrar el producto\", connection -> {\n    try (PreparedStatement ps = connection.prepareStatement(sql)) {\n        ps.setInt(1, id);\n        return ps.{{2}}() == 1;\n    }\n});"
+      },
+      "gaps": [
+        {
+          "id": 1,
+          "label": "La sentencia",
+          "answers": [
+            "DELETE"
+          ],
+          "choices": [
+            "DELETE",
+            "DROP TABLE",
+            "UPDATE"
+          ],
+          "hint": "Se borra una fila, no la tabla entera."
+        },
+        {
+          "id": 2,
+          "label": "El método de JDBC",
+          "answers": [
+            "executeUpdate"
+          ],
+          "choices": [
+            "executeQuery",
+            "executeUpdate",
+            "next"
+          ],
+          "hint": "Este método devuelve cuántas filas cambiaron."
+        }
+      ],
+      "hints": [
+        "`DROP TABLE` borraría la tabla `products` completa, con todos sus productos.",
+        "`executeQuery()` es solo para `SELECT`: devuelve filas, no un número."
+      ]
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "Ayer se registró una venta del teclado (id 1), así que `sales` tiene una fila con `product_id = 1`. En la base, `sales.product_id` tiene `references products(id)`. Ahora eliges «Borrar producto» con el id 1.",
+      "prompt": "¿Qué ves en pantalla?",
+      "refs": [
+        "crud-v1/JdbcProductRepository.delete",
+        "crud-v1/ConsoleMenu.show"
+      ],
+      "options": [
+        {
+          "text": "«Error de base de datos»: la venta no deja borrarlo",
+          "correct": true,
+          "explanation": "La llave foránea protege la venta: la base rechaza el `DELETE`, JDBC lanza `SQLException` y el repositorio la convierte en `DataAccessException`, que el menú muestra."
+        },
+        {
+          "text": "«Producto borrado», y la venta queda sin producto",
+          "correct": false,
+          "explanation": "Eso dejaría una venta que apunta a nada. La llave foránea existe justo para que la base no lo permita."
+        },
+        {
+          "text": "«No se pudo»: no existe un producto con id 1",
+          "correct": false,
+          "explanation": "El producto sí existe. El `DELETE` no cambia 0 filas: falla antes, porque la base lo rechaza."
+        }
+      ]
+    },
+    {
+      "kind": "text",
+      "stage": "practice",
+      "title": "Explícalo con tus palabras",
+      "body": "Registra en la bitácora qué sentencia SQL y qué método de JDBC usa cada opción del menú, y qué significa que `executeUpdate()` devuelva 0.",
+      "reflection": true
+    }
+  ]
+}

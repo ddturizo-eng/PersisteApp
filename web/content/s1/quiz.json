@@ -164,29 +164,6 @@
       ]
     },
     {
-      "id": "m4-q4",
-      "module": 4,
-      "context": "La app de login tiene tres clases: `ConsoleMenu` lee lo que escribe la persona, `LoginService` decide si puede entrar y `UserRepository` habla con la base.",
-      "prompt": "¿En cuál de estas clases debe estar el texto SQL de la consulta?",
-      "options": [
-        {
-          "text": "Solo en `UserRepository`, la única que habla con la base",
-          "correct": true,
-          "explanation": "Si el SQL vive en una sola clase, cambiar de motor o corregir la consulta no toca el resto de la app."
-        },
-        {
-          "text": "En `LoginService`, porque ahí se decide si el login vale",
-          "correct": false,
-          "explanation": "El servicio decide reglas, pero delega el acceso a datos al repositorio."
-        },
-        {
-          "text": "En `ConsoleMenu`, porque ahí se leen el usuario y la clave",
-          "correct": false,
-          "explanation": "SQL en la interfaz es justo el error encontrado en los proyectos revisados."
-        }
-      ]
-    },
-    {
       "id": "m5-q1",
       "module": 5,
       "context": "`registerSale` llama a `connection.setAutoCommit(false)`, inserta la venta en `sales` y luego el UPDATE del stock lanza una excepción. El catch llama a `connection.rollback()`.",
@@ -231,9 +208,55 @@
           "explanation": "`commit()` y `rollback()` son métodos de `java.sql.Connection`: esta clase de persistence los necesita."
         }
       ]
+    },
+    {
+      "id": "m7-q1",
+      "module": 7,
+      "context": "La tabla `products` tiene productos con id del 1 al 5. La app ejecuta `UPDATE products SET stock = ? WHERE id = ?` con el id 99.",
+      "prompt": "¿Qué devuelve `executeUpdate()`?",
+      "options": [
+        {
+          "text": "0, porque ninguna fila cumplió el WHERE",
+          "correct": true,
+          "explanation": "`executeUpdate()` devuelve cuántas filas cambiaron. Un WHERE sin coincidencias no es un error: son 0 filas, y la app decide qué mostrar."
+        },
+        {
+          "text": "-1, para avisar que ese id no existe",
+          "correct": false,
+          "explanation": "No hay un código especial: el número es la cantidad de filas cambiadas, y aquí fueron 0."
+        },
+        {
+          "text": "Nada: lanza una SQLException al fallar",
+          "correct": false,
+          "explanation": "La sentencia no falla. La base la ejecuta bien y responde que cambió 0 filas."
+        }
+      ]
     }
   ],
   "reserve": [
+    {
+      "id": "m4-q4",
+      "module": 4,
+      "context": "La app de login tiene tres clases: `ConsoleMenu` lee lo que escribe la persona, `LoginService` decide si puede entrar y `UserRepository` habla con la base.",
+      "prompt": "¿En cuál de estas clases debe estar el texto SQL de la consulta?",
+      "options": [
+        {
+          "text": "Solo en `UserRepository`, la única que habla con la base",
+          "correct": true,
+          "explanation": "Si el SQL vive en una sola clase, cambiar de motor o corregir la consulta no toca el resto de la app."
+        },
+        {
+          "text": "En `LoginService`, porque ahí se decide si el login vale",
+          "correct": false,
+          "explanation": "El servicio decide reglas, pero delega el acceso a datos al repositorio."
+        },
+        {
+          "text": "En `ConsoleMenu`, porque ahí se leen el usuario y la clave",
+          "correct": false,
+          "explanation": "SQL en la interfaz es justo el error encontrado en los proyectos revisados."
+        }
+      ]
+    },
     {
       "id": "m2-q2",
       "module": 2,
