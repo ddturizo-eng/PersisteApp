@@ -40,18 +40,19 @@ export function CodeView({
     );
   };
 
-  const body = lines
-    ? lines.map((line, l) => (
-        <Fragment key={l}>
-          {line.map(([text, light, dark], t) =>
-            renderText(text, `${l}-${t}`, { color: light, ["--shiki-dark" as string]: dark })
-          )}
-          {l < lines.length - 1 && "\n"}
-        </Fragment>
-      ))
-    : renderText(fallback, "plain");
-
   if (inline) {
+    // Built only here: rendering both layouts would consume each gap's first occurrence, and
+    // the visible copy would get the read-only mirrors instead of the selectors.
+    const body = lines
+      ? lines.map((line, l) => (
+          <Fragment key={l}>
+            {line.map(([text, light, dark], t) =>
+              renderText(text, `${l}-${t}`, { color: light, ["--shiki-dark" as string]: dark })
+            )}
+            {l < lines.length - 1 && "\n"}
+          </Fragment>
+        ))
+      : renderText(fallback, "plain");
     // Inline code wraps instead of scrolling so a whole line is readable on a phone.
     return (
       <code className={cn("font-mono text-sm whitespace-pre-wrap text-code-foreground [overflow-wrap:anywhere]", className)}>
