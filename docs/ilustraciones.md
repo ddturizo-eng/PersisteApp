@@ -124,3 +124,12 @@ Qué comunica: vender son **dos cosas que van juntas** (guardar la venta y sacar
 SCENE: A young man student behind a small shop counter holds a sun-yellow #F2D21B receipt in one oversized hand and, with the other, places a small box back on a deep green #1E7B34 shelf. Between the receipt and the box, a dotted curved line ties them together with a small padlock icon in the middle (they go together). On the counter, a big round button with a curved "undo" arrow (no text). He wears a teal #1BA39C t-shirt; short curly hair; calm smile. Two small yellow sparkles near the padlock.
 Aspect ratio 4:3, subject slightly to the left, empty space on the right.
 ```
+
+### 3.x Módulo 6 · `capas-tienda.png` (4:3)
+Qué comunica: una venta **baja por capas**, y cada capa hace un solo trabajo (atender, decidir, guardar). Pendiente de generar; irá en el paso «Una capa, un trabajo» del módulo 6 (agregarla a `web/lib/illustrations.ts` al subirla).
+
+```text
+[STYLE block]
+SCENE: A cutaway of a small three-floor shop building, seen from the front. Top floor: a young woman student at a counter takes an order from a customer (sun-yellow #F2D21B order slip). Middle floor: a young man student with a clipboard checks the slip (a small check mark). Ground floor: a third student puts a box into a deep green #1E7B34 cabinet shaped like a database cylinder. A dotted line carries the yellow slip down from floor to floor. Each student wears a different color (teal #1BA39C, green, yellow); simple faces, oversized hands. Two small yellow sparkles near the cabinet.
+Aspect ratio 4:3, subject centered, plain background.
+```

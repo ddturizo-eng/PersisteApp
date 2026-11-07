@@ -72,29 +72,6 @@
       ]
     },
     {
-      "id": "m2-q2",
-      "module": 2,
-      "context": "Tu proyecto se sube a un repositorio público de GitHub para que el docente y otros equipos lo revisen.",
-      "prompt": "¿Dónde deben quedar `DB_URL`, `DB_USER` y `DB_PASSWORD`?",
-      "options": [
-        {
-          "text": "En variables de entorno que la app lee al arrancar",
-          "correct": true,
-          "explanation": "No quedan en Git y se pueden cambiar sin recompilar el proyecto."
-        },
-        {
-          "text": "Como constantes `private static final` en `Main.java`",
-          "correct": false,
-          "explanation": "Quedarían publicadas en el repositorio a la vista de cualquiera."
-        },
-        {
-          "text": "En application.properties dentro de src/main/resources",
-          "correct": false,
-          "explanation": "Ese archivo se sube a Git con el código; las claves quedarían expuestas igual."
-        }
-      ]
-    },
-    {
       "id": "m3-q1",
       "module": 3,
       "context": "Una app abre una conexión nueva con `DriverManager.getConnection` en cada consulta y la cierra al terminar. Con 30 estudiantes a la vez se vuelve lenta.",
@@ -189,7 +166,7 @@
     {
       "id": "m4-q4",
       "module": 4,
-      "context": "La app de login tiene tres clases: `LoginMenu` lee lo que escribe la persona, `LoginService` decide si puede entrar y `UserRepository` habla con la base.",
+      "context": "La app de login tiene tres clases: `ConsoleMenu` lee lo que escribe la persona, `LoginService` decide si puede entrar y `UserRepository` habla con la base.",
       "prompt": "¿En cuál de estas clases debe estar el texto SQL de la consulta?",
       "options": [
         {
@@ -203,7 +180,7 @@
           "explanation": "El servicio decide reglas, pero delega el acceso a datos al repositorio."
         },
         {
-          "text": "En `LoginMenu`, porque ahí se leen el usuario y la clave",
+          "text": "En `ConsoleMenu`, porque ahí se leen el usuario y la clave",
           "correct": false,
           "explanation": "SQL en la interfaz es justo el error encontrado en los proyectos revisados."
         }
@@ -231,9 +208,55 @@
           "explanation": "La base no marca filas como anuladas: el rollback las borra como si nunca se hubieran insertado."
         }
       ]
+    },
+    {
+      "id": "m6-q1",
+      "module": 6,
+      "context": "El CRUD v1 tiene las capas `ui`, `service` y `persistence`. `ConsoleMenu` llama a `ProductService`, y `ProductService` usa la interfaz `ProductStore`.",
+      "prompt": "¿Cuál de estas clases no debería importar nada del paquete `java.sql`?",
+      "options": [
+        {
+          "text": "ProductService, que decide las reglas de la venta",
+          "correct": true,
+          "explanation": "El servicio trabaja con interfaces (`ProductStore`, `TransactionRunner`). Si importara `java.sql`, ya no se podría probar sin base ni cambiar de motor sin tocarlo."
+        },
+        {
+          "text": "JdbcProductRepository, que arma los PreparedStatement",
+          "correct": false,
+          "explanation": "El repositorio es justo la clase que debe usar `java.sql`: ahí viven `Connection`, `PreparedStatement` y `ResultSet`."
+        },
+        {
+          "text": "JdbcTransactionRunner, que llama a commit y rollback",
+          "correct": false,
+          "explanation": "`commit()` y `rollback()` son métodos de `java.sql.Connection`: esta clase de persistence los necesita."
+        }
+      ]
     }
   ],
   "reserve": [
+    {
+      "id": "m2-q2",
+      "module": 2,
+      "context": "Tu proyecto se sube a un repositorio público de GitHub para que el docente y otros equipos lo revisen.",
+      "prompt": "¿Dónde deben quedar `DB_URL`, `DB_USER` y `DB_PASSWORD`?",
+      "options": [
+        {
+          "text": "En variables de entorno que la app lee al arrancar",
+          "correct": true,
+          "explanation": "No quedan en Git y se pueden cambiar sin recompilar el proyecto."
+        },
+        {
+          "text": "Como constantes `private static final` en `Main.java`",
+          "correct": false,
+          "explanation": "Quedarían publicadas en el repositorio a la vista de cualquiera."
+        },
+        {
+          "text": "En application.properties dentro de src/main/resources",
+          "correct": false,
+          "explanation": "Ese archivo se sube a Git con el código; las claves quedarían expuestas igual."
+        }
+      ]
+    },
     {
       "id": "m1-q4",
       "module": 1,
