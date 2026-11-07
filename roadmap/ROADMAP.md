@@ -95,15 +95,17 @@ gantt
 
 **Meta:** landing de conceptos, quiz final y ranking por grupo de punta a punta con una sala de prueba; módulos 1–3 completos.
 
-> Cambio del 6 nov (tarde): un solo quiz final de 12 preguntas que abre el docente; módulos en Teoría → Práctica; la portada pasa a landing de conceptos y se adelanta (REQ-26, 29, 33, 34).
+> Cambio del 6 nov (tarde): un solo quiz final que abre el docente; módulos en Teoría → Práctica; la portada pasa a landing de conceptos y se adelanta (REQ-26, 29, 33, 34).
+> Ajuste del 6 nov (noche): 10 preguntas con nota de 0 a 5, tiempo por pregunta según su longitud e integridad (salidas de pestaña, sin copiar, marca de agua) (REQ-29, 35).
 
 | Clave | Tipo | Resumen | Épica | SP | REQ |
 |---|---|---|---|---|---|
 | PA-39 | Task | Proyecto Supabase, scripts SQL y variables en Vercel | E10 | 2 | 19, 28 |
 | PA-40 | Story | Sala: entrar con código, nombre y código estudiantil | E10 | 3 | 28 |
-| PA-46 | Story | Quiz final de 12 preguntas; módulos sin etapa Quiz y «Siguiente módulo» | E4 | 3 | 26, 29 |
+| PA-46 | Story | Quiz final de 10 preguntas; módulos sin etapa Quiz y «Siguiente módulo» | E4 | 3 | 26, 29 |
 | PA-47 | Story | Landing de conceptos interactiva con identidad UPC | E6 | 8 | 33, 06 |
-| PA-41 | Story | «Prepárate para el quiz», tiempo en servidor, primer intento, puntaje y posición | E10 | 3 | 29, 30, 34 |
+| PA-41 | Story | «Prepárate para el quiz», límite por pregunta en servidor, primer intento, nota y franja | E10 | 5 | 29, 30, 34, 35 |
+| PA-48 | Story | Integridad del quiz: salidas de pestaña, bloqueo, sin copiar, marca de agua | E10 | 2 | 35 |
 | PA-42 | Story | Panel docente: salas, En vivo, Por pregunta, Por estudiante, CSV | E10 | 8 | 28, 30, 31 |
 | PA-43 | Story | Ranking proyectado top 10 | E10 | 1 | 30 |
 | PA-18 | Story | Módulo 2 «Primera conexión» con recorrido | E4 | 2 | 16, 26, 27 |

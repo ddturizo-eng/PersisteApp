@@ -160,14 +160,19 @@ Reemplaza al ejercicio de ordenar bloques en el módulo 4 y se reutiliza en el m
 - **CA5.** El docente debe poder eliminar un participante (nombres falsos) y cerrar la sala para que no entren más respuestas.
 
 ### REQ-29 · Quiz final de la sesión — **M**
-*(Cambiado el 6 nov 2026, tarde: un quiz por módulo resultaba repetitivo en módulos de 10–15 min.)*
+*(Cambiado el 6 nov 2026, tarde: un quiz por módulo resultaba repetitivo en módulos de 10–15 min. Ajustado el 6 nov, noche: 10 preguntas con nota de 0 a 5, tiempo por pregunta e integridad, REQ-35.)*
 - ~~**CA1.** Cada lección debe terminar con un quiz de 4 a 6 preguntas de opción única.~~
-- **CA1.** La sesión 1 termina con un único quiz de 12 preguntas de opción única que cubre los módulos 1 a 7 (1 o 2 preguntas por módulo, unos 10 minutos).
+- ~~**CA1.** La sesión 1 termina con un único quiz de 12 preguntas…~~
+- **CA1.** La sesión 1 termina con un único quiz de **10 preguntas** de opción única que cubre los módulos 1 a 7 (1 o 2 preguntas por módulo, unos 8–9 minutos). Las preguntas que sobran quedan en una reserva que nunca llega al navegador.
 - **CA1b.** El quiz final queda bloqueado hasta que el docente lo abre para su sala desde el panel; así todos empiezan a la vez.
 - **CA2.** Las respuestas correctas no deben enviarse al navegador; el servidor califica cada respuesta (P10).
-- **CA3.** Solo el primer intento de cada pregunta suma puntos; después el estudiante ve la explicación y puede seguir.
-- **CA4.** Sin sala activa, el quiz debe funcionar en modo práctica, rotulado «Sin puntaje», sin guardar nada.
-- **CA5.** Al terminar el quiz, el estudiante debe ver su puntaje, el detalle por pregunta con su explicación y su posición en el grupo.
+- **CA3.** Solo el primer intento de cada pregunta suma puntos. Con sala, el estudiante ve «Respuesta guardada» y sigue; si acertó y la explicación se muestran cuando el docente cierra el quiz, para que nadie pase respuestas a quien aún responde. En modo práctica la explicación aparece de inmediato.
+- ~~**CA4.** Sin sala activa, el quiz debe funcionar en modo práctica…~~
+- **CA4.** Sin sala, el estudiante puede hacer un **calentamiento** de 3 a 5 preguntas sencillas y distintas a las del quiz, con la explicación al instante y sin guardar nada. El modo práctica nunca muestra ni califica las preguntas reales (el build falla si el calentamiento repite una).
+- ~~**CA5.** …su puntaje, el detalle por pregunta con su explicación y su posición en el grupo.~~
+- **CA5.** Al terminar el quiz, el estudiante ve su nota, sus aciertos y su franja en el grupo (Top 10 %, Top 25 %, Mitad superior o Sigue practicando), provisional hasta que el docente cierra el quiz. No ve su puesto exacto. El detalle por pregunta con explicaciones aparece al cerrarse el quiz.
+- **CA6.** La nota va de 0 a 5 con un decimal: aciertos × 5 ÷ número de preguntas (con 10 preguntas, cada acierto vale 0,5). El tiempo no cambia la nota; solo desempata en el ranking (REQ-30 CA1).
+- **CA7.** El orden de las preguntas y de sus opciones se baraja por estudiante, de forma determinista; cada pregunta conserva su id, así el informe «Por pregunta» compara lo mismo.
 
 ### REQ-33 · Landing de conceptos — **M**
 *(Agregado el 6 nov 2026, tarde: la portada es la entrada a la clase, no solo un índice.)*
@@ -177,26 +182,38 @@ Reemplaza al ejercicio de ordenar bloques en el módulo 4 y se reutiliza en el m
 - **CA4.** Usa la identidad de la Universidad Popular del Cesar (logo y verdes institucionales) y funciona con teclado, en 375 px y con `prefers-reduced-motion`.
 
 ### REQ-34 · Prepárate para el quiz — **M**
-- **CA1.** Al terminar el último módulo, el estudiante llega a una página que resume qué evalúa el quiz (12 preguntas, una opción correcta, solo cuenta el primer intento, el tiempo desempata).
-- **CA2.** En esa página el estudiante entra a la sala con el código de sala, su nombre y su código estudiantil (REQ-28 CA2). El código estudiantil es el de su carné: no se verifica ni se envía por correo.
+- **CA1.** Al terminar el último módulo, el estudiante llega a una página que resume qué evalúa el quiz (10 preguntas, nota de 0 a 5, tiempo por pregunta, solo cuenta el primer intento, el tiempo desempata, salir de la pestaña dos veces bloquea el quiz).
+- **CA4.** El encabezado del sitio tiene un botón «Ir al quiz» que lleva a esta página desde cualquier lugar, para quien no alcanzó a terminar los módulos.
+- **CA2.** En esa página el estudiante entra a la sala con el código de sala, su nombre y apellido y su **número de documento** (cédula o tarjeta de identidad, solo dígitos, 6 a 12; el campo descarta letras y signos al escribir o pegar). No se verifica contra una lista ni se envía por correo; solo lo ven el panel docente y el CSV. Con el mismo número recupera sus respuestas desde otro equipo. *(Cambiado el 6 nov 2026, noche: los estudiantes no tienen código estudiantil a mano.)*
 - **CA3.** Si el docente aún no abrió el quiz, la página lo indica y se actualiza sola al abrirse; sin sala, el estudiante puede hacer el quiz en modo práctica, sin puntaje.
 
 ### REQ-30 · Ranking por grupo — **M**
 - **CA1.** El ranking debe ordenar a los participantes de una sala por aciertos totales; el empate lo gana quien sumó menos tiempo en sus respuestas correctas. *(Decisión del 6 nov 2026: el tiempo solo desempata; no da puntos.)*
-- **CA1b.** El tiempo de cada pregunta lo mide el servidor, desde que entrega la pregunta hasta que recibe la respuesta, con un tope de 60 s por pregunta. Recargar la página no reinicia el reloj.
+- **CA1b.** El tiempo de cada pregunta lo mide el servidor, desde que entrega la pregunta hasta que recibe la respuesta, con el límite de esa pregunta como tope (REQ-35 CA1). Recargar la página no reinicia el reloj.
 - **CA2.** El panel docente debe mostrar el ranking actualizado cada 5 segundos como máximo y destacar los 3 primeros lugares.
 - **CA3.** El modo exposición debe poder proyectar el top 10 con nombre y la inicial del apellido, nunca con el código estudiantil.
 - **CA4.** El docente debe poder exportar el ranking completo a CSV (nombre, código, aciertos, tiempo, puesto y detalle por pregunta) para asignar las décimas.
 
 ### REQ-31 · Panel docente con reportes — **M**
 - **CA1.** El panel debe listar las salas con su código, estado (abierta/cerrada) y número de participantes, y mostrar el código en grande para proyectarlo.
-- **CA2.** La vista **En vivo** debe mostrar por estudiante: preguntas respondidas de las 12, aciertos, tiempo y puesto, y actualizarse cada 5 s como máximo.
+- **CA2.** La vista **En vivo** debe mostrar por estudiante: preguntas respondidas de las 10, aciertos, nota, tiempo, puesto y salidas de la pestaña, y actualizarse cada 5 s como máximo.
 - **CA3.** La vista **Por pregunta** debe mostrar por cada pregunta el % de aciertos, cuántos eligieron cada opción y el tiempo promedio, y marcar las que tengan menos de 50 % de aciertos.
 - **CA4.** Al tocar una opción en la vista Por pregunta, el sistema debe listar qué estudiantes la eligieron.
 - **CA5.** La vista **Por estudiante** debe mostrar cada respuesta: opción elegida, si fue correcta y el tiempo.
 - **CA6.** ~~El progreso se deriva del quiz de cada módulo.~~ El avance en los módulos queda en el navegador del estudiante (REQ-06 CA2); el panel solo ve el quiz final.
 - **CA8.** El panel debe tener un botón para abrir y cerrar el quiz final de cada sala (REQ-29 CA1b).
 - **CA7.** La bitácora de IA no se envía al panel; se queda en el navegador del estudiante.
+- **CA9.** Un estudiante bloqueado aparece como «Bloqueado (2 salidas)» con un botón **Rehabilitar** (REQ-35 CA4).
+
+### REQ-35 · Tiempo por pregunta e integridad del quiz — **M**
+*(Agregado el 6 nov 2026, noche: el tiempo corto y la detección de salidas reducen el uso de IA y de capturas durante el quiz.)*
+- **CA1.** Cada pregunta tiene su propio límite, calculado de lo que hay que leer para no castigar las preguntas largas: 20 s para decidir + palabras de contexto, enunciado y opciones ÷ 2,5 (150 palabras por minuto) + 4 s por línea de código o de error + 2 s por fragmento de código en línea; redondeado hacia arriba a 5 s, entre 30 y 90 s. Se muestra con una cuenta regresiva.
+- **CA2.** El servidor es quien manda: una respuesta que llega después del límite más 3 s de margen por la red cuenta como incorrecta. Al acabarse el tiempo, la pregunta cuenta como incorrecta y el quiz pasa a la siguiente.
+- **CA3.** Salir de la pestaña o cambiar de aplicación durante el quiz se registra. La primera salida muestra un aviso; la segunda bloquea el quiz. Dos salidas con menos de 5 s de diferencia cuentan como una. Las notificaciones que solo aparecen arriba de la pantalla no cuentan.
+- **CA4.** El docente puede rehabilitar a un estudiante bloqueado desde el panel; le queda un aviso más antes de bloquearse otra vez.
+- **CA5.** Durante el quiz no se puede seleccionar ni copiar el texto, ni abrir el menú contextual sobre la pregunta.
+- **CA6.** Detrás de la pregunta aparece una marca de agua tenue con el nombre y los últimos 4 dígitos del documento, para que una captura compartida muestre quién la tomó sin exponer el documento completo.
+- **CA7.** Antes de empezar, la página «Prepárate para el quiz» explica estas reglas. Una página web no puede impedir capturas de pantalla ni que el estudiante salga; solo detectarlo.
 
 ---
 

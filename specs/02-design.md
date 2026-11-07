@@ -340,14 +340,14 @@ Responde a REQ-26 (cambiado), REQ-29 (cambiado), REQ-31 CA2/CA6/CA8, REQ-33 y RE
 ```
 
 - Los módulos ya no tienen etapa Quiz. El esquema cambia: una lección no opcional debe recorrer `theory` y `practice`; la etapa `quiz` y el paso `quiz` dejan de existir dentro de las lecciones. Las preguntas de repaso (`question`) siguen en la Teoría, sin puntaje.
-- El quiz final vive en `content/s1/quiz.json`, validado en el build con su propio esquema: `{ session, title, questions: { id, module, context?, prompt, options }[] }` con **exactamente 12 preguntas** y al menos una por cada módulo 1–7 que exista. Las mismas reglas de REQ-32 (contexto, longitud pareja).
-- Las 12 preguntas son fijas e iguales para todos (no se sortean): así el informe «Por pregunta» compara lo mismo entre estudiantes. Las preguntas actuales de los quizzes de los módulos 1 y 4 pasan a ser la reserva de la que salen las de esos módulos.
+- El quiz final vive en `content/s1/quiz.json`, validado en el build con su propio esquema: `{ session, title, questions: { id, module, context?, prompt, options }[] }` con **exactamente 10 preguntas** (§12.5) y al menos una por cada módulo 1–7 que exista, más una `reserve` opcional que no se envía al navegador. Las mismas reglas de REQ-32 (contexto, longitud pareja).
+- Las 10 preguntas son fijas e iguales para todos (no se sortean; solo se baraja su orden, §12.5): así el informe «Por pregunta» compara lo mismo entre estudiantes. Las preguntas actuales de los quizzes de los módulos 1 y 4 pasan a ser la reserva de la que salen las de esos módulos.
 - En `quiz_answers`, `lesson_id` toma el valor `s1-quiz`. Las vistas `answer_times` y `room_ranking` no cambian.
 
 ### 12.2 Apertura del quiz por el docente
 
-- Migración `web/supabase/002_quiz_open.sql`: `alter table rooms add column quiz_opened_at timestamptz;` (null = cerrado).
-- `openQuiz(roomId)` / `closeQuiz(roomId)` (docente) fijan o vacían `quiz_opened_at`.
+- Migración `web/supabase/002_quiz_live.sql` (reemplaza a `002_quiz_open.sql`, ver §12.5): `quiz_opened_at` y `quiz_closed_at` en `rooms`.
+- `openQuiz(roomId)` fija `quiz_opened_at = now()` y vacía `quiz_closed_at`; `closeQuiz(roomId)` fija `quiz_closed_at = now()`. Estados: sin abrir (opened null), abierto (opened y closed null), cerrado (closed no null: se ven explicaciones y la franja final).
 - `startQuestion` y `submitAnswer` con sala exigen `quiz_opened_at is not null` y `closed_at is null`; si no, responden «El docente aún no abre el quiz» y no guardan nada.
 - `/s1/quiz` sin quiz abierto muestra las reglas y «Esperando a que el docente abra el quiz»; se refresca con `router.refresh()` cada 5 s mientras la pestaña está visible. Sin sala, el estudiante puede hacer el quiz en modo práctica, sin puntaje.
 
@@ -362,3 +362,45 @@ Responde a REQ-26 (cambiado), REQ-29 (cambiado), REQ-31 CA2/CA6/CA8, REQ-33 y RE
 - Secciones, en orden: hero con la identidad UPC → «Qué viaja entre tu código y la tabla» (mapa interactivo de las 4 piezas con una consulta que viaja) → conexión y pool → consulta segura (mini demo: el texto escrito cambia el SQL concatenado; con `PreparedStatement` no) → recorrido de la clase (módulos 1–7 con duración, módulo 8 opcional, quiz final) → botón «Empezar por el módulo 1».
 - Ilustraciones: SVG propios con función didáctica (diagramas de piezas, conexión, pool). Logo UPC aportado por el autor. Sin estadísticas ni testimonios inventados (P8).
 - React Bits en la portada: `SplitText`, `TextType` y `Threads` (§8.1), más `AnimatedContent` para revelar secciones al hacer scroll. Todo se desactiva con `prefers-reduced-motion` y en modo exposición; los conceptos se pueden usar con teclado.
+
+### 12.5 Quiz evaluable: nota, tiempo e integridad (cambio del 6 nov 2026, noche)
+
+Responde a REQ-29 CA1/CA3/CA5–CA7, REQ-30 CA1b, REQ-31 CA2/CA9, REQ-34 CA1/CA4 y REQ-35.
+
+**Contenido y tiempo.** `quiz.json` tiene 10 preguntas y una `reserve`. `lib/quiz-time.ts` calcula el límite de cada pregunta (REQ-35 CA1); `toPublicQuiz` lo agrega como `seconds` y descarta `correct`, `explanation` y `reserve`. Tiempos del quiz actual: entre 35 y 60 s, unos 8 min en total. `gradeOf(aciertos, total)` da la nota de 0 a 5 con un decimal.
+
+**Migración `web/supabase/002_quiz_live.sql`** (idempotente, la ejecuta el autor):
+
+| Tabla | Columna nueva | Uso |
+|---|---|---|
+| `rooms` | `quiz_opened_at`, `quiz_closed_at` | Estado del quiz (§12.2) |
+| `participants` | `exits smallint`, `blocked_at timestamptz` | Salidas de la pestaña y bloqueo (REQ-35 CA3) |
+| `quiz_answers` | `limit_seconds smallint`, `timed_out boolean` | Límite fijado al mostrar la pregunta; respuesta vencida |
+
+- La restricción de estado de `quiz_answers` cambia: pendiente (todo null) o respondida (`answered_at` y `correct` no null; `option_index` null solo si `timed_out`).
+- `answer_times` y `room_ranking` se recrean: el tope de segundos es `limit_seconds` en vez de 60.
+- Función `register_exit(p_participant uuid)`: suma una salida de forma atómica y bloquea al llegar a 2; devuelve `exits` y `blocked`. Rehabilitar (panel) deja `blocked_at = null` y `exits = 1`.
+
+**Flujo del estudiante en `/s1/quiz`** (Server Component lee la cookie de participante):
+
+| Estado | Pantalla |
+|---|---|
+| Sin sala | Reglas + `JoinRoomForm` (vuelve a `/s1/quiz`) + «Hacer el calentamiento»: `practice` de `quiz.json`, preguntas distintas a las reales; `submitQuizAnswer` solo califica esas |
+| Sala, quiz sin abrir | Reglas + «Esperando a que el docente abra el quiz»; `router.refresh()` cada 5 s con la pestaña visible |
+| Quiz abierto, bloqueado | «Quiz bloqueado: pide al docente que te rehabilite»; refresco cada 5 s |
+| Quiz abierto, en curso | `LiveQuiz`: una pregunta por pantalla con cuenta regresiva |
+| Terminó o quiz cerrado | Nota, aciertos y franja; con el quiz cerrado, además el detalle con explicaciones |
+
+**Server Actions** (`app/actions/quiz.ts`), todas validan participante, sala abierta, quiz abierto y no bloqueado:
+
+- `startQuestion(questionId)`: inserta `shown_at` y `limit_seconds` con `on conflict do nothing`; devuelve **solo esa pregunta** en su forma pública y los milisegundos que quedan según el reloj del servidor. El navegador nunca recibe las preguntas siguientes antes de tiempo.
+- `submitQuizAnswer(questionId, optionIndex | null)`: guarda solo si `answered_at is null`. Si pasó el límite + 3 s, o `optionIndex` es null (se acabó el tiempo en pantalla), guarda `timed_out = true, correct = false`. Con sala devuelve solo `{ saved, timedOut }`; sin sala califica como antes (modo práctica).
+- `reportExit()`: llama a `register_exit` y devuelve `{ exits, blocked }`.
+- Al cargar la página, las preguntas pendientes cuyo límite ya pasó se cierran como vencidas, así recargar no regala tiempo.
+
+**Orden por estudiante.** `seededOrder(n, semilla)` baraja con el id del participante: las preguntas con `<id>` y las opciones con `<id>-<pregunta>`. El servidor calcula el orden y lo envía como lista de ids.
+
+**Franja.** Con el ranking de la sala (aciertos, luego tiempo), puesto `p` de `n`: Top 10 % si `p ≤ ⌈0,10·n⌉`, Top 25 % si `p ≤ ⌈0,25·n⌉`, Mitad superior si `p ≤ ⌈0,5·n⌉`, si no «Sigue practicando». Provisional mientras el quiz esté abierto.
+
+**Integridad en el navegador** (REQ-35 CA3, CA5, CA6): `visibilitychange` a `hidden` llama a `reportExit` (no se usa `blur`, que da falsos positivos con notificaciones y ventanas divididas); al volver se muestra el aviso o el bloqueo. La zona de la pregunta usa `select-none` y cancela `copy`, `cut` y `contextmenu`. La marca de agua es texto repetido en diagonal con opacidad baja, `aria-hidden` y `pointer-events: none`.
+

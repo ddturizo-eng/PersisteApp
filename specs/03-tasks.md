@@ -26,6 +26,8 @@ Segundo cambio aprobado por el autor (REQ-26 y REQ-29 cambiados, REQ-33 y REQ-34
 3. **La portada pasa a ser una landing de conceptos** interactiva (identidad UPC) y se adelanta al sábado: es la entrada a la clase.
 4. El código estudiantil es el del carné; no se verifica por correo (sin API externa).
 
+**Ajuste del 6 nov 2026 (noche)** (REQ-29 CA1/CA3/CA5–CA7, REQ-35 nuevo; diseño §12.5): el quiz pasa a **10 preguntas con nota de 0 a 5**, tiempo por pregunta según su longitud (30–90 s), explicaciones al cerrar el quiz, franja (no puesto) para el estudiante, orden barajado por estudiante, detección de salidas con bloqueo a la segunda y botón Rehabilitar en el panel. Botón «Ir al quiz» en el encabezado.
+
 ---
 
 ## Día 1 · Vie 6 nov · Base
@@ -55,10 +57,11 @@ Segundo cambio aprobado por el autor (REQ-26 y REQ-29 cambiados, REQ-33 y REQ-34
 |---|---|---|---|---|
 | T-39 | Proyecto Supabase, `supabase/001_quiz.sql` y `db/001_schema.sql`, variables en Vercel | REQ-19, 28 | 0.75 h | ✅ |
 | T-40 | Sala: `joinRoom`, cookie httpOnly, página `/sala`, barra de sala | REQ-28 CA1–CA3 | 1.5 h | ✅ |
-| T-46 | Quiz final: `content/s1/quiz.json` (12 preguntas) con esquema propio; módulos 1 y 4 sin etapa Quiz; «Siguiente módulo» al terminar | REQ-26, 29 CA1 | 1.25 h | ⬜ |
+| T-46 | Quiz final: `content/s1/quiz.json` (10 preguntas + reserva) con esquema propio; módulos 1 y 4 sin etapa Quiz; «Siguiente módulo» al terminar; «Ir al quiz» en el encabezado | REQ-26, 29 CA1, 34 CA4 | 1.25 h | ✅ |
 | T-47 | Landing de conceptos: hero UPC, mapa interactivo de las 4 piezas, conexión y pool, consulta segura, recorrido de la clase | REQ-33, REQ-06 | 3.5 h | 🔄 |
-| T-41 | `/s1/quiz` «Prepárate para el quiz» con entrada a sala; `startQuestion` y `submitAnswer` con tiempo en servidor, primer intento y quiz abierto; puntaje y posición | REQ-29, REQ-30 CA1b, REQ-34 | 1.75 h | ⬜ |
-| T-42 | Panel docente: clave, salas, **abrir/cerrar quiz** (`002_quiz_open.sql`), pestañas En vivo, Por pregunta y Por estudiante, eliminar, cerrar, CSV | REQ-28 CA4–CA5, REQ-30 CA1, CA2, CA4, REQ-31 | 3.25 h | ⬜ |
+| T-41 | `/s1/quiz` «Prepárate para el quiz» con entrada a sala; `002_quiz_live.sql`; `startQuestion` y `submitAnswer` con límite por pregunta en servidor, primer intento y quiz abierto; nota, franja y explicaciones al cerrar | REQ-29, REQ-30 CA1b, REQ-34, REQ-35 CA1–CA2 | 2.5 h | 🔄 |
+| T-48 | Integridad: salidas de pestaña con aviso y bloqueo, sin copiar, marca de agua | REQ-35 CA3, CA5–CA7 | 1 h | 🔄 |
+| T-42 | Panel docente: clave, salas, **abrir/cerrar quiz**, pestañas En vivo (con nota y salidas), Por pregunta y Por estudiante, **Rehabilitar**, eliminar, cerrar, CSV | REQ-28 CA4–CA5, REQ-30 CA1, CA2, CA4, REQ-31, REQ-35 CA4 | 3.5 h | ⬜ |
 | T-43 | Ranking proyectado (top 10, nombre + inicial) | REQ-30 CA3 | 0.5 h | ⬜ |
 | T-18 | Módulo 2 «Primera conexión»: URL, driver, variables de entorno; recorrido reutilizado | REQ-16, 26, 27 | 1 h | ⬜ |
 | T-13 | Modelo puro del pool con pruebas | REQ-10 | 0.75 h | ⬜ |
@@ -126,6 +129,7 @@ Segundo cambio aprobado por el autor (REQ-26 y REQ-29 cambiados, REQ-33 y REQ-34
 | REQ-27 | M | T-37, T-09, T-18 |
 | REQ-28 | M | T-39, T-40, T-42 |
 | REQ-29 | M | T-38, T-46, T-41 |
+| REQ-35 | M | T-41, T-48, T-42 |
 | REQ-30 | M | T-41, T-42, T-43 |
 | REQ-31 | M | T-42 |
 | REQ-33 | M | T-47 |
