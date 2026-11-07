@@ -115,3 +115,12 @@ SCENE: A young woman student sits at a desk with an open laptop (white screen, n
 Aspect ratio 4:3, subject slightly to the left, empty space on the right.
 ```
 
+
+### 3.x Módulo 5 · `todo-o-nada.png` (4:3)
+Qué comunica: vender son **dos cosas que van juntas** (guardar la venta y sacar el producto del estante); si una falla, se deshacen las dos. Generada el 7 nov 2026; fondo retirado y exportada a WebP (1079×943, 69 KB). Se usa en el paso «Una transacción: todo o nada» del módulo 5.
+
+```text
+[STYLE block]
+SCENE: A young man student behind a small shop counter holds a sun-yellow #F2D21B receipt in one oversized hand and, with the other, places a small box back on a deep green #1E7B34 shelf. Between the receipt and the box, a dotted curved line ties them together with a small padlock icon in the middle (they go together). On the counter, a big round button with a curved "undo" arrow (no text). He wears a teal #1BA39C t-shirt; short curly hair; calm smile. Two small yellow sparkles near the padlock.
+Aspect ratio 4:3, subject slightly to the left, empty space on the right.
+```

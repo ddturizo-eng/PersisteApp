@@ -78,7 +78,7 @@ Segundo cambio aprobado por el autor (REQ-26 y REQ-29 cambiados, REQ-33 y REQ-34
 |---|---|---|---|---|
 | T-15 | Laboratorio de inyección SQL | REQ-11 | 2 h | ⬜ |
 | T-19 | Módulo 4: ajustar a teoría → práctica (sin quiz) y preguntas al quiz final | REQ-16, 26 | 0.5 h | ⬜ |
-| T-16 | Espejo app ↔ base de datos (`MemoryDb`) | REQ-12 | 1.5 h | ⬜ |
+| T-16 | Espejo app ↔ base de datos (`MemoryDb`) | REQ-12 | 1.5 h | ✅ |
 | T-20 | Módulos 5, 6 y 7, y sus preguntas en el quiz final | REQ-16, 26, 29 | 2.5 h | ⬜ |
 | T-22 | ~~Portada mínima~~ (la reemplaza T-47); progreso local en el índice de la landing | REQ-06 CA2 | 0.5 h | ⬜ |
 | T-24 | Pasada de accesibilidad y responsive | REQ-09 | 1 h | ⬜ |

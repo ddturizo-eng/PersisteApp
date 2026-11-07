@@ -49,29 +49,6 @@
       ]
     },
     {
-      "id": "m1-q4",
-      "module": 1,
-      "context": "Un método abre una conexión con DriverManager.getConnection, ejecuta un SELECT y termina sin llamar a close() ni usar try-with-resources. Se llama cientos de veces.",
-      "prompt": "¿Qué termina pasando?",
-      "options": [
-        {
-          "text": "El motor alcanza su límite de conexiones y rechaza nuevas",
-          "correct": true,
-          "explanation": "Cada conexión abierta ocupa un lugar en el servidor. Sin cerrarlas, se agotan y las siguientes fallan."
-        },
-        {
-          "text": "Java cierra cada conexión al terminar el método, sin costo",
-          "correct": false,
-          "explanation": "Salir del método no cierra la conexión: sigue abierta en el motor hasta que alguien llame a `close()`."
-        },
-        {
-          "text": "Las consultas siguientes devuelven las filas de la primera",
-          "correct": false,
-          "explanation": "Cada consulta tiene su propio resultado; el problema es la cantidad de conexiones abiertas."
-        }
-      ]
-    },
-    {
       "id": "m2-q1",
       "module": 2,
       "context": "La app debe conectarse a una base PostgreSQL llamada `tienda` que corre en el mismo equipo, en el puerto por defecto.",
@@ -231,9 +208,55 @@
           "explanation": "SQL en la interfaz es justo el error encontrado en los proyectos revisados."
         }
       ]
+    },
+    {
+      "id": "m5-q1",
+      "module": 5,
+      "context": "`registerSale` llama a `connection.setAutoCommit(false)`, inserta la venta en `sales` y luego el UPDATE del stock lanza una excepción. El catch llama a `connection.rollback()`.",
+      "prompt": "¿Cómo queda la tabla `sales` después del rollback?",
+      "options": [
+        {
+          "text": "Sin la venta: el rollback deshizo también el INSERT",
+          "correct": true,
+          "explanation": "Con el autocommit apagado, el INSERT quedó pendiente dentro de la transacción. `rollback()` deshace todo lo pendiente, también lo que se ejecutó sin error."
+        },
+        {
+          "text": "Con la venta, porque el INSERT terminó antes del error",
+          "correct": false,
+          "explanation": "Eso pasaría con autocommit. Dentro de una transacción, terminar una sentencia no la guarda: solo `commit()` la guarda."
+        },
+        {
+          "text": "Con la venta, pero la base la marca como anulada",
+          "correct": false,
+          "explanation": "La base no marca filas como anuladas: el rollback las borra como si nunca se hubieran insertado."
+        }
+      ]
     }
   ],
   "reserve": [
+    {
+      "id": "m1-q4",
+      "module": 1,
+      "context": "Un método abre una conexión con DriverManager.getConnection, ejecuta un SELECT y termina sin llamar a close() ni usar try-with-resources. Se llama cientos de veces.",
+      "prompt": "¿Qué termina pasando?",
+      "options": [
+        {
+          "text": "El motor alcanza su límite de conexiones y rechaza nuevas",
+          "correct": true,
+          "explanation": "Cada conexión abierta ocupa un lugar en el servidor. Sin cerrarlas, se agotan y las siguientes fallan."
+        },
+        {
+          "text": "Java cierra cada conexión al terminar el método, sin costo",
+          "correct": false,
+          "explanation": "Salir del método no cierra la conexión: sigue abierta en el motor hasta que alguien llame a `close()`."
+        },
+        {
+          "text": "Las consultas siguientes devuelven las filas de la primera",
+          "correct": false,
+          "explanation": "Cada consulta tiene su propio resultado; el problema es la cantidad de conexiones abiertas."
+        }
+      ]
+    },
     {
       "id": "m1-q5",
       "module": 1,

@@ -1,0 +1,135 @@
+{
+  "id": "s1-m5-transacciones",
+  "session": 1,
+  "module": 5,
+  "title": "Todo o nada: transacciones con commit y rollback",
+  "summary": "Vender son dos escrituras: guardar la venta y descontar el stock. Con autocommit, si la segunda falla la primera ya quedó guardada. Una transacción las une: commit guarda las dos, rollback deshace las dos.",
+  "estimatedMinutes": 12,
+  "source": {
+    "label": "The Java Tutorials · Using Transactions",
+    "url": "https://docs.oracle.com/javase/tutorial/jdbc/basics/transactions.html"
+  },
+  "steps": [
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "Vender son dos escrituras",
+      "body": "En la tienda del CRUD, vender 2 memorias USB no es una sola sentencia. Primero se guarda la venta en la tabla `sales` y después se descuenta el stock en `products`. Las dos tienen que pasar, o ninguna.\n\nJDBC empieza cada conexión en modo autocommit: cada sentencia se confirma sola, en cuanto termina. Mientras todo sale bien no se nota. El problema aparece cuando la segunda sentencia falla y la primera ya quedó guardada."
+    },
+    {
+      "kind": "code",
+      "stage": "theory",
+      "mode": "read",
+      "language": "java",
+      "title": "registerSale sin transacción",
+      "variants": {
+        "java": "public void registerSale(int productId, int quantity) throws SQLException {\n    try (Connection connection = dataSource.getConnection()) {\n        // autocommit está encendido: cada executeUpdate() se guarda al terminar\n        insertSale(connection, productId, quantity);        // 1. INSERT INTO sales ...\n        int rows = decreaseStock(connection, productId, quantity);\n        // 2. UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?\n        if (rows == 0) {\n            throw new InsufficientStockException(productId, quantity);\n            // ...pero la venta del paso 1 ya está guardada\n        }\n    }\n}"
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "mirror",
+      "props": { "mode": "autocommit" },
+      "title": "Mira cómo queda a medias",
+      "caption": "Vende 3 memorias USB cuando solo hay 2. A la izquierda, lo que ejecuta tu app; a la derecha, lo que queda guardado en la base."
+    },
+    {
+      "kind": "question",
+      "stage": "theory",
+      "context": "Sin transacción, `registerSale(4, 3)` inserta la venta y luego el UPDATE no cambia ninguna fila porque solo había 2 memorias USB.",
+      "prompt": "¿Qué queda guardado en la base después del error?",
+      "options": [
+        {
+          "text": "La venta de 3 unidades, con el stock todavía en 2",
+          "correct": true,
+          "explanation": "El INSERT se confirmó solo al terminar. El error llegó después y ya no puede deshacerlo: la venta quedó sin su stock."
+        },
+        {
+          "text": "Nada, porque la excepción cancela todo lo del método",
+          "correct": false,
+          "explanation": "Una excepción de Java no deshace nada en la base. Con autocommit, lo que ya se ejecutó quedó confirmado."
+        },
+        {
+          "text": "La venta de 2 unidades, las que sí había en stock",
+          "correct": false,
+          "explanation": "El INSERT guardó la cantidad pedida, 3. La base no ajusta la venta al stock: eso lo decide tu código."
+        }
+      ]
+    },
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "Una transacción: todo o nada",
+      "body": "Una transacción agrupa varias sentencias para que la base las trate como una sola. En JDBC se arma con tres llamadas sobre la misma conexión:\n\n1. `setAutoCommit(false)`: desde aquí nada se guarda solo. Los cambios quedan pendientes y solo esta conexión los ve.\n\n2. `commit()`: si todo salió bien, guarda todos los cambios de una vez.\n\n3. `rollback()`: si algo falló, los deshace todos y la base queda como estaba.\n\nEsta propiedad se llama atomicidad, la A de ACID: la venta y el stock se guardan juntos o no se guarda ninguno.",
+      "image": "todo-o-nada"
+    },
+    {
+      "kind": "code",
+      "stage": "theory",
+      "mode": "read",
+      "language": "java",
+      "title": "La transacción del CRUD v1 (JdbcTransactionRunner)",
+      "variants": {
+        "java": "try (Connection connection = dataSource.getConnection()) {\n    connection.setAutoCommit(false);              // desde aquí nada se guarda solo\n    try {\n        insertSale(connection, productId, quantity);\n        if (decreaseStock(connection, productId, quantity) == 0) {\n            throw new InsufficientStockException(productId, quantity);\n        }\n        connection.commit();                      // todo salió bien: se guarda todo\n    } catch (RuntimeException e) {\n        connection.rollback();                    // algo falló: no se guarda nada\n        throw e;\n    } finally {\n        connection.setAutoCommit(true);           // la conexión vuelve limpia al pool\n    }\n}"
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
+      "component": "mirror",
+      "title": "Con y sin transacción",
+      "caption": "Vende 3 memorias USB sin transacción y luego con ella. Después activa «Simular un corte después del INSERT» y vende un teclado. Fíjate en las filas rayadas: están escritas pero sin confirmar."
+    },
+    {
+      "kind": "code",
+      "stage": "practice",
+      "mode": "fill",
+      "language": "java",
+      "title": "Completa la transacción",
+      "prompt": "Elige lo que falta para que la venta y el stock se guarden juntos o no se guarde ninguno.",
+      "variants": {
+        "java": "try (Connection connection = dataSource.getConnection()) {\n    connection.setAutoCommit({{1}});\n    try {\n        insertSale(connection, productId, quantity);\n        decreaseStockOrThrow(connection, productId, quantity);\n        connection.{{2}}();\n    } catch (RuntimeException e) {\n        connection.{{3}}();\n        throw e;\n    } finally {\n        connection.setAutoCommit(true);\n    }\n}"
+      },
+      "gaps": [
+        { "id": 1, "label": "Apagar el autocommit", "answers": ["false"], "choices": ["true", "false"], "hint": "Mientras dure la venta, nada debe guardarse solo." },
+        { "id": 2, "label": "Guardar todo", "answers": ["commit"], "choices": ["commit", "rollback", "close"], "hint": "Este va cuando las dos sentencias funcionaron." },
+        { "id": 3, "label": "Deshacer todo", "answers": ["rollback"], "choices": ["commit", "rollback", "close"], "hint": "Este va cuando algo falló." }
+      ],
+      "hints": [
+        "Con `setAutoCommit(true)` cada sentencia se confirmaría sola y no habría nada que deshacer.",
+        "`commit()` va al final del try; `rollback()` va en el catch."
+      ]
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "La conexión viene de un pool HikariCP. Un compañero borra el `finally` con `connection.setAutoCommit(true)` porque «la transacción ya terminó».",
+      "prompt": "¿Qué le puede pasar a la siguiente consulta que reciba esa conexión del pool?",
+      "options": [
+        {
+          "text": "Sus cambios quedan pendientes y nunca se confirman",
+          "correct": true,
+          "explanation": "`close()` devuelve la conexión al pool tal como está, con el autocommit apagado. Quien la reciba después escribe sin commit y sus cambios se pierden."
+        },
+        {
+          "text": "Nada, porque el pool cierra la conexión y abre otra",
+          "correct": false,
+          "explanation": "El pool no abre una conexión nueva: presta la misma que recibió de vuelta, con su configuración (módulo 3)."
+        },
+        {
+          "text": "La base rechaza la consulta por estar en una transacción",
+          "correct": false,
+          "explanation": "La base no la rechaza: la acepta dentro de una transacción que nadie confirma, que es peor porque no da error."
+        }
+      ]
+    },
+    {
+      "kind": "text",
+      "stage": "practice",
+      "title": "Explícalo con tus palabras",
+      "body": "Registra en la bitácora qué queda guardado cuando falla la segunda sentencia con autocommit y con una transacción, y qué hacen `commit()` y `rollback()`.",
+      "reflection": true
+    }
+  ]
+}
