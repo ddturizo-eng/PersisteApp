@@ -8,6 +8,13 @@ import type { Snippet } from "@/lib/snippets";
 
 const themes = { light: "github-light-default", dark: "github-dark-default" } as const;
 
+/**
+ * github-light-default paints comments #6E7781 (4.05:1) and functions #8250DF (4.49:1) on our code
+ * background #f0f3eb, below WCAG AA 4.5:1 (axe, T-24). Darker shades of the same hues: 5.7:1 and 5.8:1.
+ */
+const lightOverrides: Record<string, string> = { "#6e7781": "#57606A", "#8250df": "#6F42C1" };
+const lightColor = (color: string) => lightOverrides[color.toLowerCase()] ?? color;
+
 /** Every code string a lesson shows: variants, pick-line options, order blocks and trace snippets. */
 type Language = "java" | "sql" | "properties" | "xml";
 
@@ -47,7 +54,7 @@ export async function highlightLesson(lesson: Lesson, snippets: Snippet[] = []):
     highlights[key] = tokens.map((line) =>
       line.map((token) => {
         const style = (token.htmlStyle ?? {}) as Record<string, string>;
-        return [token.content, style.color ?? "", style["--shiki-dark"] ?? ""];
+        return [token.content, lightColor(style.color ?? ""), style["--shiki-dark"] ?? ""];
       })
     ) satisfies TokenLines;
   }
