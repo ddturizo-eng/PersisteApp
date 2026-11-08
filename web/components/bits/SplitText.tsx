@@ -358,6 +358,9 @@ const SplitText = ({
         wordsClass: 'split-word',
         charsClass: 'split-char',
         reduceWhiteSpace: false,
+        // «auto» puts aria-label on the parent, which axe flags on a <span> with no role
+        // (aria-prohibited-attr, 7 Nov 2026). Whole words read fine as they are; split letters still need it.
+        aria: splitType.includes('chars') ? 'auto' : 'none',
         onSplit: (self: GSAPSplitText) => {
           pieces = [self[unit], self.chars, self.words, self.lines].find(list => list.length) || [];
           movers = (mask && self.masks?.length === pieces.length ? self.masks : pieces) as HTMLElement[];
