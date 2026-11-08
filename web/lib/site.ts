@@ -9,4 +9,6 @@ export const site = {
   teacher: { title: "Ing. Esp.", name: "Alfredo David Bautista Romero" },
   /** Author of the platform. */
   author: { name: "Daniel David Turizo Chacón", github: "https://github.com/ddturizo-eng" },
+  /** Public source code; the landing asks visitors to star it. */
+  repo: "https://github.com/ddturizo-eng/PersisteApp",
 } as const;

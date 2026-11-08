@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, ArrowRight, BookOpen, Clock, ListChecks, PencilLine } from "lucide-react";
+import { ArrowDown, ArrowRight, BookOpen, Clock, ListChecks, PencilLine, Star } from "lucide-react";
 import { cn } from "cn";
 import SplitText from "@/components/bits/SplitText";
 import TextType from "@/components/bits/TextType";
@@ -304,6 +304,30 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Star the repository (author's request, 7 Nov 2026). */}
+      <section aria-labelledby="estrella" className="px-4 pb-16 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col items-start gap-5 rounded-[2.5rem] border-2 border-foreground bg-card p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div className="max-w-xl space-y-2">
+            <h2 id="estrella" className="text-2xl font-semibold tracking-tight">
+              ¿Te sirvió {site.name}? <span className="text-primary">Dale una estrella</span>
+            </h2>
+            <p className="leading-relaxed text-muted-foreground">
+              El código es abierto. Una estrella en GitHub ayuda a que más estudiantes lo encuentren y le da visibilidad al proyecto.
+            </p>
+          </div>
+          <a
+            href={site.repo}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-foreground px-6 font-medium text-background outline-none hover:bg-foreground/85 focus-visible:ring-4 focus-visible:ring-ring/40"
+          >
+            <Star aria-hidden="true" className="size-4 fill-sun text-sun" />
+            Dar una estrella en GitHub
+            <span className="sr-only"> (se abre en otra pestaña)</span>
+          </a>
+        </div>
+      </section>
+
       <footer className="border-t-2 border-foreground/10">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6 md:flex-row md:items-center md:justify-between">
           <Logos />
@@ -326,6 +350,18 @@ export default function Home() {
               >
                 <GithubMark className="size-4" />
                 {site.author.github.replace("https://", "")}
+              </a>
+            </dd>
+            <dt className="text-muted-foreground">Código</dt>
+            <dd>
+              <a
+                href={site.repo}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-sm underline underline-offset-4 outline-none hover:text-primary focus-visible:ring-4 focus-visible:ring-ring/40"
+              >
+                <Star aria-hidden="true" className="size-4" />
+                {site.repo.replace("https://github.com/", "")}
               </a>
             </dd>
           </dl>
