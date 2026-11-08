@@ -19,10 +19,10 @@ const stopColors = ["bg-secondary", "bg-accent text-accent-foreground", "bg-sun 
 function Logos({ className }: { className?: string }) {
   return (
     <div className={cn("flex items-center gap-4", className)}>
-      <Image src="/logos/unicesar.png" alt={site.institution} width={1000} height={369} className="h-10 w-auto dark:hidden" priority />
-      <Image src="/logos/unicesar-dark.png" alt={site.institution} width={1000} height={369} className="hidden h-10 w-auto dark:block" priority />
+      <Image src="/logos/unicesar.png" alt={site.institution} width={1000} height={369} sizes="110px" className="h-10 w-auto dark:hidden" priority />
+      <Image src="/logos/unicesar-dark.png" alt={site.institution} width={1000} height={369} sizes="110px" className="hidden h-10 w-auto dark:block" priority />
       <span aria-hidden="true" className="h-8 w-0.5 rounded-full bg-border" />
-      <Image src="/logos/ingesistemas.png" alt={`Programa de ${site.program}`} width={600} height={620} className="h-11 w-auto" priority />
+      <Image src="/logos/ingesistemas.png" alt={`Programa de ${site.program}`} width={600} height={620} sizes="44px" className="h-11 w-auto" priority />
     </div>
   );
 }
@@ -118,6 +118,7 @@ export default function Home() {
               alt="Una estudiante trabaja en su portátil sentada sobre una base de datos, conectada por un cable."
               width={878}
               height={974}
+              sizes="(min-width: 1024px) 448px, (min-width: 640px) 384px, 320px"
               priority
               className="relative w-full"
             />
@@ -133,7 +134,7 @@ export default function Home() {
               Una línea de Java no lee la tabla: le pide los datos a otro programa. Entre los dos hay cuatro piezas. Pulsa cada una, o envía
               una consulta y síguela de ida y vuelta.
             </SectionHeading>
-            <Image src="/ilustraciones/piezas-driver.webp" alt="" width={1222} height={844} className="hidden w-72 lg:block" />
+            <Image src="/ilustraciones/piezas-driver.webp" alt="" width={1222} height={844} sizes="288px" className="hidden w-72 lg:block" />
           </Reveal>
           <Reveal>
             <SystemMap />
@@ -154,6 +155,7 @@ export default function Home() {
               alt="Dos estudiantes en una estación de bicicletas compartidas: una toma una bicicleta y otro devuelve la suya."
               width={1372}
               height={591}
+              sizes="(min-width: 1152px) 528px, (min-width: 1024px) 46vw, 100vw"
               className="w-full"
             />
           </Reveal>
@@ -171,7 +173,7 @@ export default function Home() {
               Si pegas lo que escribe la persona dentro del SQL, su texto puede volverse parte de la orden. Con PreparedStatement, la orden
               y el dato viajan por separado, como una tarjeta y un sobre sellado.
             </SectionHeading>
-            <Image src="/ilustraciones/consulta-segura.webp" alt="" width={1267} height={1245} className="hidden w-60 lg:block" />
+            <Image src="/ilustraciones/consulta-segura.webp" alt="" width={1267} height={1245} sizes="240px" className="hidden w-60 lg:block" />
           </Reveal>
           <Reveal>
             <SafeQueryDemo />
@@ -277,7 +279,7 @@ export default function Home() {
                 tardó menos en sus respuestas correctas.
               </p>
             </div>
-            <Image src="/ilustraciones/quiz-final.webp" alt="" width={793} height={912} className="mx-auto w-48 sm:w-60" />
+            <Image src="/ilustraciones/quiz-final.webp" alt="" width={793} height={912} sizes="(min-width: 640px) 240px, 192px" className="mx-auto w-48 sm:w-60" />
           </Reveal>
         </div>
       </section>

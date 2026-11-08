@@ -40,9 +40,9 @@ function TeacherLogin() {
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[oklch(0.22_0.035_160/0.82)]" />
         <div className="flex h-full flex-col gap-8 p-7 sm:p-10">
           <div className="flex items-center gap-3">
-            <Image src="/logos/unicesar-dark.png" alt={site.institution} width={1000} height={369} className="h-9 w-auto" />
+            <Image src="/logos/unicesar-dark.png" alt={site.institution} width={1000} height={369} sizes="98px" className="h-9 w-auto" />
             <span aria-hidden="true" className="h-8 w-px bg-white/30" />
-            <Image src="/logos/ingesistemas.png" alt={`Programa de ${site.program}`} width={600} height={619} className="h-10 w-auto" />
+            <Image src="/logos/ingesistemas.png" alt={`Programa de ${site.program}`} width={600} height={619} sizes="40px" className="h-10 w-auto" />
           </div>
           <div className="space-y-3">
             <p className="text-sm font-medium tracking-wide text-balance text-sun uppercase">{site.course}</p>
