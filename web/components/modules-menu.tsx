@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ClipboardCheck, Menu, X } from "lucide-react";
+import { CircleCheck, ClipboardCheck, Menu, X } from "lucide-react";
 import { cn } from "cn";
+import { useCompletedLessons } from "@/components/progress";
 
-export type MenuModule = { module: number; title: string; minutes: number; href?: string };
+export type MenuModule = { module: number; title: string; minutes: number; href?: string; lessonId?: string };
 
 /** A swipe counts when it moves this far sideways and stays mostly horizontal. */
 const SWIPE_MIN_X = 60;
@@ -30,6 +31,7 @@ function scrollsSideways(target: EventTarget | null): boolean {
  */
 export function ModulesMenu({ modules }: { modules: MenuModule[] }) {
   const [open, setOpen] = useState(false);
+  const completed = useCompletedLessons();
   const dialog = useRef<HTMLDialogElement>(null);
   // Read on open, not via usePathname(): the header is in the root layout, and that hook outside
   // <Suspense> blocks prerendering of dynamic routes such as /docente/[code] (build failure, 7 Nov 2026).
@@ -126,6 +128,7 @@ export function ModulesMenu({ modules }: { modules: MenuModule[] }) {
           <ol className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
             {modules.map((m) => {
               const current = m.href !== undefined && pathname === m.href;
+              const done = m.lessonId !== undefined && completed.includes(m.lessonId);
               const base =
                 "flex w-full items-center justify-center rounded-full border-2 px-4 py-3 text-base font-semibold outline-none focus-visible:ring-4 focus-visible:ring-ring/40";
               return (
@@ -135,7 +138,7 @@ export function ModulesMenu({ modules }: { modules: MenuModule[] }) {
                       href={m.href}
                       onClick={() => setOpen(false)}
                       aria-current={current ? "page" : undefined}
-                      aria-label={`Módulo ${m.module}: ${m.title}`}
+                      aria-label={`Módulo ${m.module}: ${m.title}${done ? " (terminado)" : ""}`}
                       title={m.title}
                       className={cn(
                         base,
@@ -145,6 +148,7 @@ export function ModulesMenu({ modules }: { modules: MenuModule[] }) {
                       )}
                     >
                       Módulo {m.module}
+                      {done && <CircleCheck aria-hidden="true" className={cn("ml-2 size-4", current ? "" : "text-primary")} />}
                     </Link>
                   ) : (
                     <span aria-label={`Módulo ${m.module}: próximamente`} className={cn(base, "border-dashed border-border text-muted-foreground")}>

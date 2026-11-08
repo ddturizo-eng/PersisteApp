@@ -9,6 +9,7 @@ import { StageIndicator } from "@/components/lesson/stage-indicator";
 import { StepOverview } from "@/components/lesson/step-overview";
 import { TraceStep } from "@/components/lesson/trace-step";
 import { SnippetsProvider } from "@/components/lesson/code-refs";
+import { useMarkDone } from "@/components/progress";
 import { laterUses, type SnippetMap } from "@/lib/snippets";
 import { CodeStep, QuestionStep, TextStep, VisualStep } from "@/components/lesson/steps";
 import type { StepNav } from "@/components/lesson/step-nav";
@@ -92,6 +93,8 @@ export function LessonPlayer({
   const isLast = index === total - 1;
   const stepDone = canAdvance(lesson, index, attempts, solved);
   const advanceAllowed = innerNav ? innerNav.canAdvance : stepDone;
+  // Finished = reaching the last step, where «Siguiente módulo» appears (T-22: landing and menu marks).
+  useMarkDone(lesson.id, isLast && !innerNav?.advance);
 
   const goTo = useCallback(
     (next: number) => {

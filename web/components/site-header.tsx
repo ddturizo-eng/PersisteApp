@@ -20,6 +20,7 @@ export function SiteHeader() {
       title: stop.title,
       minutes: stop.minutes,
       href: stop.lessonId ? `/s1/${stop.lessonId}` : undefined,
+      lessonId: stop.lessonId,
     }));
   return (
     <header className="exposition:hidden">

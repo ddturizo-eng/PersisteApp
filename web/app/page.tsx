@@ -6,6 +6,7 @@ import SplitText from "@/components/bits/SplitText";
 import TextType from "@/components/bits/TextType";
 import Threads from "@/components/bits/Threads";
 import { PoolDemo } from "@/components/landing/pool-demo";
+import { DoneBadge, ProgressSummary } from "@/components/progress";
 import { Reveal } from "@/components/landing/reveal";
 import { SafeQueryDemo } from "@/components/landing/safe-query-demo";
 import { SystemMap } from "@/components/landing/system-map";
@@ -214,6 +215,7 @@ export default function Home() {
             />
           </Reveal>
 
+          <ProgressSummary lessonIds={stops.flatMap((s) => (s.lessonId && !s.optional ? [s.lessonId] : []))} />
           <Reveal>
             <ol aria-label="Módulos de la sesión 1" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {stops.map((stop, i) => {
@@ -226,16 +228,19 @@ export default function Home() {
                       </span>
                     </span>
                     <span className="block text-lg leading-snug font-semibold text-balance">{stop.title}</span>
-                    <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-medium">
-                      {stop.lessonId ? (
-                        <>
-                          Abrir módulo <ArrowRight aria-hidden="true" className="size-4" />
-                        </>
-                      ) : stop.optional ? (
-                        "Opcional · estudio autónomo"
-                      ) : (
-                        "Próximamente"
-                      )}
+                    <span className="mt-auto flex flex-wrap items-center justify-between gap-2 text-sm font-medium">
+                      <span className="inline-flex items-center gap-1.5">
+                        {stop.lessonId ? (
+                          <>
+                            Abrir módulo <ArrowRight aria-hidden="true" className="size-4" />
+                          </>
+                        ) : stop.optional ? (
+                          "Opcional · estudio autónomo"
+                        ) : (
+                          "Próximamente"
+                        )}
+                      </span>
+                      {stop.lessonId && <DoneBadge lessonId={stop.lessonId} />}
                     </span>
                   </>
                 );
