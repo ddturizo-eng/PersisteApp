@@ -34,11 +34,14 @@ export function ModulesMenu({ modules }: { modules: MenuModule[] }) {
   // Read on open, not via usePathname(): the header is in the root layout, and that hook outside
   // <Suspense> blocks prerendering of dynamic routes such as /docente/[code] (build failure, 7 Nov 2026).
   const [pathname, setPathname] = useState<string | null>(null);
+  const openMenu = () => {
+    setPathname(window.location.pathname);
+    setOpen(true);
+  };
 
   useEffect(() => {
     const element = dialog.current;
     if (!element) return;
-    if (open) setPathname(window.location.pathname);
     if (open && !element.open) element.showModal();
     else if (!open && element.open) element.close();
   }, [open]);
@@ -60,7 +63,10 @@ export function ModulesMenu({ modules }: { modules: MenuModule[] }) {
       const dx = touch.clientX - start.x;
       const dy = Math.abs(touch.clientY - start.y);
       start = null;
-      if (dx < -SWIPE_MIN_X && dy < SWIPE_MAX_Y) setOpen(true);
+      if (dx < -SWIPE_MIN_X && dy < SWIPE_MAX_Y) {
+        setPathname(window.location.pathname);
+        setOpen(true);
+      }
     };
     window.addEventListener("touchstart", onStart, { passive: true });
     window.addEventListener("touchend", onEnd, { passive: true });
@@ -77,7 +83,7 @@ export function ModulesMenu({ modules }: { modules: MenuModule[] }) {
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openMenu}
         aria-label="Abrir el menú de módulos"
         className="inline-flex size-9 items-center justify-center rounded-md text-foreground outline-none hover:bg-muted focus-visible:ring-4 focus-visible:ring-ring/40 md:hidden"
       >
