@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Coffee, Database, Network, Pause, Play, Plug, RotateCcw } from "lucide-react";
 import { cn } from "cn";
+import { ExecutionBadge } from "@/components/ui/execution-badge";
 
 type PieceId = "app" | "driver" | "red" | "motor";
 
@@ -160,6 +161,8 @@ export function SystemMap() {
             Reiniciar
           </button>
         )}
+        {/* The trip is an animation, not a real query (REQ-07, T-25). */}
+        <ExecutionBadge kind="simulated" className="ml-auto" />
       </div>
 
       <div id={`${id}-detail`} aria-live="polite" className="grid gap-4 rounded-3xl bg-card p-5 md:grid-cols-[1fr_auto] md:items-center md:p-6">
