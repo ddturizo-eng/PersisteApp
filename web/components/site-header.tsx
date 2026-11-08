@@ -14,13 +14,13 @@ import { site } from "@/lib/site";
  */
 export function SiteHeader() {
   const modules = courseStops(lessonsForSession(1))
-    .filter((stop) => !stop.optional)
     .map((stop) => ({
       module: stop.module,
       title: stop.title,
       minutes: stop.minutes,
       href: stop.lessonId ? `/s1/${stop.lessonId}` : undefined,
       lessonId: stop.lessonId,
+      optional: stop.optional,
     }));
   return (
     <header className="exposition:hidden">

@@ -100,7 +100,7 @@ Segundo cambio aprobado por el autor (REQ-26 y REQ-29 cambiados, REQ-33 y REQ-34
 | T-23 | Buscador Ctrl K, Referencia y glosario | Recorte del 6 nov para dar lugar al ranking |
 | T-26 | Revisión de acabado con `impeccable` | Recorte del 6 nov |
 | T-17 / T-21 | PGlite: spike y laboratorio SQL real | Stretch; el espejo queda simulado |
-| T-44 | Módulo 8 «Qué hace Spring Boot por ti» | Estudio autónomo; se publica después del lunes |
+| T-44 | Módulo 8 «Qué hace Spring Boot por ti» | Estudio autónomo, fuera del quiz y del presupuesto de 100 min. ✅ Publicado el 7 nov (tabla de equivalencias, JdbcClient, @Transactional) |
 | T-31–T-35 | Sesión 2 (CRUD v2, rutinas, triggers, contenido, ensayo) | Lun 9 tarde y Mar 10 |
 | REQ-21–25 | Fase 2 | Sin cambios |
 

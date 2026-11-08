@@ -9,6 +9,7 @@ import { useEngine } from "@/components/code/engine";
 import { EngineTabs } from "@/components/code/engine-tabs";
 import { Context, FillGaps, OrderBlocks, PickLine } from "@/components/code/exercises";
 import { ExecutionBadge } from "@/components/ui/execution-badge";
+import { SpringMap } from "@/components/lesson/spring-map";
 import { codeFor, optionOrder, toSentinels } from "@/lib/exercises";
 import { highlightKey, type Highlights } from "@/lib/highlight";
 import { stageLabels, type Step } from "@/lib/lesson-schema";
@@ -118,6 +119,8 @@ export function VisualStep({ step, headingRef }: { step: StepOf<"visual">; headi
       <PoolSimulator />
     ) : step.component === "mirror" ? (
       <MirrorSimulator mode={step.props?.mode === "autocommit" ? "autocommit" : undefined} />
+    ) : step.component === "spring-map" ? (
+      <SpringMap />
     ) : step.component === "injection" ? (
       <SafeQueryDemo mode={step.props?.mode === "vulnerable" ? "vulnerable" : "both"} />
     ) : (

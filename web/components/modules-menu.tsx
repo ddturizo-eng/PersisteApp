@@ -6,7 +6,7 @@ import { CircleCheck, ClipboardCheck, Menu, X } from "lucide-react";
 import { cn } from "cn";
 import { useCompletedLessons } from "@/components/progress";
 
-export type MenuModule = { module: number; title: string; minutes: number; href?: string; lessonId?: string };
+export type MenuModule = { module: number; title: string; minutes: number; href?: string; lessonId?: string; optional?: boolean };
 
 /** A swipe counts when it moves this far sideways and stays mostly horizontal. */
 const SWIPE_MIN_X = 60;
@@ -138,16 +138,19 @@ export function ModulesMenu({ modules }: { modules: MenuModule[] }) {
                       href={m.href}
                       onClick={() => setOpen(false)}
                       aria-current={current ? "page" : undefined}
-                      aria-label={`Módulo ${m.module}: ${m.title}${done ? " (terminado)" : ""}`}
+                      aria-label={`Módulo ${m.module}${m.optional ? " (opcional)" : ""}: ${m.title}${done ? " (terminado)" : ""}`}
                       title={m.title}
                       className={cn(
                         base,
                         current
                           ? "border-primary bg-primary text-primary-foreground"
-                          : "border-foreground/80 bg-card hover:bg-muted"
+                          : m.optional
+                            ? "border-dashed border-foreground/60 hover:bg-muted"
+                            : "border-foreground/80 bg-card hover:bg-muted"
                       )}
                     >
                       Módulo {m.module}
+                      {m.optional && <span className="ml-1.5 text-sm font-medium opacity-80">· opcional</span>}
                       {done && <CircleCheck aria-hidden="true" className={cn("ml-2 size-4", current ? "" : "text-primary")} />}
                     </Link>
                   ) : (

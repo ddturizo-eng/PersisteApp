@@ -1,0 +1,213 @@
+{
+  "id": "s1-m8-spring-boot",
+  "session": 1,
+  "module": 8,
+  "title": "Qué hace Spring Boot por ti",
+  "summary": "Todo lo que escribiste a mano en el CRUD v1 tiene su equivalente en Spring Boot: el pool, las consultas, las transacciones y el armado de las piezas. El SQL y las reglas siguen siendo tuyos.",
+  "estimatedMinutes": 15,
+  "optional": true,
+  "source": {
+    "label": "Spring Boot Reference · Data Access (SQL Databases)",
+    "url": "https://docs.spring.io/spring-boot/reference/data/sql.html"
+  },
+  "steps": [
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "Ya escribiste lo que Spring Boot hace por ti",
+      "body": "En los módulos 1 a 7 armaste a mano cada pieza: leíste la URL y la clave del entorno, creaste un pool HikariCP, escribiste cada consulta con `PreparedStatement`, envolviste la venta en una transacción y en `Main` conectaste las clases por constructor.\n\nSpring Boot no cambia esas ideas. Hace el trabajo repetido por ti: crea el pool, abre y cierra las conexiones, hace `commit` y `rollback` y arma las piezas. Este módulo es opcional: es para que reconozcas tu CRUD cuando lo veas escrito con Spring."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "spring-map",
+      "title": "Tu CRUD v1 frente a Spring Boot",
+      "caption": "Cada fila compara lo que escribiste en el CRUD v1 con lo que hace Spring Boot. Mira la nota de abajo: hay cosas que no cambian."
+    },
+    {
+      "kind": "code",
+      "stage": "theory",
+      "mode": "read",
+      "language": "java",
+      "title": "El repositorio con JdbcClient",
+      "snippet": "m8/JdbcProductRepository",
+      "refs": [
+        "crud-v1/JdbcProductRepository.findById",
+        "crud-v1/JdbcProductRepository.decreaseStock"
+      ]
+    },
+    {
+      "kind": "question",
+      "stage": "theory",
+      "context": "En la versión Spring, `findById` usa `jdbc.sql(...).param(id).query(Product.class).optional()`. No hay `getConnection()`, ni `try`, ni `close()`.",
+      "prompt": "¿Quién toma la conexión del pool y la devuelve al terminar la consulta?",
+      "refs": [
+        "m8/JdbcProductRepository",
+        "crud-v1/JdbcProductRepository.findById"
+      ],
+      "options": [
+        {
+          "text": "JdbcClient, que la pide al pool y la devuelve al terminar",
+          "correct": true,
+          "explanation": "`JdbcClient` usa el `DataSource` de HikariCP: toma una conexión, ejecuta, cierra el `PreparedStatement` y el `ResultSet` y devuelve la conexión al pool."
+        },
+        {
+          "text": "Nadie: la conexión queda abierta mientras corre la app",
+          "correct": false,
+          "explanation": "Si nadie la devolviera, el pool de 5 se agotaría en la sexta consulta. Spring la devuelve siempre, aunque la consulta falle."
+        },
+        {
+          "text": "El servicio, con un try-with-resources alrededor",
+          "correct": false,
+          "explanation": "El servicio ni siquiera ve la conexión. Con Spring, el `try-with-resources` que escribías en el repositorio lo hace `JdbcClient`."
+        }
+      ]
+    },
+    {
+      "kind": "code",
+      "stage": "theory",
+      "mode": "read",
+      "language": "java",
+      "title": "La venta con @Transactional",
+      "snippet": "m8/ProductService",
+      "refs": [
+        "crud-v1/ProductService.registerSale",
+        "crud-v1/JdbcTransactionRunner.inTransaction"
+      ]
+    },
+    {
+      "kind": "question",
+      "stage": "theory",
+      "context": "En la versión Spring, `registerSale` tiene `@Transactional`. Vendes 5 memorias USB pero solo hay 2: el `INSERT` de la venta ya corrió y `decreaseStock` devuelve false, así que sale `InsufficientStockException`, que es una `RuntimeException`.",
+      "prompt": "¿Qué queda guardado en la base?",
+      "refs": [
+        "m8/ProductService"
+      ],
+      "options": [
+        {
+          "text": "Nada: Spring hace rollback y la venta se deshace",
+          "correct": true,
+          "explanation": "`@Transactional` hace rollback cuando el método termina con una `RuntimeException`. Es lo mismo que hacía tu `inTransaction` en el `catch`."
+        },
+        {
+          "text": "La venta, porque su INSERT terminó antes del error",
+          "correct": false,
+          "explanation": "Eso pasaba en el módulo 5 sin transacción. Aquí el `INSERT` queda pendiente hasta el `commit`, y el `commit` nunca llega."
+        },
+        {
+          "text": "La venta y el stock, porque Spring reintenta solo",
+          "correct": false,
+          "explanation": "`@Transactional` no reintenta: confirma todo o deshace todo. Reintentar sería decisión tuya."
+        }
+      ]
+    },
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "Dos cosas que Spring no adivina",
+      "body": "Por defecto, `@Transactional` hace rollback con una `RuntimeException`, pero no con una excepción chequeada como `IOException`. Si la tuya es chequeada, se lo indicas con `@Transactional(rollbackFor = IOException.class)`.\n\nY la anotación solo funciona cuando otro objeto llama al método. Si `ProductService` se llama a sí mismo, por ejemplo `this.registerSale(...)`, Spring no ve la llamada y no abre la transacción."
+    },
+    {
+      "kind": "code",
+      "stage": "practice",
+      "mode": "pick-line",
+      "language": "java",
+      "title": "Completa decreaseStock con JdbcClient",
+      "context": "Es `decreaseStock` en la versión Spring de `JdbcProductRepository`. El `UPDATE` tiene tres `?`: la cantidad, el id y otra vez la cantidad.",
+      "prompt": "¿Qué línea pasa los valores a los tres `?`?",
+      "refs": [],
+      "variants": {
+        "java": "return jdbc.sql(\"UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?\")\n        /* aquí va la línea */\n        .update() == 1;"
+      },
+      "options": [
+        {
+          "line": ".params(quantity, id, quantity)",
+          "correct": true,
+          "explanation": "Los valores van en el orden de los `?`: cantidad, id y cantidad. `JdbcClient` los envía aparte del SQL, como `setInt`."
+        },
+        {
+          "line": ".params(id, quantity)",
+          "correct": false,
+          "explanation": "Hay tres `?` y solo dos valores, y en otro orden: restaría el id del stock."
+        },
+        {
+          "line": ".param(\"\" + quantity + id)",
+          "correct": false,
+          "explanation": "Pegar valores en un texto es la concatenación del módulo 4. Cada `?` recibe su propio valor."
+        }
+      ]
+    },
+    {
+      "kind": "code",
+      "stage": "practice",
+      "mode": "fill",
+      "language": "java",
+      "title": "Completa las anotaciones",
+      "context": "Es la versión Spring de `ProductService`. Spring debe crear el servicio y la venta debe correr en una sola transacción.",
+      "prompt": "Elige las dos anotaciones que faltan.",
+      "refs": [],
+      "variants": {
+        "java": "@{{1}}\npublic class ProductService {\n\n    public ProductService(ProductStore products, SaleStore sales) { … }\n\n    @{{2}}\n    public Sale registerSale(int productId, int quantity) {\n        // INSERT de la venta y UPDATE del stock\n    }\n}"
+      },
+      "gaps": [
+        {
+          "id": 1,
+          "label": "Sobre la clase",
+          "answers": [
+            "Service"
+          ],
+          "choices": [
+            "Service",
+            "Entity",
+            "Transactional"
+          ],
+          "hint": "Marca la capa de negocio para que Spring cree el objeto."
+        },
+        {
+          "id": 2,
+          "label": "Sobre registerSale",
+          "answers": [
+            "Transactional"
+          ],
+          "choices": [
+            "Transactional",
+            "Override",
+            "Repository"
+          ],
+          "hint": "Commit al terminar y rollback si algo falla."
+        }
+      ]
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "Pasas el CRUD v1 a Spring Boot con `JdbcClient` y `@Transactional`.",
+      "prompt": "¿Qué sigue siendo trabajo tuyo?",
+      "refs": [],
+      "options": [
+        {
+          "text": "Escribir el SQL y reglas como stock >= ?",
+          "correct": true,
+          "explanation": "Spring ejecuta tu SQL pero no lo escribe. La regla que evita vender lo que no hay sigue en tu `UPDATE`."
+        },
+        {
+          "text": "Abrir y cerrar cada conexión del pool",
+          "correct": false,
+          "explanation": "Eso lo hace `JdbcClient` con el `DataSource` que crea Spring Boot."
+        },
+        {
+          "text": "Llamar a commit() y rollback() en cada venta",
+          "correct": false,
+          "explanation": "Eso lo hace `@Transactional` al terminar el método."
+        }
+      ]
+    },
+    {
+      "kind": "text",
+      "stage": "practice",
+      "title": "Explícalo con tus palabras",
+      "body": "Registra en la bitácora tres cosas que Spring Boot hace por ti y una que sigue siendo tuya, con el nombre de la clase o la anotación que la reemplaza.",
+      "reflection": true
+    }
+  ]
+}

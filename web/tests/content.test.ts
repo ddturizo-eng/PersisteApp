@@ -22,6 +22,17 @@ describe("content/ lessons", () => {
     expect(loadQuiz(1).questions).toHaveLength(10);
   });
 
+  it("keep module 8 optional: module 7 leads to the quiz and the quiz never asks about it (author, 7 Nov 2026)", () => {
+    const lessons = loadLessons();
+    const m7 = lessons.find((l) => l.session === 1 && l.module === 7)!;
+    const m8 = lessons.find((l) => l.session === 1 && l.module === 8)!;
+    expect(m8.optional).toBe(true);
+    expect(nextAfter(m7)).toEqual({ href: "/s1/quiz", label: "Prepárate para el quiz" });
+    expect(nextAfter(m8)).toEqual({ href: "/", label: "Volver al inicio" });
+    const quiz = loadQuiz(1);
+    expect([...quiz.questions, ...quiz.practice].some((q) => q.module === 8)).toBe(false);
+  });
+
   it("close every inline code span (`…`)", () => {
     const unclosed: string[] = [];
     const walk = (value: unknown, where: string) => {

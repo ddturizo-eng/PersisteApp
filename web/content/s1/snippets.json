@@ -254,6 +254,24 @@
       "variants": {
         "java": "public void registerSale(int productId, int quantity) throws SQLException {\n    try (Connection connection = dataSource.getConnection()) {\n        // autocommit está encendido: cada executeUpdate() se guarda al terminar\n        insertSale(connection, productId, quantity);        // 1. INSERT INTO sales ...\n        int rows = decreaseStock(connection, productId, quantity);\n        // 2. UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?\n        if (rows == 0) {\n            throw new InsufficientStockException(productId, quantity);\n            // ...pero la venta del paso 1 ya está guardada\n        }\n    }\n}"
       }
+    },
+    {
+      "id": "m8/JdbcProductRepository",
+      "title": "JdbcProductRepository con JdbcClient",
+      "origin": "Módulo 8 · versión Spring Boot",
+      "language": "java",
+      "variants": {
+        "java": "@Repository\npublic class JdbcProductRepository implements ProductStore {\n\n    private final JdbcClient jdbc;\n\n    // Spring Boot crea el JdbcClient con el DataSource (HikariCP) y lo pasa por constructor\n    public JdbcProductRepository(JdbcClient jdbc) {\n        this.jdbc = jdbc;\n    }\n\n    @Override\n    public Optional<Product> findById(int id) {\n        return jdbc.sql(\"SELECT id, name, price, stock FROM products WHERE id = ?\")\n                .param(id)\n                .query(Product.class)   // columnas id, name, price, stock -> record Product\n                .optional();\n    }\n\n    @Override\n    public boolean decreaseStock(int id, int quantity) {\n        return jdbc.sql(\"UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?\")\n                .params(quantity, id, quantity)\n                .update() == 1;\n    }\n}"
+      }
+    },
+    {
+      "id": "m8/ProductService",
+      "title": "ProductService con @Transactional",
+      "origin": "Módulo 8 · versión Spring Boot",
+      "language": "java",
+      "variants": {
+        "java": "@Service\npublic class ProductService {\n\n    private final ProductStore products;\n    private final SaleStore sales;\n\n    public ProductService(ProductStore products, SaleStore sales) {\n        this.products = products;\n        this.sales = sales;\n    }\n\n    // Una sola transacción: commit al salir, rollback si sale una RuntimeException\n    @Transactional\n    public Sale registerSale(int productId, int quantity) {\n        if (quantity <= 0) {\n            throw new IllegalArgumentException(\"La cantidad debe ser mayor que cero\");\n        }\n        Product product = products.findById(productId)\n                .orElseThrow(() -> new ProductNotFoundException(productId));\n        BigDecimal total = product.price().multiply(BigDecimal.valueOf(quantity));\n        Sale sale = sales.save(new Sale(null, productId, quantity, total));\n        if (!products.decreaseStock(productId, quantity)) {\n            throw new InsufficientStockException(product.name(), product.stock(), quantity);\n        }\n        return sale;\n    }\n}"
+      }
     }
   ]
 }
