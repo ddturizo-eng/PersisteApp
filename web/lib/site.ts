@@ -8,5 +8,5 @@ export const site = {
   /** Teacher who runs the class sessions. */
   teacher: { title: "Ing. Esp.", name: "Alfredo David Bautista Romero" },
   /** Author of the platform. */
-  author: { name: "Daniel David Turizo Chacón" },
+  author: { name: "Daniel David Turizo Chacón", github: "https://github.com/ddturizo-eng" },
 } as const;
