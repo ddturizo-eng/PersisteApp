@@ -3,8 +3,8 @@
   "session": 1,
   "module": 6,
   "title": "Sin ORM: tú escribes el puente",
-  "summary": "Java envía el mismo SQL que ya conoces y convierte cada fila en un objeto.",
-  "estimatedMinutes": 10,
+  "summary": "Java envía el mismo SQL que ya conoces, convierte cada fila en un objeto y se conecta con variables de entorno y un pool.",
+  "estimatedMinutes": 13,
   "source": {
     "label": "Oracle Java Tutorials · PreparedStatement",
     "url": "https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html"
@@ -77,6 +77,49 @@
       }
     },
     {
+      "kind": "text",
+      "stage": "theory",
+      "title": "¿De dónde sale la conexión?",
+      "image": "credenciales-entorno",
+      "body": "Para conectarse, Java necesita la dirección de la base de datos, un usuario y una clave. **No se escriben en el código**: si subes el código a GitHub, cualquiera vería la clave.\n\nSe guardan en **variables de entorno**, valores que el sistema le entrega al programa al arrancar, como `DB_URL=jdbc:postgresql://localhost:5432/universidad`."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "code-explain",
+      "title": "Variables de entorno → pool → main",
+      "caption": "Así arranca el programa. Recorre las líneas de arriba abajo.",
+      "props": {
+        "language": "java",
+        "lines": [
+          {
+            "code": "public static void main(String[] args) {",
+            "say": "main es donde empieza el programa. Aquí se prepara todo una sola vez."
+          },
+          {
+            "code": "  String url = System.getenv(\"DB_URL\");",
+            "say": "Lee la dirección de la base de datos desde la variable de entorno DB_URL."
+          },
+          {
+            "code": "  String clave = System.getenv(\"DB_PASSWORD\");",
+            "say": "Lee la clave de la misma forma. En el código nunca aparece la clave real."
+          },
+          {
+            "code": "  DataSource pool = Pool.crear(url, \"app\", clave);",
+            "say": "Crea el connection pool: un grupo de conexiones ya abiertas que se prestan y se devuelven, como bicicletas compartidas."
+          },
+          {
+            "code": "  Connection con = pool.getConnection();",
+            "say": "Pide prestada una conexión. Esta es la con que usan prepareStatement y executeQuery."
+          },
+          {
+            "code": "}",
+            "say": ""
+          }
+        ]
+      }
+    },
+    {
       "kind": "question",
       "stage": "practice",
       "context": "Recuerda la animación del paso 3: después de `executeQuery()`, las filas que devolvió el motor quedan guardadas en una variable llamada `rs` (un **ResultSet**, la tabla de resultados que Java lee fila por fila). Ahora `rs` está en la fila de Ana: `id` = 1, `nombre` = «Ana Torres».",
@@ -119,6 +162,29 @@
           "text": "`getString()`, porque el nombre es texto",
           "correct": false,
           "explanation": "getString lee datos de una fila; no envía nada al motor."
+        }
+      ]
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "Vas a subir tu proyecto a GitHub. El programa necesita la clave de PostgreSQL para conectarse.",
+      "prompt": "¿Dónde debe quedar la clave?",
+      "options": [
+        {
+          "text": "En una variable de entorno que lee el programa",
+          "correct": true,
+          "explanation": "Así la clave queda fuera del código y no se publica en GitHub."
+        },
+        {
+          "text": "Escrita en main, para que el código la encuentre",
+          "correct": false,
+          "explanation": "Funcionaría, pero cualquiera que vea el código vería la clave."
+        },
+        {
+          "text": "En un comentario al lado de la URL de conexión",
+          "correct": false,
+          "explanation": "Un comentario también es parte del código: se publica igual."
         }
       ]
     }
