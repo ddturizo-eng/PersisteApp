@@ -171,3 +171,8 @@ Reglas de contenido para ambos: frases cortas, una idea por paso, cada lección 
 | T-45 | Contenido módulos 1–6 | |
 | T-46 | Ocultar quiz y salas; landing con el nuevo temario; presupuesto 90 min | |
 | T-47 | Pruebas, build, revisión a 375 px y en proyector, deploy preview | |
+
+## 6. Avisos de Claude Code para Codex (8 nov, noche)
+
+- **`web/app/page.tsx`**: Claude Code insertó la sección `#basico` («Antes de los módulos, lo básico», componente `DbBasics`) antes de `#conceptos`, y el botón del hero ahora apunta a `#basico`. **Consérvala** al seguir editando la landing; no reescribas el archivo entero.
+- Nuevo simulador disponible: `crud-demo` (los 4 verbos animados, sin props).
