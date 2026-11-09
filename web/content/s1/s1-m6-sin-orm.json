@@ -122,23 +122,23 @@
     {
       "kind": "question",
       "stage": "practice",
-      "context": "Recuerda la animación del paso 3: después de `executeQuery()`, las filas que devolvió el motor quedan guardadas en una variable llamada `rs` (un **ResultSet**, la tabla de resultados que Java lee fila por fila). Ahora `rs` está en la fila de Ana: `id` = 1, `nombre` = «Ana Torres».",
-      "prompt": "¿Qué línea copia «Ana Torres» de esa fila a una variable de Java?",
+      "context": "`rs` guarda las filas que llegaron del motor. Ahora está en la fila de Ana: `nombre` = «Ana Torres».",
+      "prompt": "El nombre es un texto. ¿Cómo se lo pides a `rs`?",
       "options": [
         {
           "text": "`rs.getString(\"nombre\")`",
           "correct": true,
-          "explanation": "getString lee un texto de la fila actual, y \"nombre\" es el nombre de la columna en la tabla."
+          "explanation": "getString = «dame el texto» de la columna \"nombre\"."
         },
         {
           "text": "`rs.getInt(\"nombre\")`",
           "correct": false,
-          "explanation": "getInt lee números; el nombre es texto."
+          "explanation": "getInt es para números, y el nombre es texto."
         },
         {
           "text": "`rs.nombre`",
           "correct": false,
-          "explanation": "rs no tiene atributos con el nombre de las columnas: se leen con get…(\"columna\")."
+          "explanation": "Así no se lee: a rs siempre se le pide con get…(\"columna\")."
         }
       ]
     },
