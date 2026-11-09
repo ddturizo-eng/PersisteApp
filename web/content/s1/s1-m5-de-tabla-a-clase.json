@@ -19,6 +19,16 @@
       { "code": "    LocalDate nacimiento;", "say": "DATE se representa con LocalDate: una fecha del calendario, como el día de nacimiento." },
       { "code": "}", "say": "" }
     ] } },
+    { "kind": "visual", "stage": "theory", "component": "code-explain", "title": "Nombres que coinciden", "caption": "Toca cada nombre. Sin ORM, mantenerlos parecidos ayuda a encontrar la columna correcta.", "props": { "language": "java", "lines": [
+      { "code": "class Estudiante {", "say": "La clase Estudiante representa la tabla estudiante. Cambia la inicial a mayúscula para reconocer el mismo concepto en Java." },
+      { "code": "    String nombre;", "say": "El atributo nombre conserva el nombre de la columna nombre; así sabes qué dato copiar de la fila." },
+      { "code": "    LocalDate nacimiento;", "say": "nacimiento se llama igual en la tabla y en la clase; es la fecha de esa misma persona." },
+      { "code": "}", "say": "" },
+      { "code": "class Matricula {", "say": "La clase Matricula representa la tabla matricula: una ficha de inscripción a un curso." },
+      { "code": "    int cursoId;", "say": "cursoId representa curso_id. Java junta las palabras y usa mayúscula en Id; sigue siendo el número del curso señalado." },
+      { "code": "}", "say": "" },
+      { "code": "String nombre = rs.getString(\"nombre\");", "say": "El texto entre comillas debe coincidir con la columna nombre. Si escribes otro nombre, Java no encuentra ese dato." }
+    ] } },
     { "kind": "visual", "stage": "practice", "component": "table-class", "props": { "table": "estudiante" }, "title": "Convierte a Ana y vuelve", "caption": "Elige la fila de Ana Torres. Conviértela en objeto Estudiante y después en fila otra vez." },
     { "kind": "question", "stage": "practice", "context": "En la fila de Ana Torres, la columna `nombre` guarda texto.", "prompt": "¿Qué tipo de Java usarías para el atributo nombre?", "options": [
       { "text": "String, porque es texto", "correct": true, "explanation": "String guarda texto, como el nombre de Ana." },
