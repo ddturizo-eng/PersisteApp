@@ -6,6 +6,7 @@ import SplitText from "@/components/bits/SplitText";
 import TextType from "@/components/bits/TextType";
 import Threads from "@/components/bits/Threads";
 import { TableAnatomy } from "@/components/db/table-anatomy";
+import { DbBasics } from "@/components/db/db-basics";
 import { DoneBadge, ProgressSummary } from "@/components/progress";
 import { Reveal } from "@/components/landing/reveal";
 import { SystemMap } from "@/components/landing/system-map";
@@ -95,10 +96,10 @@ export default function Home() {
                 Empezar por el módulo 1 <ArrowRight aria-hidden="true" className="size-4" />
               </Link>
               <a
-                href="#conceptos"
+                href="#basico"
                 className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-foreground px-6 font-medium outline-none hover:bg-muted focus-visible:ring-4 focus-visible:ring-ring/40"
               >
-                Ver los conceptos <ArrowDown aria-hidden="true" className="size-4" />
+                Ver lo básico <ArrowDown aria-hidden="true" className="size-4" />
               </a>
             </div>
             <dl className="flex flex-col gap-3 text-sm text-muted-foreground">
@@ -135,6 +136,18 @@ export default function Home() {
               className="relative w-full"
             />
           </div>
+        </div>
+      </section>
+
+      {/* Database theory before the modules (author, 8 Nov 2026): short cards, each with a visual. */}
+      <section id="basico" aria-labelledby="basico-titulo" className="scroll-mt-6 py-16 lg:py-24">
+        <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
+          <Reveal>
+            <SectionHeading id="basico-titulo" title="Antes de los módulos," accent="lo básico">
+              Cinco ideas de bases de datos en cinco tarjetas. Toca, ejecuta y mira qué pasa.
+            </SectionHeading>
+          </Reveal>
+          <DbBasics />
         </div>
       </section>
 
