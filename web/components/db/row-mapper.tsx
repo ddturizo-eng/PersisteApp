@@ -12,22 +12,17 @@ const rows = t.rows.slice(0, 3);
 
 const code = [
   "ResultSet rs = ps.executeQuery();",
-  "List<Estudiante> lista = new ArrayList<>();",
   "while (rs.next()) {",
   '  int id = rs.getInt("id");',
   '  String nombre = rs.getString("nombre");',
-  '  String correo = rs.getString("correo");',
-  '  LocalDate nac = rs.getObject("nacimiento", LocalDate.class);',
-  "  lista.add(new Estudiante(id, nombre, correo, nac));",
+  "  lista.add(new Estudiante(id, nombre));",
   "}",
 ];
 
-/** Column read by each code line 3–6. */
+/** Column read by each code line. */
 const readLines: Record<number, { column: string; variable: string }> = {
-  3: { column: "id", variable: "id" },
-  4: { column: "nombre", variable: "nombre" },
-  5: { column: "correo", variable: "correo" },
-  6: { column: "nacimiento", variable: "nac" },
+  2: { column: "id", variable: "id" },
+  3: { column: "nombre", variable: "nombre" },
 };
 
 type Frame = { line: number; row: number | null; text: string; done: number; vars: Record<string, string> };
@@ -35,20 +30,19 @@ type Frame = { line: number; row: number | null; text: string; done: number; var
 /** Every frame of the walk: the cursor moves, each getter reads one cell, the object joins the list. */
 function buildFrames(): Frame[] {
   const frames: Frame[] = [
-    { line: 0, row: null, text: "executeQuery() trae las filas. El cursor del ResultSet empieza ANTES de la primera fila.", done: 0, vars: {} },
-    { line: 1, row: null, text: "Una lista vacía donde irán los objetos.", done: 0, vars: {} },
+    { line: 0, row: null, text: "El motor devolvió las filas. Java las recibe en rs, como una tabla que se lee de arriba abajo.", done: 0, vars: {} },
   ];
   rows.forEach((r, i) => {
-    frames.push({ line: 2, row: i, text: `rs.next() mueve el cursor a la fila ${i + 1} y devuelve true.`, done: i, vars: {} });
+    frames.push({ line: 1, row: i, text: `rs.next() baja a la fila ${i + 1}: «¿hay otra fila? sí».`, done: i, vars: {} });
     const vars: Record<string, string> = {};
-    for (let line = 3; line <= 6; line++) {
+    for (const line of [2, 3]) {
       const { column, variable } = readLines[line];
       vars[variable] = String(r[column]);
-      frames.push({ line, row: i, text: `Lee la columna «${column}» de la fila actual: ${String(r[column])}. El nombre en el getter es el de la columna SQL.`, done: i, vars: { ...vars } });
+      frames.push({ line, row: i, text: `Copia el dato de la columna «${column}»: ${String(r[column])}.`, done: i, vars: { ...vars } });
     }
-    frames.push({ line: 7, row: i, text: `Con los cuatro valores arma un objeto Estudiante y lo agrega a la lista.`, done: i + 1, vars: { ...vars } });
+    frames.push({ line: 4, row: i, text: "Con esos datos arma un objeto Estudiante y lo guarda en la lista.", done: i + 1, vars: { ...vars } });
   });
-  frames.push({ line: 2, row: null, text: "rs.next() ya no encuentra filas y devuelve false: el ciclo termina. Tienes una lista de objetos.", done: rows.length, vars: {} });
+  frames.push({ line: 1, row: null, text: "rs.next() ya no encuentra filas: «¿hay otra? no». Fin: tienes una lista de objetos.", done: rows.length, vars: {} });
   return frames;
 }
 
@@ -88,7 +82,7 @@ export function RowMapper() {
           <TableCard
             compact
             name="rs"
-            columns={t.columns.map((c) => ({ name: c.name }))}
+            columns={[{ name: "id" }, { name: "nombre" }]}
             rows={rows}
             activeRows={f.row === null ? [] : [f.row]}
             activeCell={f.row !== null && reading ? { row: f.row, column: reading.column } : null}
