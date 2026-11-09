@@ -211,3 +211,16 @@ Pedido del autor tras revisar: muy sencillo de explicar, cada pantalla con algo 
 | **Codex** | Reescribir módulos 4–6 con las reglas: todo código a `code-explain`, explicar cada término Java la primera vez, quitar pasos de solo texto; revisar `system-map` (textos de las 4 piezas en lenguaje simple, sin nombres de clases del CRUD viejo como `ProductRepository`) y `TableAnatomy`/`SystemMap` en la landing si algo queda técnico |
 
 Codex: espera a que exista `web/components/db/code-explain.tsx` (Claude Code lo commitea primero, `feat(db): code-explain`); mientras tanto puedes escribir el JSON, el build lo valida igual.
+
+## 8. Ronda 3 (8 nov, noche): preguntas explícitas, términos SQL explicados, nombres
+
+Pedido del autor:
+- Las preguntas del paso «¿Dónde ocurre?» son muy implícitas («Se prepara la petición de nombres de estudiante»). Deben ser completas: qué pasa, con qué dato y con el código o el mensaje que viaja.
+- Explicar `AS`, `JOIN`, `ORDER BY` y `BEGIN` antes de usarlos, sin ir más allá de lo que la clase necesita (no invadir la materia de Bases de Datos).
+- Sin ORM, **mantener nombres estándar** entre tabla y clase ayuda: `estudiante` → `Estudiante`, `curso_id` → `cursoId`, `nacimiento` → `nacimiento`.
+- Revisar todo en móvil (375 px).
+
+| Agente | Qué |
+|---|---|
+| **Claude Code** | Módulos 2 y 3: `code-explain` de `ORDER BY`, `JOIN … ON` con alias `AS` y `BEGIN / COMMIT / ROLLBACK` antes de cada laboratorio que los usa; textos de las consultas preparadas; revisión móvil de los 6 módulos y la landing |
+| **Codex** | Módulo 4: reescribir el paso `trace` (ida y vuelta completa, 6–7 eventos, cada `description` con el dato concreto y `code` con lo que viaja en ese momento; `explanation` que diga qué hace esa pieza); quitar o acompañar con visual los pasos `text` sueltos de 4–6. Módulo 5: un paso nuevo «Nombres que coinciden» (`code-explain` o `table-class`) sobre la convención de nombres sin ORM y por qué evita errores al escribir `rs.getString("nombre")` |
