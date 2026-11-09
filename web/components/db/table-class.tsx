@@ -14,8 +14,8 @@ const javaLiteral = (column: Column, value: Cell) => {
 };
 
 function explainColumn(c: Column, javaClass: string): { title: string; text: string } {
-  const base = `${c.sqlType} → ${c.javaType}. `;
-  if (c.pk) return { title: `${c.name} (PK) → atributo ${c.javaField}`, text: `${base}La llave primaria se vuelve el atributo id: así sabes qué fila representa cada objeto ${javaClass}. Con SERIAL lo genera la base, así que al crear un objeto nuevo todavía no lo tienes.` };
+  const base = `En la tabla: ${c.sqlType} · en Java: ${c.javaType}. `;
+  if (c.pk) return { title: `${c.name} (PK) → atributo ${c.javaField}`, text: `${base}La llave primaria se vuelve el atributo id: así sabes qué fila representa cada objeto ${javaClass}. El motor lo pone al guardar, así que un objeto nuevo todavía no lo tiene.` };
   if (c.fk)
     return {
       title: `${c.name} (FK) → atributo ${c.javaField}`,
@@ -104,7 +104,7 @@ export function TableClass({ table = "estudiante" }: { table?: TableName }) {
           </div>
           <p className="text-sm font-semibold">Objeto → fila (al guardarlo)</p>
           <pre className="overflow-x-auto rounded-2xl bg-code p-3 font-mono text-sm text-code-foreground">
-            {`INSERT INTO ${t.name} (${t.columns.filter((c) => !c.pk).map((c) => c.name).join(", ")})\nVALUES (${t.columns.filter((c) => !c.pk).map(() => "?").join(", ")});  -- el id lo pone SERIAL`}
+            {`INSERT INTO ${t.name} (${t.columns.filter((c) => !c.pk).map((c) => c.name).join(", ")})\nVALUES (${t.columns.filter((c) => !c.pk).map(() => "?").join(", ")});  -- el id lo pone el motor`}
           </pre>
         </div>
       )}

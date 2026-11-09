@@ -29,6 +29,7 @@ import { RowMapper } from "@/components/db/row-mapper";
 import { CrudDemo } from "@/components/db/crud-demo";
 import { CodeExplain, type ExplainedLine } from "@/components/db/code-explain";
 import { SplitTables } from "@/components/db/split-tables";
+import { AllOrNothing, EngineCompare, MemoryVsDisk } from "@/components/db/db-basics";
 import type { TableName } from "@/lib/sample-db";
 import { illustrations, illustrationSrc, type IllustrationName } from "@/lib/illustrations";
 
@@ -139,6 +140,12 @@ export function VisualStep({ step, headingRef }: { step: StepOf<"visual">; headi
       <TableClass table={typeof step.props?.table === "string" ? (step.props.table as TableName) : undefined} />
     ) : step.component === "code-explain" ? (
       <CodeExplain lines={(step.props?.lines as ExplainedLine[]) ?? []} language={step.props?.language === "sql" ? "sql" : "java"} />
+    ) : step.component === "memory-disk" ? (
+      <MemoryVsDisk />
+    ) : step.component === "engines" ? (
+      <EngineCompare />
+    ) : step.component === "transaction" ? (
+      <AllOrNothing />
     ) : step.component === "split-tables" ? (
       <SplitTables />
     ) : step.component === "crud-demo" ? (

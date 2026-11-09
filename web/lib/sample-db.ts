@@ -29,9 +29,9 @@ export const tables: Record<TableName, TableDef> = {
     name: "curso",
     javaClass: "Curso",
     columns: [
-      { name: "id", sqlType: "SERIAL", javaType: "int", javaField: "id", pk: true, note: "Llave primaria: un número único que el motor genera solo." },
-      { name: "nombre", sqlType: "VARCHAR(80)", javaType: "String", javaField: "nombre", notNull: true, note: "Texto de hasta 80 caracteres. NOT NULL: no puede quedar vacío." },
-      { name: "creditos", sqlType: "INTEGER", javaType: "int", javaField: "creditos", notNull: true, note: "Número entero." },
+      { name: "id", sqlType: "SERIAL", javaType: "int", javaField: "id", pk: true, note: "Llave primaria: el número que identifica cada curso. El motor lo pone solo." },
+      { name: "nombre", sqlType: "VARCHAR(80)", javaType: "String", javaField: "nombre", notNull: true, note: "El nombre del curso: es texto." },
+      { name: "creditos", sqlType: "INTEGER", javaType: "int", javaField: "creditos", notNull: true, note: "Los créditos del curso: es un número." },
     ],
     rows: [
       { id: 1, nombre: "Bases de Datos", creditos: 4 },
@@ -43,10 +43,10 @@ export const tables: Record<TableName, TableDef> = {
     name: "estudiante",
     javaClass: "Estudiante",
     columns: [
-      { name: "id", sqlType: "SERIAL", javaType: "int", javaField: "id", pk: true, note: "Llave primaria: identifica a cada estudiante sin repetirse." },
-      { name: "nombre", sqlType: "VARCHAR(80)", javaType: "String", javaField: "nombre", notNull: true, note: "Texto obligatorio." },
-      { name: "correo", sqlType: "VARCHAR(120)", javaType: "String", javaField: "correo", unique: true, note: "UNIQUE: dos estudiantes no pueden tener el mismo correo." },
-      { name: "nacimiento", sqlType: "DATE", javaType: "LocalDate", javaField: "nacimiento", note: "Una fecha. En Java se lee como LocalDate." },
+      { name: "id", sqlType: "SERIAL", javaType: "int", javaField: "id", pk: true, note: "Llave primaria: el número que identifica a cada estudiante. Nunca se repite." },
+      { name: "nombre", sqlType: "VARCHAR(80)", javaType: "String", javaField: "nombre", notNull: true, note: "El nombre del estudiante: es texto." },
+      { name: "correo", sqlType: "VARCHAR(120)", javaType: "String", javaField: "correo", unique: true, note: "El correo del estudiante: es texto." },
+      { name: "nacimiento", sqlType: "DATE", javaType: "LocalDate", javaField: "nacimiento", note: "La fecha de nacimiento: es una fecha." },
     ],
     rows: [
       { id: 1, nombre: "Ana Torres", correo: "ana@unicesar.edu.co", nacimiento: "2004-03-12" },
@@ -59,10 +59,10 @@ export const tables: Record<TableName, TableDef> = {
     name: "matricula",
     javaClass: "Matricula",
     columns: [
-      { name: "id", sqlType: "SERIAL", javaType: "int", javaField: "id", pk: true, note: "Llave primaria de la matrícula." },
-      { name: "estudiante_id", sqlType: "INTEGER", javaType: "int", javaField: "estudianteId", fk: { table: "estudiante", column: "id" }, notNull: true, note: "Llave foránea: guarda el id de un estudiante que debe existir." },
-      { name: "curso_id", sqlType: "INTEGER", javaType: "int", javaField: "cursoId", fk: { table: "curso", column: "id" }, notNull: true, note: "Llave foránea: guarda el id de un curso que debe existir." },
-      { name: "nota", sqlType: "NUMERIC(2,1)", javaType: "double", javaField: "nota", note: "Número con un decimal, como 4.5." },
+      { name: "id", sqlType: "SERIAL", javaType: "int", javaField: "id", pk: true, note: "Llave primaria: el número de la matrícula." },
+      { name: "estudiante_id", sqlType: "INTEGER", javaType: "int", javaField: "estudianteId", fk: { table: "estudiante", column: "id" }, notNull: true, note: "Llave foránea: guarda el id del estudiante matriculado." },
+      { name: "curso_id", sqlType: "INTEGER", javaType: "int", javaField: "cursoId", fk: { table: "curso", column: "id" }, notNull: true, note: "Llave foránea: guarda el id del curso." },
+      { name: "nota", sqlType: "NUMERIC(2,1)", javaType: "double", javaField: "nota", note: "La nota, como 4.5." },
     ],
     rows: [
       { id: 1, estudiante_id: 1, curso_id: 1, nota: 4.5 },

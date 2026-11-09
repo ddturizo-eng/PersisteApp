@@ -20,7 +20,7 @@ function Card({ n, title, line, children, className }: { n: number; title: strin
 }
 
 /** 1 · Data in RAM dies with the program; data in a database stays. */
-function MemoryVsDisk() {
+export function MemoryVsDisk() {
   const [off, setOff] = useState(false);
   const names = ["Ana", "Luis", "Sara"];
   return (
@@ -64,44 +64,54 @@ function MemoryVsDisk() {
   );
 }
 
-const engines = [
-  { name: "PostgreSQL", auto: "SERIAL", limit: "LIMIT 5" },
-  { name: "Oracle", auto: "IDENTITY", limit: "FETCH FIRST 5 ROWS" },
-  { name: "MySQL", auto: "AUTO_INCREMENT", limit: "LIMIT 5" },
+const differences: { what: string; pg: string; ora: string; same?: boolean }[] = [
+  { what: "Leer filas", pg: "SELECT * FROM estudiante;", ora: "SELECT * FROM estudiante;", same: true },
+  { what: "id automático", pg: "SERIAL", ora: "GENERATED AS IDENTITY" },
+  { what: "Texto", pg: "VARCHAR(80)", ora: "VARCHAR2(80)" },
+  { what: "Primeras 5 filas", pg: "LIMIT 5", ora: "FETCH FIRST 5 ROWS ONLY" },
 ];
 
-/** 2 · SQL is the language; PostgreSQL, Oracle and MySQL are engines that speak it. */
-function SqlVsEngine() {
-  const [pick, setPick] = useState(0);
-  const e = engines[pick];
+/** 2 · SQL is the language; PostgreSQL and Oracle are engines that speak it, with small differences. */
+export function EngineCompare() {
+  const [at, setAt] = useState(0);
+  const d = differences[at];
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 rounded-2xl bg-code px-4 py-3 font-mono text-sm text-code-foreground">
-        <span>SELECT * FROM estudiante;</span>
-        <Check aria-label="igual en todos" className="ml-auto size-4 shrink-0 text-primary" />
-      </div>
-      <div role="group" aria-label="Motores" className="flex flex-wrap gap-2">
-        {engines.map((en, i) => (
+      <div role="tablist" aria-label="Qué comparar" className="flex flex-wrap gap-2">
+        {differences.map((x, i) => (
           <button
-            key={en.name}
+            key={x.what}
+            role="tab"
             type="button"
-            aria-pressed={pick === i}
-            onClick={() => setPick(i)}
+            aria-selected={at === i}
+            onClick={() => setAt(i)}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border-2 border-foreground px-3 py-1 text-sm font-medium outline-none focus-visible:ring-4 focus-visible:ring-ring/40",
-              pick === i ? "bg-sun text-sun-foreground" : "bg-card hover:bg-muted"
+              "rounded-full border-2 border-foreground px-3 py-1 text-sm font-medium outline-none focus-visible:ring-4 focus-visible:ring-ring/40",
+              at === i ? "bg-sun text-sun-foreground" : "bg-card hover:bg-muted"
             )}
           >
-            <Database aria-hidden="true" className="size-3.5" /> {en.name}
+            {x.what}
           </button>
         ))}
       </div>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
-        <dt className="text-muted-foreground">id automático</dt>
-        <dd className="font-mono">{e.auto}</dd>
-        <dt className="text-muted-foreground">primeras 5 filas</dt>
-        <dd className="font-mono">{e.limit}</dd>
-      </dl>
+      <div className="grid grid-cols-2 gap-3">
+        {(
+          [
+            ["PostgreSQL", d.pg],
+            ["Oracle", d.ora],
+          ] as const
+        ).map(([engine, code]) => (
+          <div key={engine} className="min-w-0 rounded-2xl border-2 border-foreground p-3">
+            <p className="flex items-center gap-1.5 text-sm font-semibold">
+              <Database aria-hidden="true" className="size-4" /> {engine}
+            </p>
+            <p className="mt-2 rounded-xl bg-code px-3 py-2 font-mono text-sm break-words text-code-foreground">{code}</p>
+          </div>
+        ))}
+      </div>
+      <p aria-live="polite" className="text-sm font-medium">
+        {d.same ? "Igual en los dos: es SQL estándar." : "Cambia la forma de escribirlo; la idea es la misma."}
+      </p>
     </div>
   );
 }
@@ -110,32 +120,39 @@ function SqlVsEngine() {
 function Keys() {
   const [on, setOn] = useState(false);
   return (
-    <button
-      type="button"
-      aria-pressed={on}
-      onClick={() => setOn((v) => !v)}
-      className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-2xl text-left outline-none focus-visible:ring-4 focus-visible:ring-ring/40"
-    >
-      <div className="rounded-2xl border-2 border-foreground p-3 font-mono text-sm">
-        <p className="text-xs font-semibold text-muted-foreground">matricula</p>
-        <p>id 7</p>
-        <p className={cn("rounded px-1 transition-colors", on && "bg-sun text-sun-foreground")}>estudiante_id 1</p>
-        <p className="text-xs text-muted-foreground">FK</p>
+    <div className="space-y-3">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+        <div className="rounded-2xl border-2 border-foreground p-3 font-mono text-sm">
+          <p className="text-xs font-semibold text-muted-foreground">matricula</p>
+          <p>id = 7</p>
+          <p className={cn("rounded px-1 transition-colors", on && "bg-sun text-sun-foreground")}>estudiante_id = 1</p>
+          <p className="mt-1 text-xs text-muted-foreground">FK: apunta a otra tabla</p>
+        </div>
+        <ArrowRight aria-hidden="true" className={cn("size-6 transition-all duration-300", on ? "translate-x-1 text-primary" : "opacity-30")} />
+        <div className="rounded-2xl border-2 border-foreground p-3 font-mono text-sm">
+          <p className="text-xs font-semibold text-muted-foreground">estudiante</p>
+          <p className={cn("rounded px-1 transition-colors", on && "bg-sun text-sun-foreground")}>id = 1</p>
+          <p>Ana Torres</p>
+          <p className="mt-1 text-xs text-muted-foreground">PK: no se repite</p>
+        </div>
       </div>
-      <ArrowRight aria-hidden="true" className={cn("size-6 transition-transform duration-300", on && "translate-x-1 text-primary")} />
-      <div className="rounded-2xl border-2 border-foreground p-3 font-mono text-sm">
-        <p className="text-xs font-semibold text-muted-foreground">estudiante</p>
-        <p className={cn("rounded px-1 transition-colors", on && "bg-sun text-sun-foreground")}>id 1</p>
-        <p>Ana</p>
-        <p className="text-xs text-muted-foreground">PK</p>
-      </div>
-      <span className="col-span-3 text-sm text-muted-foreground">{on ? "La FK guarda el id de otra fila: así se relacionan las tablas." : "Toca para seguir la flecha."}</span>
-    </button>
+      <button
+        type="button"
+        aria-pressed={on}
+        onClick={() => setOn((v) => !v)}
+        className="inline-flex h-10 items-center gap-2 rounded-full border-2 border-foreground px-4 text-sm font-medium outline-none hover:bg-muted focus-visible:ring-4 focus-visible:ring-ring/40"
+      >
+        <ArrowRight aria-hidden="true" className="size-4" /> {on ? "Ocultar la flecha" : "¿De quién es la matrícula 7?"}
+      </button>
+      <p aria-live="polite" className="text-sm text-muted-foreground">
+        {on ? "De Ana: la FK guarda el id 1, y en estudiante el id 1 es Ana." : " "}
+      </p>
+    </div>
   );
 }
 
 /** 5 · A transaction: both changes or none. */
-function AllOrNothing() {
+export function AllOrNothing() {
   const [state, setState] = useState<"pending" | "commit" | "rollback">("pending");
   const changes = ["Crear la matrícula de Ana", "Restar 1 cupo al curso"];
   return (
@@ -194,8 +211,8 @@ export function DbBasics() {
       <Card n={1} title="¿Qué es una base de datos?" line="Un lugar donde los datos sobreviven al programa, ordenados y con reglas.">
         <MemoryVsDisk />
       </Card>
-      <Card n={2} title="SQL es el idioma; PostgreSQL, el motor" line="El motor es el programa que guarda los datos. Todos entienden SQL, con acentos distintos.">
-        <SqlVsEngine />
+      <Card n={2} title="SQL es el idioma; PostgreSQL, el motor" line="El motor es el programa que guarda los datos. PostgreSQL y Oracle hablan SQL con pequeñas diferencias.">
+        <EngineCompare />
       </Card>
       <Card n={3} title="Las cuatro consultas" line="Todo lo que haces con datos es leer, crear, cambiar o borrar (CRUD)." className="lg:col-span-2">
         <CrudDemo />

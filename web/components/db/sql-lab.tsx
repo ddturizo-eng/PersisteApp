@@ -49,8 +49,8 @@ function describe(sql: string, affected: number | undefined, rowCount: number, h
 /** Engine error in Spanish first, original message kept so students can search it. */
 function translate(message: string): string {
   if (/violates foreign key constraint/.test(message)) return `Llave foránea: la fila señala a otra que no existe o que otra fila todavía usa. (${message})`;
-  if (/duplicate key value/.test(message)) return `Valor repetido en una columna PRIMARY KEY o UNIQUE. (${message})`;
-  if (/violates not-null constraint/.test(message)) return `Falta un valor en una columna NOT NULL. (${message})`;
+  if (/duplicate key value/.test(message)) return `Ese valor ya existe y no se puede repetir. (${message})`;
+  if (/violates not-null constraint/.test(message)) return `Falta un dato obligatorio. (${message})`;
   if (/syntax error/.test(message)) return `Error de sintaxis SQL. (${message})`;
   if (/does not exist/.test(message)) return `Ese nombre no existe en la base de datos. (${message})`;
   return message;
