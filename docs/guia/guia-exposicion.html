@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Guía de exposición · PersisteApp</title>
+<style>
+  @page { size: A4; margin: 18mm 18mm 20mm; }
+  :root { --verde:#1E7B34; --sol:#F7D046; --tinta:#1b1f1c; --gris:#5b625d; --suave:#f3f6f1; --linea:#d9e0d6; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; color: var(--tinta); font-size: 11pt; line-height: 1.55; margin: 0; }
+  h1 { font-size: 26pt; line-height: 1.15; margin: 0 0 6mm; }
+  h2 { font-size: 17pt; margin: 0 0 2mm; color: var(--verde); }
+  h3 { font-size: 12pt; margin: 5mm 0 1.5mm; }
+  p { margin: 0 0 2.5mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 9.5pt; background: var(--suave); padding: 0 1.2mm; border-radius: 3px; }
+  pre { font-family: Consolas, "Cascadia Mono", monospace; font-size: 9.5pt; background: #1d2420; color: #e9efe6; padding: 3mm 4mm; border-radius: 8px; margin: 0 0 3mm; white-space: pre-wrap; line-height: 1.45; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  th, td { border: 1px solid var(--linea); padding: 1.8mm 2.5mm; text-align: left; vertical-align: top; }
+  th { background: var(--suave); }
+  .portada { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; page-break-after: always; }
+  .portada img { width: 70mm; }
+  .portada .sub { font-size: 13pt; color: var(--gris); max-width: 140mm; }
+  .portada .pie { font-size: 10pt; color: var(--gris); border-top: 2px solid var(--tinta); padding-top: 3mm; }
+  .modulo { page-break-before: always; }
+  .meta { color: var(--gris); font-size: 10pt; margin-bottom: 4mm; }
+  .idea { border: 2px solid var(--tinta); border-radius: 12px; padding: 3mm 4mm; margin: 0 0 4mm; background: #fff; }
+  .idea b { color: var(--verde); }
+  .di { background: #fffbe6; border-left: 5px solid var(--sol); padding: 2.5mm 4mm; border-radius: 0 8px 8px 0; margin: 0 0 3mm; font-style: italic; }
+  .ojo { background: #fdeeee; border-left: 5px solid #c0392b; padding: 2.5mm 4mm; border-radius: 0 8px 8px 0; margin: 0 0 3mm; }
+  .tip { background: var(--suave); border-left: 5px solid var(--verde); padding: 2.5mm 4mm; border-radius: 0 8px 8px 0; margin: 0 0 3mm; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .tag { display: inline-block; font-size: 8.5pt; font-weight: 600; border: 1.5px solid var(--tinta); border-radius: 99px; padding: 0 2.5mm; margin-right: 1.5mm; }
+  .evitar { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<section class="portada">
+  <div>
+    <img src="../logo/persisteapp-claro.png" alt="PersisteApp" />
+  </div>
+  <div>
+    <h1>Guía de exposición<br/>Bases de datos y Java sin ORM</h1>
+    <p class="sub">Qué decir, qué mostrar y qué preguntar en cada uno de los 6 módulos de PersisteApp. Escrita en lenguaje natural, para explicar sin tecnicismos a quien nunca ha visto una base de datos.</p>
+  </div>
+  <div class="pie">
+    Programación de Computadores III · Sesión 1 de persistencia · Universidad Popular del Cesar<br/>
+    Duración total: 78 minutos · App: persisteapp.vercel.app · Tecla <b>P</b> = Modo Exposición
+  </div>
+</section>
+
+<section>
+  <h2>Cómo usar esta guía</h2>
+  <p>Cada módulo trae cinco piezas, siempre en el mismo orden:</p>
+  <table>
+    <tr><th style="width:28%">Pieza</th><th>Para qué sirve</th></tr>
+    <tr><td><b>La idea en una frase</b></td><td>Lo único que el estudiante debe recordar si se distrae el resto del módulo.</td></tr>
+    <tr><td><b>Dilo así</b> <span style="background:#fffbe6;padding:0 1mm">(cursiva amarilla)</span></td><td>Un guion para leer o parafrasear en voz alta. Está escrito para decirse, no para proyectarse.</td></tr>
+    <tr><td><b>Qué mostrar</b></td><td>Los pasos de la app, en orden, y qué tocar en cada uno.</td></tr>
+    <tr><td><b>Pregunta al grupo</b></td><td>Una pregunta para hacer en voz alta antes de revelar la respuesta.</td></tr>
+    <tr><td><b>Ojo</b> <span style="background:#fdeeee;padding:0 1mm">(rojo)</span></td><td>La confusión más común y cómo desarmarla.</td></tr>
+  </table>
+
+  <h3>El mapa de la sesión</h3>
+  <table>
+    <tr><th>#</th><th>Módulo</th><th>Min</th><th>Bloque</th></tr>
+    <tr><td>1</td><td>Dónde viven los datos cuando apagas el programa</td><td>10</td><td rowspan="3">Teoría de bases de datos</td></tr>
+    <tr><td>2</td><td>Cuatro verbos para hablarle a una tabla</td><td>15</td></tr>
+    <tr><td>3</td><td>Tablas que se señalan: llaves y relaciones</td><td>15</td></tr>
+    <tr><td>4</td><td>El viaje de una consulta</td><td>10</td><td rowspan="3">Java sin ORM</td></tr>
+    <tr><td>5</td><td>De la tabla a la clase</td><td>15</td></tr>
+    <tr><td>6</td><td>Sin ORM: tú escribes el puente</td><td>13</td></tr>
+  </table>
+
+  <h3>El hilo conductor</h3>
+  <p>Toda la sesión usa el mismo ejemplo: una universidad con <b>estudiantes</b>, <b>cursos</b> y <b>matrículas</b>. Ana Torres aparece en casi todas las pantallas. Repetir el mismo ejemplo es intencional: el estudiante no gasta energía entendiendo datos nuevos y se concentra en la idea.</p>
+
+  <div class="tip"><b>Consejo de experto:</b> antes de cada módulo, abre la portada en la sección «1. Primero, los conceptos». Las 10 tarjetas son tu glosario visible: si alguien se pierde, señala la tarjeta en vez de redefinir la palabra.</div>
+
+  <h3>Glosario en lenguaje natural</h3>
+  <table>
+    <tr><th style="width:26%">Palabra</th><th>Cómo explicarla</th></tr>
+    <tr><td>Base de datos</td><td>Un archivador ordenado que vive en el disco: lo que guardas sigue ahí aunque apagues el computador.</td></tr>
+    <tr><td>Motor</td><td>El programa que cuida ese archivador y atiende pedidos. PostgreSQL y Oracle son motores.</td></tr>
+    <tr><td>SQL</td><td>El idioma en que se le hacen pedidos al motor. Casi igual en PostgreSQL y en Oracle.</td></tr>
+    <tr><td>Tabla</td><td>Una hoja de Excel con nombre: <code>estudiante</code>, <code>curso</code>, <code>matricula</code>.</td></tr>
+    <tr><td>Fila</td><td>Un registro completo: un estudiante.</td></tr>
+    <tr><td>Columna</td><td>Un dato que tienen todas las filas: el nombre, el correo.</td></tr>
+    <tr><td>Consulta</td><td>Un pedido escrito en SQL: «dame los nombres».</td></tr>
+    <tr><td>Llave primaria (PK)</td><td>El número de cédula de cada fila: nunca se repite y permite elegir una sola.</td></tr>
+    <tr><td>Llave foránea (FK)</td><td>Una columna que guarda la cédula de otra tabla: señala, no copia.</td></tr>
+    <tr><td>Transacción</td><td>Un paquete de cambios que se guarda completo o no se guarda nada.</td></tr>
+    <tr><td>Driver</td><td>El intérprete que traduce lo que pide Java al idioma de red del motor.</td></tr>
+    <tr><td>ORM</td><td>Una librería que escribe el SQL por ti. Hoy <b>no</b> la usamos: escribimos el puente a mano para entender qué pasa por debajo.</td></tr>
+  </table>
+</section>
+
+<!-- MÓDULO 1 -->
+<section class="modulo">
+  <h2>Módulo 1 · Dónde viven los datos cuando apagas el programa</h2>
+  <p class="meta"><span class="tag">10 min</span><span class="tag">Teoría</span> Qué es una base de datos, qué es una tabla y para qué sirve la llave primaria.</p>
+  <div class="idea"><b>La idea en una frase:</b> la memoria olvida y el disco recuerda; una base de datos guarda en el disco, ordenado en tablas, y cada fila tiene un número único.</div>
+
+  <h3>Dilo así</h3>
+  <p class="di">«Imaginen que hacen un programa en Java que registra estudiantes en un ArrayList. Funciona perfecto… hasta que lo cierran. Al volver a abrirlo, la lista está vacía. ¿Por qué? Porque esa lista vivía en la memoria RAM, y la RAM se borra al apagar. Una base de datos existe para resolver exactamente eso: guarda en el disco, y lo que está en el disco sobrevive.»</p>
+  <p class="di">«Dentro de la base de datos, los datos se acomodan en tablas. Piensen en Excel: cada fila es un estudiante y cada columna es un dato del estudiante. Y hay una columna especial, el id, que funciona como una cédula: nunca se repite.»</p>
+  <p class="di">«¿Quién cuida todo esto? Un programa llamado motor: PostgreSQL u Oracle. Y para pedirle cosas usamos un idioma, SQL. SQL es el idioma; el motor es quien lo entiende.»</p>
+
+  <h3>Qué mostrar</h3>
+  <ol>
+    <li><b>Memoria frente a disco.</b> Pulsa «Apagar el programa» y deja que vean cómo la lista en RAM desaparece y la tabla no.</li>
+    <li><b>Anatomía de la tabla.</b> Toca <code>id</code> primero, luego una fila y luego una columna.</li>
+    <li><b>PostgreSQL frente a Oracle.</b> Recorre las pestañas: «Leer filas» es idéntico; cambian detalles como el id automático o «primeras 5 filas».</li>
+    <li><b>CREATE TABLE explicado.</b> Usa «Siguiente línea». No leas el código: lee la frase de la derecha.</li>
+  </ol>
+
+  <h3>Así se lee el código</h3>
+  <pre>CREATE TABLE estudiante (
+  id     SERIAL PRIMARY KEY,
+  nombre VARCHAR(80),
+  correo VARCHAR(120),
+  nacimiento DATE
+);</pre>
+  <p>«Crea una tabla llamada estudiante con cuatro columnas. El id lo pone el motor solo (SERIAL) y es la llave primaria. El nombre y el correo son textos con un máximo de letras, y nacimiento es una fecha.»</p>
+
+  <h3>Pregunta al grupo</h3>
+  <p>«Hay dos estudiantes llamadas Ana Torres. Si quiero cambiar el correo de solo una, ¿con qué columna la elijo?» <b>Respuesta:</b> con el <code>id</code>, porque es lo único que no se repite.</p>
+
+  <div class="ojo"><b>Ojo:</b> muchos creen que la base de datos «es» PostgreSQL. Aclara la diferencia: la base de datos son los datos guardados; PostgreSQL es el programa que los administra; SQL es el idioma para hablarle.</div>
+</section>
+
+<!-- MÓDULO 2 -->
+<section class="modulo">
+  <h2>Módulo 2 · Cuatro verbos para hablarle a una tabla</h2>
+  <p class="meta"><span class="tag">15 min</span><span class="tag">Teoría + laboratorio</span> SELECT, INSERT, UPDATE y DELETE, primero animados y luego en PostgreSQL de verdad.</p>
+  <div class="idea"><b>La idea en una frase:</b> con los datos solo se hacen cuatro cosas, leer, crear, cambiar y borrar, y cada una es un verbo de SQL; <b>WHERE</b> decide a qué filas le pasa.</div>
+
+  <table>
+    <tr><th>Acción</th><th>Verbo SQL</th><th>Frase en español</th></tr>
+    <tr><td>Leer</td><td><code>SELECT</code></td><td>«Muéstrame…»</td></tr>
+    <tr><td>Crear</td><td><code>INSERT</code></td><td>«Agrega una fila nueva con…»</td></tr>
+    <tr><td>Cambiar</td><td><code>UPDATE</code></td><td>«En estas filas, cambia… por…»</td></tr>
+    <tr><td>Borrar</td><td><code>DELETE</code></td><td>«Quita estas filas»</td></tr>
+  </table>
+
+  <h3>Dilo así</h3>
+  <p class="di">«A esto se le llama CRUD: Create, Read, Update, Delete. Toda aplicación que conocen, Instagram, el SIRA de la universidad, el banco, al final hace solo estas cuatro cosas con sus datos.»</p>
+  <p class="di">«Un SELECT se lee casi como una frase: selecciona el nombre, de la tabla estudiante, donde el año sea mayor o igual a 2005, ordenado por nombre.»</p>
+  <p class="di">«Y WHERE es el freno de mano. En un UPDATE o un DELETE, WHERE elige qué filas se tocan. Si se les olvida, se tocan todas. Todas.»</p>
+
+  <h3>Así se lee el código</h3>
+  <pre>SELECT nombre
+FROM estudiante
+WHERE id = 1;
+
+UPDATE estudiante
+SET correo = 'ana.t@unicesar.edu.co'
+WHERE id = 1;</pre>
+  <p>«Primero: dame el nombre del estudiante número 1. Segundo: al estudiante número 1, ponle este correo nuevo.»</p>
+
+  <h3>Qué mostrar</h3>
+  <ol>
+    <li><b>CRUD animado:</b> ejecuta los cuatro verbos sobre la mini tabla.</li>
+    <li><b>SELECT y WHERE explicados</b>, línea por línea.</li>
+    <li><b>Laboratorio 1 · Leer:</b> ejecuta un SELECT; luego cambia el número del id y vuelve a ejecutar. Esto es PostgreSQL real dentro del navegador.</li>
+    <li><b>Laboratorio 2 · Escribir:</b> ejecuta «UPDATE sin WHERE» a propósito. Todas las filas se pintan de amarillo. Después pulsa <b>Reiniciar datos</b>.</li>
+  </ol>
+
+  <h3>Pregunta al grupo</h3>
+  <p>«Quiero ver solo los nombres de los nacidos desde 2005. ¿Qué parte de la consulta cambia?» <b>Respuesta:</b> se agrega un <code>WHERE</code> con el año.</p>
+
+  <div class="ojo"><b>Ojo:</b> el momento del «UPDATE sin WHERE» es el más memorable de la sesión. Detente ahí: «En producción, esto es un incidente. Por eso antes de un UPDATE o DELETE se escribe primero el WHERE».</div>
+</section>
+
+<!-- MÓDULO 3 -->
+<section class="modulo">
+  <h2>Módulo 3 · Tablas que se señalan: llaves y relaciones</h2>
+  <p class="meta"><span class="tag">15 min</span><span class="tag">Teoría + laboratorio</span> Por qué separar los datos en tablas, cómo se unen con llaves y qué es una transacción.</p>
+  <div class="idea"><b>La idea en una frase:</b> cada dato se guarda una sola vez; las demás tablas lo señalan por su id (llave foránea), y los cambios que van juntos se guardan juntos (transacción).</div>
+
+  <h3>Dilo así</h3>
+  <p class="di">«¿Por qué no meter todo en una sola tabla gigante? Hagamos la prueba. El curso Bases de Datos cambia de nombre. En la tabla gigante el nombre está copiado en cada matrícula: hay que cambiarlo en todas, y si se nos escapa una, la tabla se contradice. En tablas separadas el nombre vive en un solo lugar: un cambio y listo.»</p>
+  <p class="di">«La tabla matrícula no copia nombres; guarda números. estudiante_id = 1 significa ‘el estudiante cuya cédula es 1’. Esa columna que señala a otra tabla se llama llave foránea.»</p>
+  <p class="di">«JOIN es lo contrario: la matrícula solo tiene números, y JOIN va a buscar el nombre que le corresponde a cada número.»</p>
+  <p class="di">«Y la transacción: matricular a Ana son dos cambios que van juntos. O se guardan los dos, o ninguno. Como una transferencia bancaria: no puede salir la plata de una cuenta sin llegar a la otra.»</p>
+
+  <h3>Así se lee el código</h3>
+  <pre>CREATE TABLE matricula (
+  id            SERIAL PRIMARY KEY,
+  estudiante_id INTEGER REFERENCES estudiante(id),
+  curso_id      INTEGER REFERENCES curso(id),
+  nota          NUMERIC(2,1)
+);</pre>
+  <p>«REFERENCES es la palabra clave: estudiante_id solo puede tener ids que existan en la tabla estudiante.»</p>
+  <pre>SELECT e.nombre, c.nombre AS curso
+FROM matricula m
+JOIN estudiante e ON e.id = m.estudiante_id
+JOIN curso c      ON c.id = m.curso_id;</pre>
+  <p>«m, e y c son apodos cortos de cada tabla. AS le pone otro nombre a una columna del resultado. ON dice qué número se une con cuál.»</p>
+  <pre>BEGIN;      -- empieza el paquete
+  ...cambios...
+COMMIT;     -- guarda todo     (o ROLLBACK; para deshacer todo)</pre>
+
+  <h3>Qué mostrar</h3>
+  <ol>
+    <li><b>Una tabla o varias:</b> renombra el curso en las dos formas y cuenta los cambios (2 frente a 1).</li>
+    <li><b>Mapa de relaciones:</b> toca una matrícula y mira las flechas.</li>
+    <li><b>Todo o nada:</b> prueba COMMIT y ROLLBACK.</li>
+    <li><b>Laboratorio 3:</b> ejecuta JOIN; luego intenta matricular al estudiante 99. El motor lo rechaza.</li>
+    <li><b>Laboratorio 4:</b> «BEGIN … ROLLBACK» borra y todo vuelve; «BEGIN … COMMIT» se queda.</li>
+  </ol>
+
+  <h3>Pregunta al grupo</h3>
+  <p>«¿Qué pasa si matriculo al estudiante 99, que no existe?» <b>Respuesta:</b> el motor rechaza el INSERT; la llave foránea no permite señalar a nadie que no exista.</p>
+
+  <div class="ojo"><b>Ojo:</b> no profundices en normalización ni en tipos de JOIN; eso es del curso de Bases de Datos. Aquí basta con: separar evita copias, la FK señala, JOIN junta.</div>
+</section>
+
+<!-- MÓDULO 4 -->
+<section class="modulo">
+  <h2>Módulo 4 · El viaje de una consulta</h2>
+  <p class="meta"><span class="tag">10 min</span><span class="tag">Java</span> Sigue una petición de nombres desde Java hasta la tabla estudiante y de regreso.</p>
+  <div class="idea"><b>La idea en una frase:</b> Java no toca la tabla directamente: le pasa el SQL a un <b>driver</b>, el driver lo envía por la <b>red</b> al <b>motor</b>, y las filas hacen el camino de vuelta.</div>
+
+  <table>
+    <tr><th>Pieza</th><th>Qué hace</th><th>Analogía</th></tr>
+    <tr><td>Tu código Java</td><td>Escribe el pedido en SQL.</td><td>El cliente en el restaurante.</td></tr>
+    <tr><td>Driver JDBC</td><td>Traduce el pedido al protocolo del motor.</td><td>El mesero que traduce a la cocina.</td></tr>
+    <tr><td>Red</td><td>Lleva el mensaje hasta el servidor (puerto 5432 en PostgreSQL, 1521 en Oracle).</td><td>El pasillo hasta la cocina.</td></tr>
+    <tr><td>Motor</td><td>Busca las filas en el disco y las devuelve.</td><td>La cocina.</td></tr>
+  </table>
+
+  <h3>Dilo así</h3>
+  <p class="di">«Cuando Java quiere los nombres de los estudiantes, no abre un archivo. Escribe el mismo SELECT que ya conocen y se lo entrega a un intermediario: el driver. Hay un driver para PostgreSQL y otro para Oracle; por eso el mismo código Java sirve para los dos cambiando solo el driver y la dirección.»</p>
+  <p class="di">«El driver lo manda por la red al motor. El motor busca, encuentra las filas y las devuelve por el mismo camino. Y el driver se las entrega a Java en algo que Java puede leer: un ResultSet.»</p>
+
+  <h3>Qué mostrar</h3>
+  <ol>
+    <li><b>Mapa del sistema:</b> toca las cuatro piezas y envía la consulta.</li>
+    <li><b>La petición en Java</b>, línea por línea.</li>
+    <li><b>«¿Dónde está la petición?»:</b> deja que el grupo responda en voz alta antes de tocar.</li>
+    <li><b>El regreso:</b> avanza paso a paso de PostgreSQL a Java.</li>
+  </ol>
+
+  <h3>Pregunta al grupo</h3>
+  <p>«PostgreSQL ya encontró las filas. ¿Qué pieza se las entrega a Java en una forma que puede leer?» <b>Respuesta:</b> el driver, en un ResultSet.</p>
+
+  <div class="ojo"><b>Ojo:</b> la base de datos casi nunca está en el mismo computador que la app. Recalca que hay una red de por medio: por eso conectarse cuesta tiempo y por eso existe el pool (módulo 6).</div>
+</section>
+
+<!-- MÓDULO 5 -->
+<section class="modulo">
+  <h2>Módulo 5 · De la tabla a la clase</h2>
+  <p class="meta"><span class="tag">15 min</span><span class="tag">Java</span> Convierte las filas de estudiante y matricula en objetos que Java puede usar.</p>
+  <div class="idea"><b>La idea en una frase:</b> lo que en la base de datos es una tabla, en Java es una clase; una fila es un objeto, y una columna es un atributo.</div>
+
+  <table>
+    <tr><th>Base de datos</th><th></th><th>Java</th><th>Ejemplo</th></tr>
+    <tr><td>Tabla</td><td>→</td><td>Clase</td><td><code>estudiante</code> → <code>Estudiante</code></td></tr>
+    <tr><td>Fila</td><td>→</td><td>Objeto</td><td>La fila de Ana → <code>new Estudiante(1, "Ana Torres")</code></td></tr>
+    <tr><td>Columna</td><td>→</td><td>Atributo</td><td><code>nombre</code> → <code>String nombre</code></td></tr>
+    <tr><td>Llave foránea</td><td>→</td><td>Atributo con el id</td><td><code>curso_id</code> → <code>int cursoId</code></td></tr>
+  </table>
+
+  <h3>Dilo así</h3>
+  <p class="di">«La tabla es el molde y cada fila es una ficha llena. En Java pasa igual: la clase es el molde y cada objeto es una ficha. Por eso el paso de uno a otro es tan natural: tres parejas y ya.»</p>
+  <p class="di">«El tipo de cada atributo sale del tipo de la columna: si la columna guarda texto, en Java es String; si guarda un número entero, es int; si guarda una fecha, es LocalDate.»</p>
+  <p class="di">«Sin ORM nadie hace la conversión por ustedes. Por eso conviene que los nombres se parezcan: en SQL se escribe estudiante_id, con guion bajo; en Java, estudianteId, en camelCase. Mismo nombre, distinta costumbre de escritura.»</p>
+
+  <h3>Así se lee el código</h3>
+  <pre>public class Estudiante {
+  private int id;          // columna id      (INTEGER)
+  private String nombre;   // columna nombre  (VARCHAR)
+  private String correo;   // columna correo  (VARCHAR)
+  private LocalDate nacimiento; // columna nacimiento (DATE)
+}</pre>
+
+  <h3>Qué mostrar</h3>
+  <ol>
+    <li><b>Toca una columna:</b> señala <code>nombre</code> y mira el atributo que se ilumina en la clase.</li>
+    <li><b>Sigue una referencia:</b> toca <code>curso_id</code> y mira <code>cursoId</code>.</li>
+    <li><b>El molde Estudiante</b> y <b>Nombres que coinciden</b>, línea por línea.</li>
+    <li><b>Convierte a Ana y vuelve:</b> fila → objeto → fila.</li>
+  </ol>
+
+  <h3>Pregunta al grupo</h3>
+  <p>«La columna nombre guarda texto. ¿Qué tipo de Java usarían?» <b>Respuesta:</b> <code>String</code>.</p>
+
+  <div class="ojo"><b>Ojo:</b> el error clásico es guardar el objeto completo del curso dentro de la matrícula pensando que así está en la tabla. En la tabla solo vive el número (<code>curso_id</code>); en Java, sin ORM, empezamos guardando ese mismo número.</div>
+</section>
+
+<!-- MÓDULO 6 -->
+<section class="modulo">
+  <h2>Módulo 6 · Sin ORM: tú escribes el puente</h2>
+  <p class="meta"><span class="tag">13 min</span><span class="tag">Java</span> Java envía el mismo SQL que ya conoces, convierte cada fila en un objeto y se conecta con variables de entorno y un pool.</p>
+  <div class="idea"><b>La idea en una frase:</b> Java envía el SQL de siempre, recorre las filas con <code>rs.next()</code>, copia cada dato a un objeto, y se conecta leyendo la clave de una variable de entorno, nunca del código.</div>
+
+  <h3>Dilo así</h3>
+  <p class="di">«Sin ORM, Java no inventa ningún lenguaje nuevo: manda exactamente el mismo SQL que escribieron en el editor. Son tres pasos: escribo el SQL como texto, lo preparo y lo envío.»</p>
+  <pre>String sql = "SELECT id, nombre FROM estudiante";
+PreparedStatement ps = con.prepareStatement(sql);
+ResultSet rs = ps.executeQuery();</pre>
+  <p class="di">«Las filas que vuelven quedan en rs. Piensen en rs como un dedo que recorre la tabla de arriba abajo: rs.next() baja una fila y pregunta ‘¿hay otra?’. Mientras haya, copiamos los datos a un objeto.»</p>
+  <pre>while (rs.next()) {
+  int id = rs.getInt("id");
+  String nombre = rs.getString("nombre");
+  lista.add(new Estudiante(id, nombre));
+}</pre>
+  <p class="di">«Para guardar es igual, pero con signos de interrogación: cada ? es un espacio que se llena aparte. Eso además protege contra ataques. Y como un UPDATE no devuelve filas, se envía con executeUpdate.»</p>
+  <pre>String sql = "UPDATE estudiante SET correo = ? WHERE id = ?";
+ps.setString(1, "ana.t@unicesar.edu.co");
+ps.setInt(2, 1);
+ps.executeUpdate();</pre>
+
+  <div class="evitar">
+  <h3>¿De dónde sale la conexión?</h3>
+  <p class="di">«Para conectarse hace falta una dirección, un usuario y una clave. Si la clave queda escrita en el código y lo suben a GitHub, el mundo entero la ve. Por eso se guarda en variables de entorno, valores que el sistema le entrega al programa al arrancar. Main las lee, se las pasa al pool, y el pool presta conexiones ya abiertas, como bicicletas compartidas: se toma una, se usa y se devuelve.»</p>
+  <pre>public static void main(String[] args) {
+  String url   = System.getenv("DB_URL");
+  String clave = System.getenv("DB_PASSWORD");
+  DataSource pool = Pool.crear(url, "app", clave);
+  Connection con = pool.getConnection();
+}</pre>
+  </div>
+
+  <h3>Qué mostrar</h3>
+  <ol>
+    <li><b>El SQL no cambia:</b> repaso rápido de los cuatro verbos.</li>
+    <li><b>Java envía un SELECT</b>, tres líneas.</li>
+    <li><b>De la fila al objeto:</b> pulsa Reproducir y narra cada paso del recorrido.</li>
+    <li><b>Para guardar, lo mismo</b>, y luego <b>Variables de entorno → pool → main</b>.</li>
+  </ol>
+
+  <h3>Preguntas al grupo</h3>
+  <table>
+    <tr><th>Pregunta</th><th>Respuesta</th></tr>
+    <tr><td>rs está en la fila de Ana. El nombre es texto: ¿cómo se lo pides?</td><td><code>rs.getString("nombre")</code></td></tr>
+    <tr><td>¿Qué método envía un INSERT?</td><td><code>executeUpdate()</code>, porque cambia datos y no devuelve filas.</td></tr>
+    <tr><td>Vas a subir el proyecto a GitHub: ¿dónde va la clave?</td><td>En una variable de entorno que el programa lee.</td></tr>
+  </table>
+
+  <div class="ojo"><b>Ojo:</b> la regla más útil del módulo es <b>executeQuery para leer (SELECT), executeUpdate para cambiar (INSERT, UPDATE, DELETE)</b>. Si solo se quedan con una cosa, que sea esa.</div>
+</section>
+
+<!-- CIERRE -->
+<section class="modulo">
+  <h2>Cierre de la sesión</h2>
+  <div class="idea"><b>El resumen en cuatro frases:</b><br/>
+  1. Una base de datos guarda en el disco, en tablas, y cada fila tiene un id único.<br/>
+  2. SQL tiene cuatro verbos, y WHERE decide a qué filas les pasa.<br/>
+  3. Las tablas se señalan con llaves foráneas, y los cambios que van juntos se guardan juntos.<br/>
+  4. Sin ORM, Java envía ese mismo SQL por un driver y copia cada fila a un objeto.</div>
+
+  <h3>Dilo así</h3>
+  <p class="di">«Hoy no aprendieron un framework; aprendieron lo que hay debajo de todos los frameworks. Cuando mañana usen un ORM como Hibernate o JPA, sabrán que por dentro está haciendo exactamente esto: armar el SQL, enviarlo por el driver y copiar filas a objetos.»</p>
+
+  <h3>Si sobra tiempo</h3>
+  <ul>
+    <li>Abre el editor SQL de la portada y deja que el grupo dicte consultas en voz alta.</li>
+    <li>Pide que alguien explique el viaje de una consulta con la analogía del restaurante.</li>
+  </ul>
+
+  <h3>Si falta tiempo</h3>
+  <ul>
+    <li>Módulo 4: muestra solo el mapa del sistema y salta la traza.</li>
+    <li>Módulo 5: quédate con la tabla de tres equivalencias y la conversión de Ana.</li>
+    <li>Nunca recortes el «UPDATE sin WHERE» ni el «todo o nada»: son los momentos que más se recuerdan.</li>
+  </ul>
+
+  <div class="tip"><b>Para terminar:</b> invita al grupo a darle una ⭐ al repositorio en GitHub (github.com/ddturizo-eng/PersisteApp). Ayuda a que más estudiantes lo encuentren.</div>
+</section>
+
+<!-- ANEXO: BUENAS PRÁCTICAS DE SEGURIDAD -->
+<section class="modulo">
+  <h2>Anexo · Buenas prácticas de seguridad</h2>
+  <p class="meta"><span class="tag">Opcional</span><span class="tag">Seguridad</span> Cómo guardar las variables de entorno y cómo enviar consultas sin abrirle la puerta a un ataque.</p>
+  <div class="idea"><b>La idea en una frase:</b> los secretos viven fuera del código, y los datos del usuario nunca se pegan dentro del SQL: viajan aparte, por parámetros, a través de una API.</div>
+
+  <h3>1. Variables de entorno: dónde y cómo guardarlas</h3>
+  <p class="di">«Una variable de entorno es una nota que el sistema le pasa al programa al arrancar. La clave de la base de datos va ahí, no en el código. Así el mismo programa sirve en mi computador, en el de pruebas y en producción: solo cambia la nota.»</p>
+
+  <table>
+    <tr><th>Haz esto</th><th>Por qué</th></tr>
+    <tr><td>Guarda los valores en un archivo <code>.env</code> y agrégalo a <code>.gitignore</code>.</td><td>El archivo con la clave nunca llega a GitHub.</td></tr>
+    <tr><td>Sube un <code>.env.example</code> con los nombres, sin valores.</td><td>Quien clone el proyecto sabe qué variables necesita, sin ver tus claves.</td></tr>
+    <tr><td>Usa un valor distinto en cada entorno (desarrollo, pruebas, producción).</td><td>Si se filtra la clave de pruebas, producción sigue segura.</td></tr>
+    <tr><td>Conéctate con un usuario de base de datos con los permisos mínimos.</td><td>Si alguien roba la clave, no puede borrar tablas ni crear usuarios.</td></tr>
+    <tr><td>Valida al arrancar: si falta una variable, el programa se detiene con un mensaje claro.</td><td>Mejor fallar al inicio que a mitad de una operación.</td></tr>
+    <tr><td>Nunca imprimas la clave en consola ni en logs.</td><td>Los logs se comparten y se guardan mucho tiempo.</td></tr>
+    <tr><td>En producción, usa el gestor de secretos de la plataforma (GitHub Secrets, Vercel, Supabase, AWS Secrets Manager).</td><td>Cifra los valores y controla quién los ve.</td></tr>
+    <tr><td>Si una clave se sube por error, cámbiala de inmediato.</td><td>Borrar el commit no basta: el historial de Git y los clones la conservan.</td></tr>
+  </table>
+
+  <div class="grid2">
+    <div>
+      <p><b>.env</b> (en tu equipo, nunca en Git)</p>
+      <pre>DB_URL=jdbc:postgresql://localhost:5432/persiste
+DB_USER=app_lectura
+DB_PASSWORD=una-clave-larga-y-unica</pre>
+    </div>
+    <div>
+      <p><b>.env.example</b> (sí va en Git)</p>
+      <pre>DB_URL=
+DB_USER=
+DB_PASSWORD=</pre>
+    </div>
+  </div>
+  <p><b>.gitignore</b></p>
+  <pre>.env
+.env.*
+!.env.example</pre>
+
+  <div class="evitar">
+  <p><b>Leer y validar en Java</b> (falla rápido si falta algo):</p>
+  <pre>static String requerida(String nombre) {
+  String valor = System.getenv(nombre);
+  if (valor == null || valor.isBlank()) {
+    throw new IllegalStateException("Falta la variable de entorno " + nombre);
+  }
+  return valor;
+}
+
+String url   = requerida("DB_URL");
+String user  = requerida("DB_USER");
+String clave = requerida("DB_PASSWORD");   // nunca System.out.println(clave)</pre>
+  </div>
+
+  <h3>2. Llamar las consultas por una API, no con SQL armado a mano</h3>
+  <p class="di">«El peligro se llama inyección SQL. Si pego lo que escribe el usuario dentro del texto del SQL, el usuario puede escribir SQL. Y el motor no distingue: ejecuta lo que le llegue.»</p>
+
+  <div class="evitar">
+  <p><b>❌ Mal: SQL concatenado con lo que escribe el usuario</b></p>
+  <pre>String correo = request.getParameter("correo");
+String sql = "SELECT * FROM estudiante WHERE correo = '" + correo + "'";
+Statement st = con.createStatement();
+ResultSet rs = st.executeQuery(sql);</pre>
+  <p>Si el usuario escribe <code>' OR '1'='1</code>, la consulta queda así y devuelve <b>todos</b> los estudiantes:</p>
+  <pre>SELECT * FROM estudiante WHERE correo = '' OR '1'='1'</pre>
+  <p>Con <code>'; DELETE FROM estudiante; --</code> podría borrar la tabla entera.</p>
+  </div>
+
+  <div class="evitar">
+  <p><b>✅ Bien: consulta parametrizada dentro de un DAO</b></p>
+  <pre>public class EstudianteDao {
+  private final DataSource pool;
+
+  public EstudianteDao(DataSource pool) { this.pool = pool; }
+
+  public Optional&lt;Estudiante&gt; buscarPorCorreo(String correo) throws SQLException {
+    String sql = "SELECT id, nombre, correo FROM estudiante WHERE correo = ?";
+    try (Connection con = pool.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+      ps.setString(1, correo);          // el dato viaja aparte, nunca como SQL
+      try (ResultSet rs = ps.executeQuery()) {
+        if (!rs.next()) return Optional.empty();
+        return Optional.of(new Estudiante(rs.getInt("id"),
+            rs.getString("nombre"), rs.getString("correo")));
+      }
+    }
+  }
+}</pre>
+  <p>El <code>?</code> hace que el motor reciba el SQL y el dato por separado: aunque el usuario escriba <code>' OR '1'='1</code>, se busca un correo con ese texto literal y no aparece ninguno. El <code>try (...)</code> devuelve la conexión al pool aunque haya un error.</p>
+  </div>
+
+  <div class="evitar">
+  <p><b>✅ Mejor aún: el cliente llama a una API y nunca ve el SQL</b></p>
+  <p>La app del navegador o del celular no habla con la base de datos. Pide datos a un endpoint; el servidor valida la entrada y usa el DAO.</p>
+  <pre>// Cliente (navegador): solo envía el dato, no SQL
+fetch("/api/estudiantes?correo=" + encodeURIComponent(correo));
+
+// Servidor (Java): valida y delega en el DAO
+@GetMapping("/api/estudiantes")
+public ResponseEntity&lt;Estudiante&gt; buscar(@RequestParam String correo) throws SQLException {
+  if (!correo.matches("^[\\w.+-]+@[\\w.-]+\\.[a-z]{2,}$")) {
+    return ResponseEntity.badRequest().build();
+  }
+  return dao.buscarPorCorreo(correo)
+      .map(ResponseEntity::ok)
+      .orElse(ResponseEntity.notFound().build());
+}</pre>
+  </div>
+
+  <table>
+    <tr><th>Capa</th><th>Qué hace</th><th>Qué nunca hace</th></tr>
+    <tr><td>Cliente (web o móvil)</td><td>Llama a <code>/api/...</code> con datos.</td><td>Escribir SQL ni guardar la clave de la base de datos.</td></tr>
+    <tr><td>API (servidor)</td><td>Valida la entrada, revisa permisos, llama al DAO.</td><td>Pegar el texto del usuario dentro del SQL.</td></tr>
+    <tr><td>DAO</td><td>Usa <code>PreparedStatement</code> con <code>?</code>.</td><td>Usar <code>Statement</code> con concatenación.</td></tr>
+    <tr><td>Base de datos</td><td>Atiende a un usuario con permisos mínimos.</td><td>Aceptar conexiones desde internet sin control.</td></tr>
+  </table>
+
+  <h3>Pregunta al grupo</h3>
+  <table>
+    <tr><th>Pregunta</th><th>Respuesta</th></tr>
+    <tr><td>Subiste el <code>.env</code> a GitHub y luego borraste el commit. ¿Ya estás seguro?</td><td>No. Hay que cambiar la clave: el historial y los clones la conservan.</td></tr>
+    <tr><td>¿Qué protege contra la inyección SQL: validar el correo o usar <code>?</code>?</td><td>El <code>?</code>. Validar ayuda, pero la protección real es que el dato viaje aparte del SQL.</td></tr>
+    <tr><td>¿Por qué la app del celular no se conecta directo a PostgreSQL?</td><td>Tendría que llevar la clave dentro, y cualquiera podría extraerla. La API la guarda en el servidor.</td></tr>
+  </table>
+
+  <div class="ojo"><b>Ojo:</b> la regla para recordar es <b>nunca concatenar datos del usuario en el SQL</b>. Siempre <code>?</code> con <code>PreparedStatement</code>, y siempre detrás de una API.</div>
+</section>
+
+</body>
+</html>
