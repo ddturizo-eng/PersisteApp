@@ -1,0 +1,100 @@
+{
+  "id": "s1-m2-sql-cuatro-verbos",
+  "session": 1,
+  "module": 2,
+  "title": "Cuatro verbos para hablarle a una tabla",
+  "summary": "SELECT, INSERT, UPDATE y DELETE ejecutados de verdad sobre PostgreSQL en tu navegador.",
+  "estimatedMinutes": 18,
+  "source": {
+    "label": "Documentación de PostgreSQL · Consultar una tabla",
+    "url": "https://www.postgresql.org/docs/current/tutorial-select.html"
+  },
+  "steps": [
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "CRUD: todo lo que haces con datos",
+      "body": "Casi todo programa hace cuatro cosas con sus datos. Se les dice **CRUD**, y cada una es un verbo de SQL:\n\n**C**reate → `INSERT` (agregar filas) · **R**ead → `SELECT` (leer) · **U**pdate → `UPDATE` (cambiar) · **D**elete → `DELETE` (borrar)."
+    },
+    {
+      "kind": "code",
+      "stage": "theory",
+      "mode": "read",
+      "language": "sql",
+      "title": "Cómo se lee un SELECT",
+      "variants": {
+        "postgresql": "SELECT nombre, correo      -- 2. qué columnas\nFROM estudiante            -- 1. de qué tabla\nWHERE nacimiento >= '2004-01-01'  -- 3. qué filas\nORDER BY nombre;           -- 4. en qué orden"
+      }
+    },
+    {
+      "kind": "code",
+      "stage": "theory",
+      "mode": "read",
+      "language": "sql",
+      "title": "Los otros tres verbos",
+      "variants": {
+        "postgresql": "INSERT INTO estudiante (nombre, correo)\nVALUES ('Mario Ruiz', 'mario@unicesar.edu.co');\n\nUPDATE estudiante\nSET correo = 'ana.t@unicesar.edu.co'\nWHERE id = 1;\n\nDELETE FROM estudiante\nWHERE id = 4;"
+      }
+    },
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "WHERE es el freno de mano",
+      "body": "En `UPDATE` y `DELETE`, el `WHERE` decide **qué filas** se tocan. Si lo olvidas, el motor obedece y cambia o borra **todas**.\n\nCostumbre sana: filtra por la llave primaria (`WHERE id = 1`) y, antes de un `DELETE`, ejecuta un `SELECT` con el mismo `WHERE` para ver qué vas a borrar."
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
+      "component": "sql-lab",
+      "props": { "queries": ["select-all", "select-where", "select-order"], "table": "estudiante" },
+      "title": "Laboratorio 1 · Leer",
+      "caption": "Esto es PostgreSQL de verdad, corriendo en tu navegador. Pulsa una consulta, ejecútala y luego cámbiala: prueba otro `id` o pide otra columna."
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "Quieres el nombre de los estudiantes nacidos desde 2005 en adelante.",
+      "prompt": "¿Qué consulta lo hace?",
+      "options": [
+        { "text": "`SELECT nombre FROM estudiante WHERE nacimiento >= '2005-01-01';`", "correct": true, "explanation": "`SELECT nombre` elige la columna y `WHERE` filtra las filas por la fecha." },
+        { "text": "`SELECT * FROM estudiante ORDER BY nacimiento >= '2005-01-01';`", "correct": false, "explanation": "`ORDER BY` solo ordena; no quita filas. Para filtrar se usa `WHERE`." },
+        { "text": "`SELECT nacimiento >= '2005-01-01' FROM estudiante nombre;`", "correct": false, "explanation": "Las columnas van después de SELECT y la condición en WHERE; aquí están mezcladas." }
+      ]
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
+      "component": "sql-lab",
+      "props": { "queries": ["insert", "update", "update-no-where", "delete"], "table": "estudiante" },
+      "title": "Laboratorio 2 · Escribir",
+      "caption": "Ejecuta cada verbo y mira la tabla de abajo: las filas nuevas o cambiadas se resaltan. Prueba «UPDATE sin WHERE» y luego «Reiniciar datos»."
+    },
+    {
+      "kind": "code",
+      "stage": "practice",
+      "mode": "fill",
+      "language": "sql",
+      "title": "Completa el UPDATE",
+      "context": "La estudiante con `id` 3 cambió de correo.",
+      "prompt": "Elige lo que falta para cambiar SOLO su correo.",
+      "variants": {
+        "postgresql": "UPDATE estudiante\n{{1}} correo = 'sara.g@unicesar.edu.co'\n{{2}} id = 3;"
+      },
+      "gaps": [
+        { "id": 1, "label": "Palabra que asigna el valor", "answers": ["SET"], "choices": ["SET", "VALUES", "INTO"], "hint": "En UPDATE el valor nuevo va después de SET." },
+        { "id": 2, "label": "Palabra que elige la fila", "answers": ["WHERE"], "choices": ["WHERE", "FROM", "ORDER BY"], "hint": "La condición que limita las filas empieza con WHERE." }
+      ]
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "Un compañero ejecuta `DELETE FROM estudiante;` en la base de la clase.",
+      "prompt": "¿Qué pasa?",
+      "options": [
+        { "text": "Se borran todas las filas de la tabla", "correct": true, "explanation": "Sin WHERE, DELETE aplica a todas las filas. La tabla queda vacía (pero sigue existiendo)." },
+        { "text": "Se borra la tabla completa con su estructura", "correct": false, "explanation": "Eso lo hace `DROP TABLE`. DELETE quita filas; las columnas siguen ahí." },
+        { "text": "Da error porque falta la condición WHERE", "correct": false, "explanation": "WHERE es opcional: el motor no lo exige y obedece borrando todo." }
+      ]
+    }
+  ]
+}

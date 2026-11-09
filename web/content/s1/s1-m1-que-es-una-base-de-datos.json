@@ -1,0 +1,78 @@
+{
+  "id": "s1-m1-que-es-una-base-de-datos",
+  "session": 1,
+  "module": 1,
+  "title": "Dónde viven los datos cuando apagas el programa",
+  "summary": "Qué es una base de datos, qué es una tabla y por qué cada fila necesita una llave primaria.",
+  "estimatedMinutes": 12,
+  "source": {
+    "label": "Documentación de PostgreSQL · Conceptos",
+    "url": "https://www.postgresql.org/docs/current/tutorial-concepts.html"
+  },
+  "steps": [
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "Tu programa tiene mala memoria",
+      "body": "Cuando haces `estudiantes.add(ana)` en Java, Ana vive en la memoria RAM. Cierras el programa y Ana desaparece.\n\nUna **base de datos** guarda los datos en disco, de forma organizada, para que sobrevivan al apagado, los usen muchos programas a la vez y cumplan reglas (por ejemplo, «no hay dos estudiantes con el mismo correo»)."
+    },
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "El motor: el programa que cuida los datos",
+      "body": "Tú no abres el archivo de la base de datos. Le hablas a un programa servidor, el **motor** (o SGBD): PostgreSQL, Oracle, MySQL o SQL Server.\n\nLe hablas en **SQL**, un lenguaje donde dices *qué* quieres («dame los estudiantes nacidos en 2004») y el motor decide *cómo* buscarlo."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "table-anatomy",
+      "title": "Anatomía de una tabla",
+      "caption": "Una base de datos relacional guarda todo en **tablas**. Toca cada parte de la tabla `estudiante` para ver cómo se llama."
+    },
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "La llave primaria",
+      "body": "Dos estudiantes pueden llamarse «Ana Torres». Para no confundirlos, cada fila lleva una **llave primaria** (PK, *primary key*): una columna cuyo valor nunca se repite y nunca está vacío.\n\nLo usual es un número `id` que el motor genera solo. Ese `id` es la «cédula» de la fila: con él la encuentras, la cambias o la borras sin tocar ninguna otra."
+    },
+    {
+      "kind": "code",
+      "stage": "theory",
+      "mode": "read",
+      "language": "sql",
+      "title": "La misma tabla en dos motores",
+      "variants": {
+        "postgresql": "CREATE TABLE estudiante (\n  id         SERIAL PRIMARY KEY,\n  nombre     VARCHAR(80) NOT NULL,\n  correo     VARCHAR(120) UNIQUE,\n  nacimiento DATE\n);\n\nSELECT * FROM estudiante LIMIT 2;",
+        "oracle": "CREATE TABLE estudiante (\n  id         NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  nombre     VARCHAR2(80) NOT NULL,\n  correo     VARCHAR2(120) UNIQUE,\n  nacimiento DATE\n);\n\nSELECT * FROM estudiante FETCH FIRST 2 ROWS ONLY;"
+      }
+    },
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "PostgreSQL y los demás: casi el mismo idioma",
+      "body": "SQL es un estándar: `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `PRIMARY KEY` y `NOT NULL` se escriben igual en todos los motores.\n\nCambian los detalles, como acentos de un mismo idioma: el id automático (`SERIAL` en PostgreSQL, `IDENTITY` en Oracle, `AUTO_INCREMENT` en MySQL), los tipos de texto (`VARCHAR` frente a `VARCHAR2`) y cómo limitar filas (`LIMIT` frente a `FETCH FIRST`). En esta clase usamos **PostgreSQL**."
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "La tabla `estudiante` tiene las columnas `id`, `nombre`, `correo` y `nacimiento`. Hay dos estudiantes llamadas «Ana Torres».",
+      "prompt": "¿Qué columna usarías para cambiar el correo de UNA de las dos Anas sin tocar a la otra?",
+      "options": [
+        { "text": "`id`, porque es la llave primaria y no se repite", "correct": true, "explanation": "La PK identifica una sola fila. Con `WHERE id = 1` cambias solo esa Ana." },
+        { "text": "`nombre`, porque es el dato que el usuario conoce", "correct": false, "explanation": "Hay dos «Ana Torres»: `WHERE nombre = 'Ana Torres'` cambiaría las dos filas." },
+        { "text": "`nacimiento`, porque dos personas rara vez coinciden", "correct": false, "explanation": "«Rara vez» no basta: nada impide que dos filas tengan la misma fecha. Solo la PK garantiza que no se repite." }
+      ]
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "Al crear la tabla escribimos `id SERIAL PRIMARY KEY`. Luego insertamos a un estudiante sin escribir su `id`.",
+      "prompt": "¿Qué valor toma la columna `id` de ese estudiante?",
+      "options": [
+        { "text": "El siguiente número que genera el motor", "correct": true, "explanation": "`SERIAL` crea un contador: el motor pone 1, 2, 3… sin que tú lo escribas." },
+        { "text": "NULL, porque no le dimos ningún valor", "correct": false, "explanation": "Una PRIMARY KEY nunca puede ser NULL; por eso `SERIAL` le da un número automáticamente." },
+        { "text": "Un error, porque la PK es obligatoria", "correct": false, "explanation": "La PK sí es obligatoria, pero `SERIAL` la llena por ti; no hay error." }
+      ]
+    }
+  ]
+}
