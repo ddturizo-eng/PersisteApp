@@ -26,6 +26,7 @@ import { SqlLab } from "@/components/db/sql-lab";
 import { RelationsMap } from "@/components/db/relations-map";
 import { TableClass } from "@/components/db/table-class";
 import { RowMapper } from "@/components/db/row-mapper";
+import { CrudDemo } from "@/components/db/crud-demo";
 import type { TableName } from "@/lib/sample-db";
 import { illustrations, illustrationSrc, type IllustrationName } from "@/lib/illustrations";
 
@@ -134,6 +135,8 @@ export function VisualStep({ step, headingRef }: { step: StepOf<"visual">; headi
       <RelationsMap />
     ) : step.component === "table-class" ? (
       <TableClass table={typeof step.props?.table === "string" ? (step.props.table as TableName) : undefined} />
+    ) : step.component === "crud-demo" ? (
+      <CrudDemo />
     ) : step.component === "row-mapper" ? (
       <RowMapper />
     ) : step.component === "table-anatomy" ? (
