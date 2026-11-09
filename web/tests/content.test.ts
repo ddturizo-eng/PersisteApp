@@ -14,23 +14,24 @@ describe("content/ lessons", () => {
     expect(lessons.length).toBeGreaterThan(0);
   });
 
-  it("keep modules 1–7 under the 100-minute budget, published and planned", () => {
+  it("keeps six modules under the 90-minute budget, published and planned", () => {
     expect(modulesMinutes(courseStops(loadLessons()))).toBeLessThanOrEqual(MODULES_BUDGET_MINUTES);
+    expect(courseStops(loadLessons())).toHaveLength(6);
   });
 
   it("include a valid final quiz for session 1 (REQ-29)", () => {
     expect(loadQuiz(1).questions).toHaveLength(10);
   });
 
-  it("keep module 8 optional: module 7 leads to the quiz and the quiz never asks about it (author, 7 Nov 2026)", () => {
+  it("ends module 6 at the landing and keeps one interactive step per module", () => {
     const lessons = loadLessons();
-    const m7 = lessons.find((l) => l.session === 1 && l.module === 7)!;
-    const m8 = lessons.find((l) => l.session === 1 && l.module === 8)!;
-    expect(m8.optional).toBe(true);
-    expect(nextAfter(m7)).toEqual({ href: "/s1/quiz", label: "Prepárate para el quiz" });
-    expect(nextAfter(m8)).toEqual({ href: "/", label: "Volver al inicio" });
-    const quiz = loadQuiz(1);
-    expect([...quiz.questions, ...quiz.practice].some((q) => q.module === 8)).toBe(false);
+    const session = lessons.filter((l) => l.session === 1);
+    expect(session.map((l) => l.module)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(nextAfter(session[5])).toEqual({ href: "/", label: "Volver al inicio" });
+    for (const lesson of session) {
+      expect(lesson.steps[0].stage).toBe("theory");
+      expect(lesson.steps.some((step) => step.kind === "visual" || step.kind === "trace" || (step.kind === "code" && step.mode !== "read"))).toBe(true);
+    }
   });
 
   it("close every inline code span (`…`)", () => {
@@ -241,25 +242,25 @@ describe("loadLessons", () => {
     expect(loadQuiz(1, dir).questions).toHaveLength(10);
   });
 
-  it("requires exactly 10 questions and one per published module (REQ-29 CA1)", () => {
+  it("keeps the retained quiz schema without requiring coverage of new modules", () => {
     dir = mkdtempSync(path.join(tmpdir(), "lessons-"));
     write("s1-m1-demo.json", validLesson);
     write("s1-m2-demo.json", { ...validLesson, id: "s1-m2-demo", module: 2 });
     write("quiz.json", quiz(Array(9).fill(1)));
     expect(problemsOf(() => loadQuiz(1, dir)).join("\n")).toContain("exactamente 10 preguntas");
     write("quiz.json", quiz(Array(10).fill(1)));
-    expect(problemsOf(() => loadQuiz(1, dir))).toEqual([expect.stringContaining("módulo 2")]);
+    expect(problemsOf(() => loadQuiz(1, dir))).toEqual([]);
   });
 
-  it("sends each module to the next one and the last to the quiz (REQ-26 CA4)", () => {
+  it("sends each module to the next one and the last to the landing", () => {
     dir = mkdtempSync(path.join(tmpdir(), "lessons-"));
     write("s1-m1-demo.json", validLesson);
     write("s1-m4-demo.json", { ...validLesson, id: "s1-m4-demo", module: 4 });
-    write("s1-m8-demo.json", { ...validLesson, id: "s1-m8-demo", module: 8, optional: true });
-    const [m1, m4, m8] = loadLessons(dir);
+    write("s1-m6-demo.json", { ...validLesson, id: "s1-m6-demo", module: 6 });
+    const [m1, m4, m6] = loadLessons(dir);
     expect(nextAfter(m1, dir)).toEqual({ href: "/s1/s1-m4-demo", label: "Siguiente módulo" });
-    expect(nextAfter(m4, dir)).toEqual({ href: "/s1/quiz", label: "Prepárate para el quiz" });
-    expect(nextAfter(m8, dir).href).toBe("/");
+    expect(nextAfter(m4, dir)).toEqual({ href: "/s1/s1-m6-demo", label: "Siguiente módulo" });
+    expect(nextAfter(m6, dir)).toEqual({ href: "/", label: "Volver al inicio" });
   });
 });
 

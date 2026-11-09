@@ -164,8 +164,7 @@ export function findLesson(id: string, dir?: string): Lesson | undefined {
 }
 
 /**
- * Reads and validates the final quiz of a session (REQ-29 CA1): exactly 12 questions and at
- * least one for every published core module, so no module goes unchecked.
+ * Reads and validates the retained final quiz data of a session.
  */
 export function loadQuiz(session: 1 | 2, dir: string = CONTENT_DIR): Quiz {
   const file = `s${session}/${QUIZ_FILE}`;
@@ -179,24 +178,15 @@ export function loadQuiz(session: 1 | 2, dir: string = CONTENT_DIR): Quiz {
   const result = quizSchema.safeParse(raw);
   if (!result.success) throw new ContentError(describeIssues(file, result.error));
 
-  const quiz = result.data;
-  const problems: string[] = [];
-  if (quiz.session !== session) problems.push(`${file} → session: debe ser ${session}`);
-  const covered = new Set(quiz.questions.map((q) => q.module));
-  for (const lesson of lessonsForSession(session, dir)) {
-    if (!lesson.optional && !covered.has(lesson.module)) {
-      problems.push(`${file} → questions: falta al menos una pregunta del módulo ${lesson.module}`);
-    }
-  }
-  if (problems.length > 0) throw new ContentError(problems);
-  return quiz;
+  if (result.data.session !== session) throw new ContentError([`${file} → session: debe ser ${session}`]);
+  return result.data;
 }
 
-/** Where «Continuar» leads after a module: the next core module, then the final quiz (REQ-26 CA4). */
+/** Where «Continuar» leads after a module. */
 export function nextAfter(lesson: Lesson, dir?: string): { href: string; label: string } {
   if (lesson.optional) return { href: "/", label: "Volver al inicio" };
   const next = lessonsForSession(lesson.session, dir).find((l) => !l.optional && l.module > lesson.module);
   return next
     ? { href: `/s${lesson.session}/${next.id}`, label: "Siguiente módulo" }
-    : { href: `/s${lesson.session}/quiz`, label: "Prepárate para el quiz" };
+    : { href: "/", label: "Volver al inicio" };
 }
