@@ -1,0 +1,26 @@
+{
+  "id": "s1-m6-sin-orm",
+  "session": 1,
+  "module": 6,
+  "title": "Sin ORM: tú escribes el puente",
+  "summary": "Envía los cuatro verbos SQL desde Java y transforma filas de ResultSet en objetos.",
+  "estimatedMinutes": 15,
+  "source": { "label": "Oracle Java Tutorials · PreparedStatement", "url": "https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html" },
+  "steps": [
+    { "kind": "text", "stage": "theory", "title": "Java envía SQL", "body": "Sin ORM, tu código escribe las consultas y decide cómo leer sus resultados. `PreparedStatement` envía SQL al motor. Cada `?` reserva el lugar de un dato que entregas por separado." },
+    { "kind": "code", "stage": "theory", "mode": "read", "language": "java", "title": "SELECT: leer estudiantes", "variants": { "java": "PreparedStatement ps = cn.prepareStatement(\"SELECT id, nombre FROM estudiante WHERE id = ?\");\nps.setInt(1, id);\nResultSet rs = ps.executeQuery();" } },
+    { "kind": "code", "stage": "theory", "mode": "read", "language": "java", "title": "INSERT: agregar un estudiante", "variants": { "java": "PreparedStatement ps = cn.prepareStatement(\"INSERT INTO estudiante (nombre) VALUES (?)\", Statement.RETURN_GENERATED_KEYS);\nps.setString(1, nombre);\nps.executeUpdate();" } },
+    { "kind": "code", "stage": "theory", "mode": "read", "language": "java", "title": "UPDATE: cambiar un nombre", "variants": { "java": "PreparedStatement ps = cn.prepareStatement(\"UPDATE estudiante SET nombre = ? WHERE id = ?\");\nps.setString(1, nombre);\nps.setInt(2, id);\nps.executeUpdate();" } },
+    { "kind": "code", "stage": "theory", "mode": "read", "language": "java", "title": "DELETE: borrar una matrícula", "variants": { "java": "PreparedStatement ps = cn.prepareStatement(\"DELETE FROM matricula WHERE id = ?\");\nps.setInt(1, id);\nps.executeUpdate();" } },
+    { "kind": "text", "stage": "theory", "title": "¿Y el id nuevo?", "body": "En PostgreSQL, `SERIAL` crea el `id` al insertar la fila. Después del INSERT, `getGeneratedKeys()` permite leer ese número desde Java." },
+    { "kind": "visual", "stage": "practice", "component": "row-mapper", "title": "De ResultSet a Estudiante", "caption": "Avanza paso a paso: lee `id` con `getInt` y `nombre` con `getString`, y arma un objeto Estudiante." },
+    { "kind": "code", "stage": "practice", "mode": "fill", "language": "java", "title": "Lee el id", "context": "La columna `id` de estudiante es INTEGER.", "prompt": "Elige el método que lee ese entero desde ResultSet.", "variants": { "java": "int id = rs.{{1}}(\"id\");" }, "gaps": [
+      { "id": 1, "label": "Método de lectura", "answers": ["getInt"], "choices": ["getInt", "getString"], "hint": "id guarda un número entero." }
+    ] },
+    { "kind": "question", "stage": "practice", "context": "Un SELECT devolvió una fila de estudiante con id y nombre.", "prompt": "¿Qué hace tu código para crear un objeto Estudiante?", "options": [
+      { "text": "Lee la fila y crea el objeto", "correct": true, "explanation": "Lees cada columna del ResultSet y construyes el objeto." },
+      { "text": "Borra la fila y crea el objeto", "correct": false, "explanation": "No necesitas borrar datos para construir el objeto." },
+      { "text": "Cambia la fila y crea el objeto", "correct": false, "explanation": "Leer un resultado no cambia la fila guardada." }
+    ] }
+  ]
+}
