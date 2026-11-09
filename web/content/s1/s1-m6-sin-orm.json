@@ -79,13 +79,13 @@
     {
       "kind": "question",
       "stage": "practice",
-      "context": "Tienes `ResultSet rs` con las columnas `id` y `nombre`, y quieres crear un objeto `Estudiante`.",
-      "prompt": "¿Cómo lees el nombre de la fila actual?",
+      "context": "Recuerda la animación del paso 3: después de `executeQuery()`, las filas que devolvió el motor quedan guardadas en una variable llamada `rs` (un **ResultSet**, la tabla de resultados que Java lee fila por fila). Ahora `rs` está en la fila de Ana: `id` = 1, `nombre` = «Ana Torres».",
+      "prompt": "¿Qué línea copia «Ana Torres» de esa fila a una variable de Java?",
       "options": [
         {
           "text": "`rs.getString(\"nombre\")`",
           "correct": true,
-          "explanation": "getString lee texto, y \"nombre\" es el nombre de la columna en la tabla."
+          "explanation": "getString lee un texto de la fila actual, y \"nombre\" es el nombre de la columna en la tabla."
         },
         {
           "text": "`rs.getInt(\"nombre\")`",
