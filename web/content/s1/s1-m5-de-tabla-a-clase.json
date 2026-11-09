@@ -1,0 +1,27 @@
+{
+  "id": "s1-m5-de-tabla-a-clase",
+  "session": 1,
+  "module": 5,
+  "title": "De la tabla a la clase",
+  "summary": "Relaciona columnas con atributos y convierte una fila de estudiante en un objeto Java.",
+  "estimatedMinutes": 15,
+  "source": { "label": "Oracle Java Tutorials · ResultSet", "url": "https://docs.oracle.com/javase/tutorial/jdbc/basics/retrieving.html" },
+  "steps": [
+    { "kind": "text", "stage": "theory", "title": "Una tabla, una clase", "body": "La tabla `estudiante` guarda estudiantes. En Java puedes representarla con la clase `Estudiante`: cada columna se vuelve un atributo y cada fila se vuelve un objeto." },
+    { "kind": "text", "stage": "theory", "title": "La llave primaria es id", "body": "La columna `id` identifica una fila sin repetirla. El objeto también puede tener un atributo `id` para saber a qué estudiante corresponde." },
+    { "kind": "text", "stage": "theory", "title": "La llave foránea también tiene lugar", "body": "En `matricula`, `curso_id` señala una fila de `curso`. Sin ORM, tú decides cómo guardarla en Java. Una opción sencilla es el atributo `cursoId`. Lo mismo ocurre con `estudiante_id` y `estudianteId`." },
+    { "kind": "text", "stage": "theory", "title": "Elige el tipo de cada atributo", "body": "`INTEGER` pasa a `int`; `VARCHAR` pasa a `String`; `DATE` puede pasar a `LocalDate`; `NUMERIC(2,1)` puede pasar a `double`. Usa el tipo que permita trabajar con cada dato." },
+    { "kind": "visual", "stage": "theory", "component": "table-class", "props": { "table": "estudiante" }, "title": "De estudiante a Estudiante", "caption": "Toca una columna y mira el atributo correspondiente. Convierte una fila en objeto y vuelve a convertirla en fila." },
+    { "kind": "visual", "stage": "practice", "component": "table-class", "props": { "table": "matricula" }, "title": "Prueba con matricula", "caption": "Busca `curso_id` y observa cómo se representa con `cursoId` en la clase Matricula." },
+    { "kind": "code", "stage": "practice", "mode": "pick-line", "language": "java", "title": "El atributo del nombre", "context": "La columna `nombre` de `estudiante` contiene texto.", "prompt": "¿Qué línea corresponde a ese atributo de la clase Estudiante?", "variants": { "java": "class Estudiante {\n    int id;\n    String nombre;\n    String correo;\n    LocalDate nacimiento;\n}" }, "options": [
+      { "line": "String nombre;", "correct": true, "explanation": "VARCHAR guarda texto; en Java usamos String." },
+      { "line": "int nombre;", "correct": false, "explanation": "int sirve para números enteros, como id." },
+      { "line": "LocalDate nombre;", "correct": false, "explanation": "LocalDate sirve para fechas, como nacimiento." }
+    ] },
+    { "kind": "question", "stage": "practice", "context": "La fila de matricula guarda `curso_id = 2`.", "prompt": "¿Qué representa `cursoId` en el objeto Matricula?", "options": [
+      { "text": "El id del curso relacionado", "correct": true, "explanation": "La FK señala la PK de una fila de curso." },
+      { "text": "La nota del curso relacionado", "correct": false, "explanation": "La nota está en otra columna de matricula." },
+      { "text": "El nombre del curso relacionado", "correct": false, "explanation": "La FK guarda el id, no el nombre del curso." }
+    ] }
+  ]
+}
