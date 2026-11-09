@@ -42,7 +42,7 @@ export function TableClass({ table = "estudiante" }: { table?: TableName }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 xl:grid-cols-[1.2fr_auto_1fr] xl:items-start">
+      <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 xl:grid-cols-[1.2fr_auto_1fr] xl:items-start">
         <TableCard
           name={t.name}
           compact

@@ -55,7 +55,7 @@ export function RelationsMap() {
   const fkActive = pick ? (pick.table === "curso" ? "curso_id" : pick.table === "estudiante" ? "estudiante_id" : null) : null;
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 lg:grid-cols-[1fr_1.4fr_1fr] lg:items-start">
+      <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 lg:grid-cols-[1fr_1.4fr_1fr] lg:items-start">
         <TableCard
           compact
           name="estudiante"

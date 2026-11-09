@@ -82,7 +82,7 @@ export function RowMapper() {
         <ExecutionBadge kind="simulated" />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+      <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 lg:grid-cols-2 lg:items-start">
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">ResultSet (filas que devolvió el motor)</p>
           <TableCard

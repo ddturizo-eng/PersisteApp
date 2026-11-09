@@ -81,7 +81,7 @@ export function SplitTables() {
           activeRows={big.flatMap((r, i) => (r.curso === NEW ? [i] : []))}
         />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 md:grid-cols-2">
           <TableCard name="curso" columns={[{ name: "id", pk: true }, { name: "nombre" }, { name: "creditos" }]} rows={cursos} activeRows={edits ? [0] : []} activeColumn="nombre" />
           <TableCard name="matricula" columns={[{ name: "estudiante" }, { name: "curso_id", fk: "curso(id)" }, { name: "nota" }]} rows={matriculas} activeColumn="curso_id" />
         </div>

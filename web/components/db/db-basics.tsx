@@ -8,7 +8,7 @@ import { CrudDemo } from "@/components/db/crud-demo";
 /** Card shell: number, title, one line, then the visual. Little text, always a visual. */
 function Card({ n, title, line, children, className }: { n: number; title: string; line: string; children: React.ReactNode; className?: string }) {
   return (
-    <article className={cn("flex flex-col gap-4 rounded-[2rem] border-2 border-foreground bg-card p-5 sm:p-6", className)}>
+    <article className={cn("flex min-w-0 flex-col gap-4 rounded-[2rem] border-2 border-foreground bg-card p-5 sm:p-6", className)}>
       <header className="space-y-1">
         <p className="font-mono text-xs text-muted-foreground">{String(n).padStart(2, "0")}</p>
         <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
@@ -207,7 +207,7 @@ export function AllOrNothing() {
  */
 export function DbBasics() {
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <Card n={1} title="¿Qué es una base de datos?" line="Un lugar donde los datos sobreviven al programa, ordenados y con reglas.">
         <MemoryVsDisk />
       </Card>

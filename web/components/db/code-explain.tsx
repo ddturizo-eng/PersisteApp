@@ -17,7 +17,7 @@ export function CodeExplain({ lines, language = "java" }: { lines: ExplainedLine
   const go = (delta: number) => setAt(explained[Math.min(explained.length - 1, Math.max(0, pos + delta))]);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr] lg:items-start">
+    <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 lg:grid-cols-[1.25fr_1fr] lg:items-start">
       <div className="overflow-x-auto rounded-2xl border-2 border-foreground bg-code py-3 font-mono text-sm text-code-foreground">
         <p className="px-4 pb-2 text-xs uppercase tracking-wide opacity-60">{language === "sql" ? "SQL" : "Java"}</p>
         <ol>

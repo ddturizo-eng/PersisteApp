@@ -47,7 +47,7 @@ export function ConceptCards() {
       {groups.map((group, gi) => (
         <div key={group.title} className="space-y-3">
           <h3 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">{group.title}</h3>
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-3 [&>*]:min-w-0 sm:grid-cols-2 lg:grid-cols-3">
             {group.concepts.map((c, ci) => {
               const n = offsets[gi] + ci + 1;
               const Icon = c.icon;
