@@ -3,7 +3,7 @@
   "session": 1,
   "module": 3,
   "title": "Tablas que se señalan: llaves y relaciones",
-  "summary": "Llaves foráneas, JOIN y transacciones: cómo las tablas se conectan y cómo se guardan varios cambios juntos.",
+  "summary": "Por qué separar los datos en tablas, cómo se unen con llaves y qué es una transacción.",
   "estimatedMinutes": 13,
   "source": {
     "label": "Documentación de PostgreSQL · Llaves foráneas",
@@ -11,30 +11,61 @@
   },
   "steps": [
     {
-      "kind": "text",
+      "kind": "visual",
       "stage": "theory",
-      "title": "¿Por qué no una sola tabla gigante?",
-      "body": "Si cada matrícula copiara el nombre del curso, cambiarlo exigiría corregir cientos de filas.\n\nMejor: cada cosa en su tabla, y `matricula` solo guarda los `id` de **a quién** y **a qué** apunta."
+      "component": "split-tables",
+      "title": "¿Todo en una tabla o en varias?",
+      "caption": "Queremos guardar qué estudiante ve qué curso. El curso «Bases de Datos» cambia de nombre: **renómbralo** en las dos formas y cuenta cuántas filas tocas."
     },
     {
       "kind": "visual",
       "stage": "theory",
       "component": "relations",
       "title": "La llave foránea señala",
-      "caption": "Una **llave foránea** (FK) guarda la PK de otra tabla. Toca una matrícula o un estudiante."
+      "caption": "La tabla `matricula` no copia nombres: guarda el **id** del estudiante y el del curso. Esa columna se llama **llave foránea (FK)**. Toca una matrícula."
     },
     {
-      "kind": "text",
+      "kind": "visual",
       "stage": "theory",
-      "title": "Tipos de relación",
-      "body": "**1 a muchos:** un estudiante, muchas matrículas; la FK va en el lado «muchos».\n\n**Muchos a muchos:** estudiantes y cursos se unen con una tabla intermedia (`matricula`, con dos FK)."
+      "component": "code-explain",
+      "title": "Así se escribe la relación",
+      "caption": "La palabra clave es REFERENCES.",
+      "props": {
+        "language": "sql",
+        "lines": [
+          {
+            "code": "CREATE TABLE matricula (",
+            "say": "Crea la tabla que une estudiantes con cursos."
+          },
+          {
+            "code": "  id SERIAL PRIMARY KEY,",
+            "say": "Su propia llave primaria, como toda tabla."
+          },
+          {
+            "code": "  estudiante_id INTEGER REFERENCES estudiante(id),",
+            "say": "FK: guarda un id de estudiante. REFERENCES obliga a que ese estudiante exista."
+          },
+          {
+            "code": "  curso_id INTEGER REFERENCES curso(id),",
+            "say": "FK: guarda un id de curso que también debe existir."
+          },
+          {
+            "code": "  nota NUMERIC(2,1)",
+            "say": "La nota de esa matrícula, como 4.5."
+          },
+          {
+            "code": ");",
+            "say": "Un estudiante tiene muchas matrículas y un curso también: así se relacionan."
+          }
+        ]
+      }
     },
     {
-      "kind": "text",
+      "kind": "visual",
       "stage": "theory",
-      "title": "Transacciones: todo o nada",
-      "body": "Cambios que van juntos se agrupan en una **transacción**: `BEGIN` la abre, `COMMIT` guarda todo y `ROLLBACK` deshace todo.",
-      "image": "todo-o-nada"
+      "component": "transaction",
+      "title": "Transacción: todo o nada",
+      "caption": "Matricular a Ana son **dos cambios** que van juntos. Con **COMMIT** se guardan los dos; con **ROLLBACK** no queda ninguno. Prueba los dos botones."
     },
     {
       "kind": "visual",
@@ -43,35 +74,34 @@
       "props": {
         "queries": [
           "join",
-          "count",
           "insert-fk",
           "delete-fk"
         ],
         "table": "matricula"
       },
       "title": "Laboratorio 3 · Relaciones",
-      "caption": "`JOIN` une las tablas siguiendo las llaves. Luego intenta romper la FK: el error que ves es el mensaje real de PostgreSQL."
+      "caption": "**JOIN** junta las tablas siguiendo las llaves y muestra nombres en vez de números. Luego intenta romper una llave: el motor no te deja."
     },
     {
       "kind": "question",
       "stage": "practice",
-      "context": "La tabla `matricula` tiene `estudiante_id INTEGER REFERENCES estudiante(id)`. No existe ningún estudiante con `id` 99.",
-      "prompt": "¿Qué pasa con `INSERT INTO matricula (estudiante_id, curso_id) VALUES (99, 1);`?",
+      "context": "No existe ningún estudiante con `id` 99.",
+      "prompt": "¿Qué pasa si matriculas al estudiante 99 en un curso?",
       "options": [
         {
-          "text": "El motor la rechaza por la llave foránea",
+          "text": "El motor lo rechaza por la llave foránea",
           "correct": true,
-          "explanation": "La FK exige que el 99 exista en `estudiante.id`. Como no existe, el INSERT falla."
+          "explanation": "La FK exige que el estudiante 99 exista. Como no existe, no se guarda."
         },
         {
           "text": "Se guarda y el estudiante 99 se crea solo",
           "correct": false,
-          "explanation": "El motor nunca inventa filas. La FK solo comprueba que el padre exista."
+          "explanation": "El motor nunca inventa filas; solo revisa que existan."
         },
         {
-          "text": "Se guarda con `estudiante_id` en NULL",
+          "text": "Se guarda la matrícula, pero sin estudiante",
           "correct": false,
-          "explanation": "El motor no cambia tus valores: o guarda el 99 o rechaza la fila. Aquí la rechaza."
+          "explanation": "No: la FK impide guardar una matrícula que apunte a nadie."
         }
       ]
     },
@@ -87,30 +117,7 @@
         "table": "matricula"
       },
       "title": "Laboratorio 4 · Todo o nada",
-      "caption": "Con ROLLBACK, el DELETE que borró todo se deshace. Con COMMIT, los dos UPDATE quedan guardados juntos."
-    },
-    {
-      "kind": "question",
-      "stage": "practice",
-      "context": "Ejecutas `BEGIN;`, luego `UPDATE matricula SET nota = 5.0 WHERE id = 1;` y por último `ROLLBACK;`.",
-      "prompt": "¿Qué nota tiene al final la matrícula 1?",
-      "options": [
-        {
-          "text": "La que tenía antes del BEGIN",
-          "correct": true,
-          "explanation": "ROLLBACK deshace todo lo hecho desde BEGIN; la nota vuelve a su valor original."
-        },
-        {
-          "text": "5.0, porque el UPDATE ya corrió",
-          "correct": false,
-          "explanation": "Corrió dentro de la transacción, pero ROLLBACK la descartó: nunca se confirmó."
-        },
-        {
-          "text": "NULL, porque ROLLBACK la vacía",
-          "correct": false,
-          "explanation": "ROLLBACK no borra valores: devuelve los datos a como estaban antes de BEGIN."
-        }
-      ]
+      "caption": "Ejecuta «BEGIN … ROLLBACK»: dentro se borra todo, pero al final todo vuelve. Luego «BEGIN … COMMIT»: los cambios se quedan."
     }
   ]
 }

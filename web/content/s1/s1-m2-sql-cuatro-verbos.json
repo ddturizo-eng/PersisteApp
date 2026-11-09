@@ -3,7 +3,7 @@
   "session": 1,
   "module": 2,
   "title": "Cuatro verbos para hablarle a una tabla",
-  "summary": "SELECT, INSERT, UPDATE y DELETE ejecutados de verdad sobre PostgreSQL en tu navegador.",
+  "summary": "SELECT, INSERT, UPDATE y DELETE, primero animados y luego en PostgreSQL de verdad.",
   "estimatedMinutes": 15,
   "source": {
     "label": "Documentación de PostgreSQL · Consultar una tabla",
@@ -15,23 +15,59 @@
       "stage": "theory",
       "component": "crud-demo",
       "title": "CRUD: cuatro verbos",
-      "caption": "Leer, crear, cambiar y borrar: eso es **CRUD**. Elige un verbo y pulsa Ejecutar."
+      "caption": "Con los datos solo hacemos cuatro cosas: **leer, crear, cambiar y borrar**. Cada una es un verbo de SQL. Elige uno y pulsa Ejecutar."
     },
     {
-      "kind": "code",
+      "kind": "visual",
       "stage": "theory",
-      "mode": "read",
-      "language": "sql",
+      "component": "code-explain",
       "title": "Cómo se lee un SELECT",
-      "variants": {
-        "postgresql": "SELECT nombre, correo      -- 2. qué columnas\nFROM estudiante            -- 1. de qué tabla\nWHERE nacimiento >= '2004-01-01'  -- 3. qué filas\nORDER BY nombre;           -- 4. en qué orden"
+      "caption": "SELECT pide filas. Recorre las líneas.",
+      "props": {
+        "language": "sql",
+        "lines": [
+          {
+            "code": "SELECT nombre, correo",
+            "say": "Qué columnas quiero ver."
+          },
+          {
+            "code": "FROM estudiante",
+            "say": "De qué tabla."
+          },
+          {
+            "code": "WHERE id = 2",
+            "say": "Qué filas: solo la del estudiante con id 2."
+          },
+          {
+            "code": "ORDER BY nombre;",
+            "say": "En qué orden: alfabético por nombre."
+          }
+        ]
       }
     },
     {
-      "kind": "text",
+      "kind": "visual",
       "stage": "theory",
-      "title": "WHERE es el freno de mano",
-      "body": "En `UPDATE` y `DELETE`, el `WHERE` decide qué filas se tocan. **Sin WHERE, cambian o se borran todas.**\n\nFiltra por la llave primaria: `WHERE id = 1`."
+      "component": "code-explain",
+      "title": "WHERE: el freno de mano",
+      "caption": "En UPDATE y DELETE, WHERE elige qué filas se tocan.",
+      "props": {
+        "language": "sql",
+        "lines": [
+          {
+            "code": "UPDATE estudiante",
+            "say": "Voy a cambiar datos de la tabla estudiante."
+          },
+          {
+            "code": "SET correo = 'ana.t@unicesar.edu.co'",
+            "say": "El dato nuevo: este correo."
+          },
+          {
+            "code": "WHERE id = 1;",
+            "say": "Solo en la fila con id 1. ¡Sin esta línea se cambian TODOS los estudiantes!"
+          }
+        ]
+      }
     },
     {
       "kind": "visual",
@@ -46,28 +82,28 @@
         "table": "estudiante"
       },
       "title": "Laboratorio 1 · Leer",
-      "caption": "Esto es PostgreSQL de verdad, corriendo en tu navegador. Pulsa una consulta, ejecútala y luego cámbiala: prueba otro `id` o pide otra columna."
+      "caption": "Esto es PostgreSQL de verdad, en tu navegador. Pulsa un botón y luego **Ejecutar**. Después cambia el número del id y vuelve a ejecutar."
     },
     {
       "kind": "question",
       "stage": "practice",
-      "context": "Quieres el nombre de los estudiantes nacidos desde 2005 en adelante.",
+      "context": "Quieres ver solo el nombre de los estudiantes nacidos desde 2005.",
       "prompt": "¿Qué consulta lo hace?",
       "options": [
         {
           "text": "`SELECT nombre FROM estudiante WHERE nacimiento >= '2005-01-01';`",
           "correct": true,
-          "explanation": "`SELECT nombre` elige la columna y `WHERE` filtra las filas por la fecha."
+          "explanation": "SELECT elige la columna y WHERE filtra por la fecha."
         },
         {
           "text": "`SELECT * FROM estudiante ORDER BY nacimiento >= '2005-01-01';`",
           "correct": false,
-          "explanation": "`ORDER BY` solo ordena; no quita filas. Para filtrar se usa `WHERE`."
+          "explanation": "ORDER BY solo ordena; no quita filas. Para filtrar se usa WHERE."
         },
         {
           "text": "`SELECT nacimiento >= '2005-01-01' FROM estudiante nombre;`",
           "correct": false,
-          "explanation": "Las columnas van después de SELECT y la condición en WHERE; aquí están mezcladas."
+          "explanation": "Las columnas van tras SELECT y el filtro en WHERE; aquí están mezclados."
         }
       ]
     },
@@ -85,7 +121,7 @@
         "table": "estudiante"
       },
       "title": "Laboratorio 2 · Escribir",
-      "caption": "Ejecuta cada verbo y mira la tabla de abajo: las filas nuevas o cambiadas se resaltan. Prueba «UPDATE sin WHERE» y luego «Reiniciar datos»."
+      "caption": "Ejecuta cada verbo y mira la tabla de abajo: lo que cambió se pinta de amarillo. Prueba «UPDATE sin WHERE» y luego **Reiniciar datos**."
     },
     {
       "kind": "code",
@@ -93,15 +129,15 @@
       "mode": "fill",
       "language": "sql",
       "title": "Completa el UPDATE",
-      "context": "La estudiante con `id` 3 cambió de correo.",
-      "prompt": "Elige lo que falta para cambiar SOLO su correo.",
+      "context": "Sara (id 3) cambió de correo.",
+      "prompt": "Elige las palabras que faltan para cambiar SOLO su correo.",
       "variants": {
         "postgresql": "UPDATE estudiante\n{{1}} correo = 'sara.g@unicesar.edu.co'\n{{2}} id = 3;"
       },
       "gaps": [
         {
           "id": 1,
-          "label": "Palabra que asigna el valor",
+          "label": "Palabra que pone el dato nuevo",
           "answers": [
             "SET"
           ],
@@ -110,7 +146,7 @@
             "VALUES",
             "INTO"
           ],
-          "hint": "En UPDATE el valor nuevo va después de SET."
+          "hint": "En UPDATE, el dato nuevo va después de SET."
         },
         {
           "id": 2,
@@ -123,30 +159,7 @@
             "FROM",
             "ORDER BY"
           ],
-          "hint": "La condición que limita las filas empieza con WHERE."
-        }
-      ]
-    },
-    {
-      "kind": "question",
-      "stage": "practice",
-      "context": "Un compañero ejecuta `DELETE FROM estudiante;` en la base de la clase.",
-      "prompt": "¿Qué pasa?",
-      "options": [
-        {
-          "text": "Se borran todas las filas de la tabla",
-          "correct": true,
-          "explanation": "Sin WHERE, DELETE aplica a todas las filas. La tabla queda vacía (pero sigue existiendo)."
-        },
-        {
-          "text": "Se borra la tabla completa con su estructura",
-          "correct": false,
-          "explanation": "Eso lo hace `DROP TABLE`. DELETE quita filas; las columnas siguen ahí."
-        },
-        {
-          "text": "Da error porque falta la condición WHERE",
-          "correct": false,
-          "explanation": "WHERE es opcional: el motor no lo exige y obedece borrando todo."
+          "hint": "La fila se elige con WHERE."
         }
       ]
     }
