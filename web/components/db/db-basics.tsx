@@ -211,10 +211,10 @@ export function DbBasics() {
       <Card n={1} title="¿Qué es una base de datos?" line="Un lugar donde los datos sobreviven al programa, ordenados y con reglas.">
         <MemoryVsDisk />
       </Card>
-      <Card n={2} title="SQL es el idioma; PostgreSQL, el motor" line="El motor es el programa que guarda los datos. PostgreSQL y Oracle hablan SQL con pequeñas diferencias.">
+      <Card n={2} title="SQL es el idioma; PostgreSQL y Oracle, los motores" line="El motor es el programa que guarda los datos. PostgreSQL y Oracle hablan SQL con pequeñas diferencias.">
         <EngineCompare />
       </Card>
-      <Card n={3} title="Las cuatro consultas" line="Todo lo que haces con datos es leer, crear, cambiar o borrar (CRUD)." className="lg:col-span-2">
+      <Card n={3} title="Las cuatro consultas" line="Una consulta es una orden en SQL. Solo hay cuatro tipos: leer, crear, cambiar y borrar (CRUD)." className="lg:col-span-2">
         <CrudDemo />
       </Card>
       <Card n={4} title="Llaves: PK y FK" line="La llave primaria identifica una fila. La foránea apunta a otra.">

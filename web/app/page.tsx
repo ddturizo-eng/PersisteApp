@@ -7,6 +7,8 @@ import TextType from "@/components/bits/TextType";
 import Threads from "@/components/bits/Threads";
 import { TableAnatomy } from "@/components/db/table-anatomy";
 import { DbBasics } from "@/components/db/db-basics";
+import { ConceptCards } from "@/components/db/concept-cards";
+import { LazySqlLab } from "@/components/db/lazy-sql-lab";
 import { DoneBadge, ProgressSummary } from "@/components/progress";
 import { Reveal } from "@/components/landing/reveal";
 import { SystemMap } from "@/components/landing/system-map";
@@ -139,24 +141,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Database theory before the modules (author, 8 Nov 2026): short cards, each with a visual. */}
+      {/* Database theory before the modules (author, 8 Nov 2026): concepts, then a table, then demos, then a real editor. */}
       <section id="basico" aria-labelledby="basico-titulo" className="scroll-mt-6 py-16 lg:py-24">
         <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
           <Reveal>
-            <SectionHeading id="basico-titulo" title="Antes de los módulos," accent="lo básico">
-              Cinco ideas de bases de datos en cinco tarjetas. Toca, ejecuta y mira qué pasa.
+            <SectionHeading id="basico-titulo" title="1. Primero," accent="los conceptos">
+              Diez palabras que vas a oír toda la clase. Cada una en una línea, con un ejemplo.
             </SectionHeading>
           </Reveal>
-          <DbBasics />
+          <ConceptCards />
         </div>
       </section>
 
-      {/* First concept: a table students can explore. */}
       <section id="conceptos" aria-labelledby="tabla" className="scroll-mt-6 bg-card/60 py-16 lg:py-24">
         <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
           <Reveal>
-            <SectionHeading id="tabla" title="Primero, conoce" accent="la tabla">
-              La tabla estudiante guarda una fila por persona. Toca una columna, una fila o una celda para descubrir cómo se organizan los datos.
+            <SectionHeading id="tabla" title="2. Así se ve" accent="una tabla">
+              Esta es la tabla estudiante: cada fila es un estudiante y cada columna un dato. Toca una columna, una fila o una celda.
             </SectionHeading>
           </Reveal>
           <Reveal>
@@ -165,11 +166,33 @@ export default function Home() {
         </div>
       </section>
 
+      <section aria-labelledby="demos" className="py-16 lg:py-24">
+        <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
+          <Reveal>
+            <SectionHeading id="demos" title="3. Míralos" accent="funcionar">
+              Los mismos conceptos, en movimiento. Toca los botones y mira qué pasa.
+            </SectionHeading>
+          </Reveal>
+          <DbBasics />
+        </div>
+      </section>
+
+      <section id="editor" aria-labelledby="editor-titulo" className="scroll-mt-6 bg-card/60 py-16 lg:py-24">
+        <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
+          <Reveal>
+            <SectionHeading id="editor-titulo" title="4. Pruébalo tú:" accent="un editor SQL">
+              Escribe una consulta o pulsa una de las preparadas. La respuesta la da un PostgreSQL real.
+            </SectionHeading>
+          </Reveal>
+          <LazySqlLab />
+        </div>
+      </section>
+
       {/* The system journey follows the database basics. */}
       <section aria-labelledby="piezas" className="py-16 lg:py-24">
         <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
           <Reveal className="grid items-end gap-8 lg:grid-cols-[1fr_auto]">
-            <SectionHeading id="piezas" title="Después, sigue" accent="la consulta">
+            <SectionHeading id="piezas" title="5. De Java al motor:" accent="el viaje de una consulta">
               Java pide datos de estudiante. El driver lleva la petición al motor y trae las filas de vuelta. Envía una consulta para ver el recorrido.
             </SectionHeading>
           </Reveal>

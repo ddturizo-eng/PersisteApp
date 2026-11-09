@@ -130,7 +130,7 @@ export function CrudDemo() {
         <ExecutionBadge kind="simulated" className="ml-auto" />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className={cn("grid gap-3", result && "sm:grid-cols-2")}>
         <MiniTable title="estudiante" rows={rows} touched={touched} removed={removed} />
         {result && <MiniTable title="resultado" rows={result} touched={[]} removed={[]} />}
       </div>
@@ -145,35 +145,37 @@ function MiniTable({ title, rows, touched, removed }: { title: string; rows: R[]
   return (
     <figure className="min-w-0">
       <figcaption className="inline-flex rounded-t-xl border-2 border-b-0 border-foreground bg-sun px-3 py-0.5 font-mono text-xs font-semibold text-sun-foreground">{title}</figcaption>
-      <table className="w-full overflow-hidden rounded-tr-xl rounded-b-xl border-2 border-foreground bg-card text-left font-mono text-sm">
-        <thead>
-          <tr className="border-b-2 border-foreground bg-muted">
-            <th className="px-3 py-1.5">
-              <span className="inline-flex items-center gap-1">
-                <KeyRound aria-label="llave primaria" className="size-3.5" /> id
-              </span>
-            </th>
-            <th className="px-3 py-1.5">nombre</th>
-            <th className="px-3 py-1.5">semestre</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr
-              key={r.id}
-              className={cn(
-                "border-b border-border transition-all duration-500 last:border-b-0",
-                touched.includes(r.id) && "bg-sun text-sun-foreground",
-                removed.includes(r.id) && "bg-destructive/30 line-through opacity-40"
-              )}
-            >
-              <td className="px-3 py-1.5">{r.id}</td>
-              <td className="px-3 py-1.5">{r.nombre}</td>
-              <td className="px-3 py-1.5">{r.semestre}</td>
+      <div className="overflow-hidden rounded-tr-xl rounded-b-xl border-2 border-foreground bg-card">
+        <table className="w-full text-left font-mono text-sm">
+          <thead>
+            <tr className="border-b-2 border-foreground bg-muted">
+              <th className="px-3 py-1.5">
+                <span className="inline-flex items-center gap-1">
+                  <KeyRound aria-label="llave primaria" className="size-3.5" /> id
+                </span>
+              </th>
+              <th className="px-3 py-1.5">nombre</th>
+              <th className="px-3 py-1.5">semestre</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr
+                key={r.id}
+                className={cn(
+                  "border-b border-border transition-all duration-500 last:border-b-0",
+                  touched.includes(r.id) && "bg-sun text-sun-foreground",
+                  removed.includes(r.id) && "bg-destructive/30 line-through opacity-40"
+                )}
+              >
+                <td className="px-3 py-1.5">{r.id}</td>
+                <td className="px-3 py-1.5">{r.nombre}</td>
+                <td className="px-3 py-1.5">{r.semestre}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </figure>
   );
 }
