@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Lexend } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { ExpositionExit, ExpositionShortcut } from "@/components/exposition";
 import { Providers } from "@/components/providers";
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             {children}
           </div>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
