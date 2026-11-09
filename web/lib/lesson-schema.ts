@@ -10,7 +10,7 @@ import { illustrationNames } from "@/lib/illustrations";
 export const engines = ["oracle", "postgresql"] as const;
 /** Theory first, then practice (constitution P6, REQ-26). The scored quiz is the session's final quiz. */
 export const stages = ["theory", "practice"] as const;
-export const simulators = ["pool", "pool-simulator", "injection", "mirror", "system-map", "request-tracer", "spring-map", "table-anatomy", "sql-lab", "relations", "table-class", "row-mapper", "crud-demo"] as const;
+export const simulators = ["pool", "pool-simulator", "injection", "mirror", "system-map", "request-tracer", "spring-map", "table-anatomy", "sql-lab", "relations", "table-class", "row-mapper", "crud-demo", "code-explain", "split-tables"] as const;
 
 export const stageLabels: Record<(typeof stages)[number], string> = {
   theory: "Teoría",
@@ -38,14 +38,32 @@ const textStep = z.object({
   image: z.enum(illustrationNames).optional(),
 });
 
-const visualStep = z.object({
-  kind: z.literal("visual"),
-  stage,
-  component: z.enum(simulators),
-  props: z.record(z.string(), z.unknown()).optional(),
-  title: text.optional(),
-  caption: text,
+/** Props of the `code-explain` visual (specs/04 §7): every line says what it does. */
+export const codeExplainProps = z.object({
+  language: z.enum(["java", "sql"]).optional(),
+  lines: z
+    .array(z.object({ code: z.string(), say: z.string() }))
+    .min(2, "entre 2 y 10 líneas")
+    .max(10, "entre 2 y 10 líneas")
+    .refine((lines) => lines.some((l) => l.say.trim()), "al menos una línea debe tener explicación"),
 });
+
+const visualStep = z
+  .object({
+    kind: z.literal("visual"),
+    stage,
+    component: z.enum(simulators),
+    props: z.record(z.string(), z.unknown()).optional(),
+    title: text.optional(),
+    caption: text,
+  })
+  .superRefine((step, ctx) => {
+    if (step.component !== "code-explain") return;
+    const result = codeExplainProps.safeParse(step.props);
+    if (!result.success) {
+      for (const issue of result.error.issues) ctx.addIssue({ code: "custom", path: ["props", ...issue.path.map(String)], message: issue.message });
+    }
+  });
 
 const choice = z.object({
   text,

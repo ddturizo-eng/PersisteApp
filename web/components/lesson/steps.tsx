@@ -27,6 +27,8 @@ import { RelationsMap } from "@/components/db/relations-map";
 import { TableClass } from "@/components/db/table-class";
 import { RowMapper } from "@/components/db/row-mapper";
 import { CrudDemo } from "@/components/db/crud-demo";
+import { CodeExplain, type ExplainedLine } from "@/components/db/code-explain";
+import { SplitTables } from "@/components/db/split-tables";
 import type { TableName } from "@/lib/sample-db";
 import { illustrations, illustrationSrc, type IllustrationName } from "@/lib/illustrations";
 
@@ -135,6 +137,10 @@ export function VisualStep({ step, headingRef }: { step: StepOf<"visual">; headi
       <RelationsMap />
     ) : step.component === "table-class" ? (
       <TableClass table={typeof step.props?.table === "string" ? (step.props.table as TableName) : undefined} />
+    ) : step.component === "code-explain" ? (
+      <CodeExplain lines={(step.props?.lines as ExplainedLine[]) ?? []} language={step.props?.language === "sql" ? "sql" : "java"} />
+    ) : step.component === "split-tables" ? (
+      <SplitTables />
     ) : step.component === "crud-demo" ? (
       <CrudDemo />
     ) : step.component === "row-mapper" ? (

@@ -176,3 +176,38 @@ Reglas de contenido para ambos: frases cortas, una idea por paso, cada lección 
 
 - **`web/app/page.tsx`**: Claude Code insertó la sección `#basico` («Antes de los módulos, lo básico», componente `DbBasics`) antes de `#conceptos`, y el botón del hero ahora apunta a `#basico`. **Consérvala** al seguir editando la landing; no reescribas el archivo entero.
 - Nuevo simulador disponible: `crud-demo` (los 4 verbos animados, sin props).
+
+## 7. Ronda 2 (8 nov, noche): todo explicable como una presentación
+
+Pedido del autor tras revisar: muy sencillo de explicar, cada pantalla con algo que se toca, nada sin contexto.
+
+### Reglas de contenido (para los dos agentes)
+
+1. **Nunca código suelto.** Todo código va en el visual `code-explain`: cada línea tiene su explicación en palabras simples. Si un paso `code` de lectura queda, su paso siguiente lo explica con `code-explain` o se reemplaza.
+2. **Nunca un término sin explicar.** La primera vez que aparece `executeQuery()`, `ResultSet`, `PreparedStatement`, `driver`, `FK`… se dice qué es en una frase de la vida real («`executeQuery()` = "envía este SELECT y tráeme las filas"»).
+3. **Nunca solo texto.** Un paso `text` lleva `image` o va seguido de un visual que lo muestre. Máximo 2 párrafos cortos (≈ 45 palabras en total).
+4. **Siempre contexto concreto.** Todo ejemplo usa estudiante, curso y matrícula de la Unicesar. Nada de frases abstractas («¿por qué no una sola tabla gigante?» sin mostrar la tabla).
+5. **Solo PostgreSQL y Oracle.** Sin MySQL ni otros motores.
+6. **Un módulo = una presentación de 6–8 pasos**: teoría con visual → práctica corta (1–2 preguntas o un ejercicio con selector).
+
+### Visual nuevo para ambos: `code-explain`
+
+```json
+{ "kind": "visual", "stage": "theory", "component": "code-explain",
+  "title": "…", "caption": "Toca cada línea.",
+  "props": { "language": "java", "lines": [
+    { "code": "ResultSet rs = ps.executeQuery();", "say": "Envía el SELECT al motor y guarda las filas que vuelven en rs, una tabla que se lee de arriba abajo." }
+  ] } }
+```
+
+- `language`: `"java"` o `"sql"`. `lines`: 2–10 líneas; `say` ≤ 25 palabras, sin jerga nueva.
+- Una línea vacía o `}` puede llevar `"say": ""` (no se puede tocar).
+
+### División
+
+| Agente | Qué |
+|---|---|
+| **Claude Code** | `code-explain`, visual `split-tables` (tabla gigante frente a tablas separadas), tarjetas de la landing (sin MySQL, mejor cuadradas), reescribir módulos 1–3 |
+| **Codex** | Reescribir módulos 4–6 con las reglas: todo código a `code-explain`, explicar cada término Java la primera vez, quitar pasos de solo texto; revisar `system-map` (textos de las 4 piezas en lenguaje simple, sin nombres de clases del CRUD viejo como `ProductRepository`) y `TableAnatomy`/`SystemMap` en la landing si algo queda técnico |
+
+Codex: espera a que exista `web/components/db/code-explain.tsx` (Claude Code lo commitea primero, `feat(db): code-explain`); mientras tanto puedes escribir el JSON, el build lo valida igual.
