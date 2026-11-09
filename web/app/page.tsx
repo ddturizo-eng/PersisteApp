@@ -103,13 +103,27 @@ export default function Home() {
                 Ver los conceptos <ArrowDown aria-hidden="true" className="size-4" />
               </a>
             </div>
-            <dl className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 text-sm text-muted-foreground">
-              <dt>Docente:</dt>
-              <dd>
-                {site.teacher.title} {site.teacher.name}
-              </dd>
-              <dt>Autor:</dt>
-              <dd>{site.author.name}</dd>
+            <dl className="flex flex-col gap-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <dt className="shrink-0">Docente:</dt>
+                <dd>{site.teacher.title} {site.teacher.name}</dd>
+              </div>
+              <div className="flex items-center gap-2">
+                <dt className="shrink-0">Autor:</dt>
+                <dd className="min-w-0">
+                  <a
+                    href={site.author.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-2xl border border-primary/20 bg-card/80 px-3 py-2 font-medium text-foreground outline-none transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary focus-visible:ring-4 focus-visible:ring-ring/40"
+                  >
+                    <GithubMark className="size-4 shrink-0 text-primary" />
+                    <span>{site.author.name}</span>
+                    <ArrowRight aria-hidden="true" className="size-3.5 shrink-0 -rotate-45 text-primary" />
+                    <span className="sr-only"> — GitHub (se abre en otra pestaña)</span>
+                  </a>
+                </dd>
+              </div>
             </dl>
           </div>
           <div className="relative mx-auto w-full max-w-xs sm:max-w-sm lg:max-w-md">
