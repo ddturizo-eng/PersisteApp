@@ -42,7 +42,7 @@ export function TableClass({ table = "estudiante" }: { table?: TableName }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-[1.2fr_auto_1fr] md:items-start">
+      <div className="grid gap-4 xl:grid-cols-[1.2fr_auto_1fr] xl:items-start">
         <TableCard
           name={t.name}
           compact
@@ -53,9 +53,9 @@ export function TableClass({ table = "estudiante" }: { table?: TableName }) {
           onColumn={(name) => setColumn((v) => (v === name ? null : name))}
           onRow={(i) => setRow((v) => (v === i ? null : i))}
         />
-        <div aria-hidden="true" className="grid place-items-center text-muted-foreground md:pt-16">
-          <ArrowRight className="hidden size-6 md:block" />
-          <ArrowDown className="size-6 md:hidden" />
+        <div aria-hidden="true" className="grid place-items-center text-muted-foreground xl:pt-16">
+          <ArrowRight className="hidden size-6 xl:block" />
+          <ArrowDown className="size-6 xl:hidden" />
         </div>
         <figure className="min-w-0">
           <div className="inline-flex rounded-t-2xl border-2 border-b-0 border-foreground bg-primary px-4 py-1.5 font-mono text-sm font-semibold text-primary-foreground">
