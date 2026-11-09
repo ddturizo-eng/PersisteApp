@@ -5,35 +5,155 @@
   "title": "De la tabla a la clase",
   "summary": "Convierte las filas de estudiante y matricula en objetos que Java puede usar.",
   "estimatedMinutes": 15,
-  "source": { "label": "Oracle Java Tutorials · ResultSet", "url": "https://docs.oracle.com/javase/tutorial/jdbc/basics/retrieving.html" },
+  "source": {
+    "label": "Oracle Java Tutorials · ResultSet",
+    "url": "https://docs.oracle.com/javase/tutorial/jdbc/basics/retrieving.html"
+  },
   "steps": [
-    { "kind": "text", "stage": "theory", "title": "La lista de estudiantes en Java", "body": "La tabla `estudiante` se parece a una lista de fichas. En Java, una **clase** es el molde de una ficha: `Estudiante`. Cada fila es un **objeto**, una ficha concreta como Ana Torres. Cada columna se vuelve un **atributo**, un dato de la ficha." },
-    { "kind": "visual", "stage": "theory", "component": "table-class", "props": { "table": "estudiante" }, "title": "Toca una columna", "caption": "Señala `nombre` o una fila de Ana Torres. Mira el dato correspondiente en la clase Estudiante." },
-    { "kind": "text", "stage": "theory", "title": "Una matrícula señala dos fichas", "body": "En `matricula`, `estudiante_id` señala a Ana en `estudiante` y `curso_id` señala su curso. Esas son **llaves foráneas**: números que apuntan a otra tabla, como una referencia en una ficha. Sin ORM, tú decides representarlas en Java como `estudianteId` y `cursoId`." },
-    { "kind": "visual", "stage": "theory", "component": "table-class", "props": { "table": "matricula" }, "title": "Sigue una referencia", "caption": "Toca `curso_id` y mira `cursoId`. Toca una fila para convertir esa matrícula en objeto." },
-    { "kind": "visual", "stage": "theory", "component": "code-explain", "title": "El molde Estudiante", "caption": "Toca cada línea: verás cómo se elige el tipo de cada dato.", "props": { "language": "java", "lines": [
-      { "code": "class Estudiante {", "say": "Esta clase es el molde para una ficha de estudiante, como un formulario vacío." },
-      { "code": "    int id;", "say": "INTEGER o SERIAL se representa con int: un número entero. id identifica una ficha sin repetirla." },
-      { "code": "    String nombre;", "say": "VARCHAR se representa con String: texto, como el nombre Ana Torres." },
-      { "code": "    String correo;", "say": "El correo también es texto; por eso usa String." },
-      { "code": "    LocalDate nacimiento;", "say": "DATE se representa con LocalDate: una fecha del calendario, como el día de nacimiento." },
-      { "code": "}", "say": "" }
-    ] } },
-    { "kind": "visual", "stage": "theory", "component": "code-explain", "title": "Nombres que coinciden", "caption": "Toca cada nombre. Sin ORM, mantenerlos parecidos ayuda a encontrar la columna correcta.", "props": { "language": "java", "lines": [
-      { "code": "class Estudiante {", "say": "La clase Estudiante representa la tabla estudiante. Cambia la inicial a mayúscula para reconocer el mismo concepto en Java." },
-      { "code": "    String nombre;", "say": "El atributo nombre conserva el nombre de la columna nombre; así sabes qué dato copiar de la fila." },
-      { "code": "    LocalDate nacimiento;", "say": "nacimiento se llama igual en la tabla y en la clase; es la fecha de esa misma persona." },
-      { "code": "}", "say": "" },
-      { "code": "class Matricula {", "say": "La clase Matricula representa la tabla matricula: una ficha de inscripción a un curso." },
-      { "code": "    int cursoId;", "say": "cursoId representa curso_id. Java junta las palabras y usa mayúscula en Id; sigue siendo el número del curso señalado." },
-      { "code": "}", "say": "" },
-      { "code": "String nombre = rs.getString(\"nombre\");", "say": "El texto entre comillas debe coincidir con la columna nombre. Si escribes otro nombre, Java no encuentra ese dato." }
-    ] } },
-    { "kind": "visual", "stage": "practice", "component": "table-class", "props": { "table": "estudiante" }, "title": "Convierte a Ana y vuelve", "caption": "Elige la fila de Ana Torres. Conviértela en objeto Estudiante y después en fila otra vez." },
-    { "kind": "question", "stage": "practice", "context": "En la fila de Ana Torres, la columna `nombre` guarda texto.", "prompt": "¿Qué tipo de Java usarías para el atributo nombre?", "options": [
-      { "text": "String, porque es texto", "correct": true, "explanation": "String guarda texto, como el nombre de Ana." },
-      { "text": "int, porque es un número", "correct": false, "explanation": "int sirve para números enteros, como id." },
-      { "text": "LocalDate, porque es fecha", "correct": false, "explanation": "LocalDate sirve para nacimiento, no para nombre." }
-    ] }
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "De la tabla a Java: tres equivalencias",
+      "body": "Lo que en la base de datos es una tabla, en Java es una clase. Solo hay que recordar tres parejas:\n\n**Tabla → Clase.** La tabla `estudiante` se vuelve la clase `Estudiante`: el molde.\n\n**Fila → Objeto.** La fila de Ana se vuelve un objeto: un estudiante concreto.\n\n**Columna → Atributo.** La columna `nombre` se vuelve el atributo `nombre`."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "table-class",
+      "props": {
+        "table": "estudiante"
+      },
+      "title": "Toca una columna",
+      "caption": "Señala `nombre` o una fila de Ana Torres. Mira el dato correspondiente en la clase Estudiante."
+    },
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "Una matrícula señala dos fichas",
+      "body": "En `matricula`, `estudiante_id` señala a Ana en `estudiante` y `curso_id` señala su curso. Esas son **llaves foráneas**: números que apuntan a otra tabla, como una referencia en una ficha. Sin ORM, tú decides representarlas en Java como `estudianteId` y `cursoId`."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "table-class",
+      "props": {
+        "table": "matricula"
+      },
+      "title": "Sigue una referencia",
+      "caption": "Toca `curso_id` y mira `cursoId`. Toca una fila para convertir esa matrícula en objeto."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "code-explain",
+      "title": "El molde Estudiante",
+      "caption": "Toca cada línea: verás cómo se elige el tipo de cada dato.",
+      "props": {
+        "language": "java",
+        "lines": [
+          {
+            "code": "class Estudiante {",
+            "say": "Esta clase es el molde para una ficha de estudiante, como un formulario vacío."
+          },
+          {
+            "code": "    int id;",
+            "say": "INTEGER o SERIAL se representa con int: un número entero. id identifica una ficha sin repetirla."
+          },
+          {
+            "code": "    String nombre;",
+            "say": "VARCHAR se representa con String: texto, como el nombre Ana Torres."
+          },
+          {
+            "code": "    String correo;",
+            "say": "El correo también es texto; por eso usa String."
+          },
+          {
+            "code": "    LocalDate nacimiento;",
+            "say": "DATE se representa con LocalDate: una fecha del calendario, como el día de nacimiento."
+          },
+          {
+            "code": "}",
+            "say": ""
+          }
+        ]
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "code-explain",
+      "title": "Nombres que coinciden",
+      "caption": "Toca cada nombre. Sin ORM, mantenerlos parecidos ayuda a encontrar la columna correcta.",
+      "props": {
+        "language": "java",
+        "lines": [
+          {
+            "code": "class Estudiante {",
+            "say": "La clase Estudiante representa la tabla estudiante. Cambia la inicial a mayúscula para reconocer el mismo concepto en Java."
+          },
+          {
+            "code": "    String nombre;",
+            "say": "El atributo nombre conserva el nombre de la columna nombre; así sabes qué dato copiar de la fila."
+          },
+          {
+            "code": "    LocalDate nacimiento;",
+            "say": "nacimiento se llama igual en la tabla y en la clase; es la fecha de esa misma persona."
+          },
+          {
+            "code": "}",
+            "say": ""
+          },
+          {
+            "code": "class Matricula {",
+            "say": "La clase Matricula representa la tabla matricula: una ficha de inscripción a un curso."
+          },
+          {
+            "code": "    int cursoId;",
+            "say": "cursoId representa curso_id. Java junta las palabras y usa mayúscula en Id; sigue siendo el número del curso señalado."
+          },
+          {
+            "code": "}",
+            "say": ""
+          },
+          {
+            "code": "String nombre = rs.getString(\"nombre\");",
+            "say": "El texto entre comillas debe coincidir con la columna nombre. Si escribes otro nombre, Java no encuentra ese dato."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
+      "component": "table-class",
+      "props": {
+        "table": "estudiante"
+      },
+      "title": "Convierte a Ana y vuelve",
+      "caption": "Elige la fila de Ana Torres. Conviértela en objeto Estudiante y después en fila otra vez."
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "En la fila de Ana Torres, la columna `nombre` guarda texto.",
+      "prompt": "¿Qué tipo de Java usarías para el atributo nombre?",
+      "options": [
+        {
+          "text": "String, porque es texto",
+          "correct": true,
+          "explanation": "String guarda texto, como el nombre de Ana."
+        },
+        {
+          "text": "int, porque es un número",
+          "correct": false,
+          "explanation": "int sirve para números enteros, como id."
+        },
+        {
+          "text": "LocalDate, porque es fecha",
+          "correct": false,
+          "explanation": "LocalDate sirve para nacimiento, no para nombre."
+        }
+      ]
+    }
   ]
 }
