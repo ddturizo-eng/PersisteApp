@@ -1,0 +1,183 @@
+{
+  "id": "s1-m3-llaves-y-relaciones",
+  "session": 1,
+  "module": 3,
+  "title": "Tablas que se señalan: llaves y relaciones",
+  "summary": "Por qué separar los datos en tablas, cómo se unen con llaves y qué es una transacción.",
+  "estimatedMinutes": 15,
+  "source": {
+    "label": "Documentación de PostgreSQL · Llaves foráneas",
+    "url": "https://www.postgresql.org/docs/current/tutorial-fk.html"
+  },
+  "steps": [
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "split-tables",
+      "title": "¿Todo en una tabla o en varias?",
+      "caption": "Queremos guardar qué estudiante ve qué curso. El curso «Bases de Datos» cambia de nombre: **renómbralo** en las dos formas y cuenta cuántas filas tocas."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "relations",
+      "title": "La llave foránea señala",
+      "caption": "La tabla `matricula` no copia nombres: guarda el **id** del estudiante y el del curso. Esa columna se llama **llave foránea (FK)**. Toca una matrícula."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "code-explain",
+      "title": "Así se escribe la relación",
+      "caption": "La palabra clave es REFERENCES.",
+      "props": {
+        "language": "sql",
+        "lines": [
+          {
+            "code": "CREATE TABLE matricula (",
+            "say": "Crea la tabla que une estudiantes con cursos."
+          },
+          {
+            "code": "  id SERIAL PRIMARY KEY,",
+            "say": "Su propia llave primaria, como toda tabla."
+          },
+          {
+            "code": "  estudiante_id INTEGER REFERENCES estudiante(id),",
+            "say": "FK: guarda un id de estudiante. REFERENCES obliga a que ese estudiante exista."
+          },
+          {
+            "code": "  curso_id INTEGER REFERENCES curso(id),",
+            "say": "FK: guarda un id de curso que también debe existir."
+          },
+          {
+            "code": "  nota NUMERIC(2,1)",
+            "say": "La nota de esa matrícula, como 4.5."
+          },
+          {
+            "code": ");",
+            "say": "Un estudiante tiene muchas matrículas y un curso también: así se relacionan."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "transaction",
+      "title": "Transacción: todo o nada",
+      "caption": "Matricular a Ana son **dos cambios** que van juntos. Con **COMMIT** se guardan los dos; con **ROLLBACK** no queda ninguno. Prueba los dos botones."
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
+      "component": "code-explain",
+      "title": "JOIN: juntar dos tablas",
+      "caption": "La matrícula solo tiene números. JOIN busca el nombre que corresponde a cada número.",
+      "props": {
+        "language": "sql",
+        "lines": [
+          {
+            "code": "SELECT e.nombre AS estudiante, m.nota",
+            "say": "Muéstrame el nombre del estudiante y la nota. AS le pone un nombre más claro a la columna del resultado."
+          },
+          {
+            "code": "FROM matricula m",
+            "say": "Empieza en la tabla matricula. La m es un apodo corto para no escribir «matricula» cada vez."
+          },
+          {
+            "code": "JOIN estudiante e",
+            "say": "Júntala con la tabla estudiante (apodo e)."
+          },
+          {
+            "code": "  ON e.id = m.estudiante_id",
+            "say": "ON dice cómo se unen: la PK del estudiante igual a la FK de la matrícula."
+          },
+          {
+            "code": "ORDER BY e.nombre;",
+            "say": "Ordena el resultado por el nombre del estudiante."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
+      "component": "sql-lab",
+      "props": {
+        "queries": [
+          "join",
+          "insert-fk",
+          "delete-fk"
+        ],
+        "table": "matricula"
+      },
+      "title": "Laboratorio 3 · Relaciones",
+      "caption": "Ejecuta «JOIN»: ahora ves nombres en vez de números. Luego intenta matricular a un estudiante que no existe: el motor no te deja."
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "No existe ningún estudiante con `id` 99.",
+      "prompt": "¿Qué pasa si matriculas al estudiante 99 en un curso?",
+      "options": [
+        {
+          "text": "El motor lo rechaza por la llave foránea",
+          "correct": true,
+          "explanation": "La FK exige que el estudiante 99 exista. Como no existe, no se guarda."
+        },
+        {
+          "text": "Se guarda y el estudiante 99 se crea solo",
+          "correct": false,
+          "explanation": "El motor nunca inventa filas; solo revisa que existan."
+        },
+        {
+          "text": "Se guarda la matrícula, pero sin estudiante",
+          "correct": false,
+          "explanation": "No: la FK impide guardar una matrícula que apunte a nadie."
+        }
+      ]
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
+      "component": "code-explain",
+      "title": "BEGIN, COMMIT y ROLLBACK",
+      "caption": "Tres palabras para la transacción del paso 4.",
+      "props": {
+        "language": "sql",
+        "lines": [
+          {
+            "code": "BEGIN;",
+            "say": "Abre la transacción: «lo que siga, guárdalo todo junto o nada»."
+          },
+          {
+            "code": "UPDATE matricula SET nota = 5.0 WHERE id = 1;",
+            "say": "Un cambio. Todavía no es definitivo: está «en borrador»."
+          },
+          {
+            "code": "ROLLBACK;",
+            "say": "Deshace todo desde BEGIN. La nota vuelve a como estaba."
+          },
+          {
+            "code": "-- o bien: COMMIT;",
+            "say": "COMMIT, en cambio, guarda todo de forma definitiva."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
+      "component": "sql-lab",
+      "props": {
+        "queries": [
+          "tx-rollback",
+          "tx-commit"
+        ],
+        "table": "matricula"
+      },
+      "title": "Laboratorio 4 · Todo o nada",
+      "caption": "Ejecuta «BEGIN … ROLLBACK»: dentro se borra todo, pero al final todo vuelve. Luego «BEGIN … COMMIT»: los cambios se quedan."
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { CircleCheck, ClipboardCheck, Menu, X } from "lucide-react";
+import { CircleCheck, Menu, X } from "lucide-react";
 import { cn } from "cn";
 import { useCompletedLessons } from "@/components/progress";
 
@@ -162,16 +162,6 @@ export function ModulesMenu({ modules }: { modules: MenuModule[] }) {
               );
             })}
           </ol>
-          <div className="shrink-0 border-t p-3">
-            <Link
-              href="/s1/quiz"
-              onClick={() => setOpen(false)}
-              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground outline-none focus-visible:ring-4 focus-visible:ring-ring/40"
-            >
-              <ClipboardCheck aria-hidden="true" className="size-4" />
-              Ir al quiz final
-            </Link>
-          </div>
         </nav>
       </dialog>
     </>

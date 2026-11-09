@@ -21,6 +21,16 @@ import { MirrorSimulator } from "@/components/lesson/mirror-simulator";
 import { AttentionNote, CodeRefs } from "@/components/lesson/code-refs";
 import { SafeQueryDemo } from "@/components/landing/safe-query-demo";
 import { SystemMap } from "@/components/landing/system-map";
+import { TableAnatomy } from "@/components/db/table-anatomy";
+import { SqlLab } from "@/components/db/sql-lab";
+import { RelationsMap } from "@/components/db/relations-map";
+import { TableClass } from "@/components/db/table-class";
+import { RowMapper } from "@/components/db/row-mapper";
+import { CrudDemo } from "@/components/db/crud-demo";
+import { CodeExplain, type ExplainedLine } from "@/components/db/code-explain";
+import { SplitTables } from "@/components/db/split-tables";
+import { AllOrNothing, EngineCompare, MemoryVsDisk } from "@/components/db/db-basics";
+import type { TableName } from "@/lib/sample-db";
 import { illustrations, illustrationSrc, type IllustrationName } from "@/lib/illustrations";
 
 type StepOf<K extends Step["kind"]> = Extract<Step, { kind: K }>;
@@ -119,6 +129,31 @@ export function VisualStep({ step, headingRef }: { step: StepOf<"visual">; headi
       <PoolSimulator />
     ) : step.component === "mirror" ? (
       <MirrorSimulator mode={step.props?.mode === "autocommit" ? "autocommit" : undefined} />
+    ) : step.component === "sql-lab" ? (
+      <SqlLab
+        queries={Array.isArray(step.props?.queries) ? (step.props.queries as string[]) : undefined}
+        table={typeof step.props?.table === "string" ? (step.props.table as TableName) : undefined}
+      />
+    ) : step.component === "relations" ? (
+      <RelationsMap />
+    ) : step.component === "table-class" ? (
+      <TableClass table={typeof step.props?.table === "string" ? (step.props.table as TableName) : undefined} />
+    ) : step.component === "code-explain" ? (
+      <CodeExplain lines={(step.props?.lines as ExplainedLine[]) ?? []} language={step.props?.language === "sql" ? "sql" : "java"} />
+    ) : step.component === "memory-disk" ? (
+      <MemoryVsDisk />
+    ) : step.component === "engines" ? (
+      <EngineCompare />
+    ) : step.component === "transaction" ? (
+      <AllOrNothing />
+    ) : step.component === "split-tables" ? (
+      <SplitTables />
+    ) : step.component === "crud-demo" ? (
+      <CrudDemo />
+    ) : step.component === "row-mapper" ? (
+      <RowMapper />
+    ) : step.component === "table-anatomy" ? (
+      <TableAnatomy />
     ) : step.component === "spring-map" ? (
       <SpringMap />
     ) : step.component === "injection" ? (

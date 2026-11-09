@@ -1,17 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, ArrowRight, BookOpen, Clock, ListChecks, PencilLine, Star } from "lucide-react";
+import { ArrowDown, ArrowRight, BookOpen, Clock, PencilLine, Star } from "lucide-react";
 import { cn } from "cn";
 import SplitText from "@/components/bits/SplitText";
 import TextType from "@/components/bits/TextType";
 import Threads from "@/components/bits/Threads";
-import { PoolDemo } from "@/components/landing/pool-demo";
+import { TableAnatomy } from "@/components/db/table-anatomy";
+import { DbBasics } from "@/components/db/db-basics";
+import { ConceptCards } from "@/components/db/concept-cards";
+import { LazySqlLab } from "@/components/db/lazy-sql-lab";
 import { DoneBadge, ProgressSummary } from "@/components/progress";
 import { Reveal } from "@/components/landing/reveal";
-import { SafeQueryDemo } from "@/components/landing/safe-query-demo";
 import { SystemMap } from "@/components/landing/system-map";
 import { lessonsForSession } from "@/lib/content";
-import { courseStops, finalQuiz } from "@/lib/course";
+import { courseStops } from "@/lib/course";
 import { site } from "@/lib/site";
 
 const stopColors = ["bg-secondary", "bg-accent text-accent-foreground", "bg-sun text-sun-foreground"];
@@ -68,16 +70,16 @@ export default function Home() {
               <li className="rounded-full border-2 border-foreground bg-card px-3 py-1">{site.course}</li>
               <li className="rounded-full bg-sun px-3 py-1 text-sun-foreground">Sesión 1</li>
               <li className="inline-flex items-center gap-1.5 rounded-full border-2 border-foreground px-3 py-1">
-                <ListChecks aria-hidden="true" className="size-3.5" /> {core} módulos + quiz final
+                <BookOpen aria-hidden="true" className="size-3.5" /> {core} módulos de apoyo
               </li>
             </ul>
             <h1 id="titulo" className="text-[2.6rem] leading-[1.05] font-semibold tracking-tight sm:text-6xl lg:text-[4.25rem]">
-              <SplitText tag="span" text="Tu código Java le habla a la" textAlign="left" splitType="words" trigger="load" delay={60} />{" "}
-              <SplitText tag="span" text="base de datos" textAlign="left" splitType="words" trigger="load" delay={60} className="text-primary" />
+              <SplitText tag="span" text="Entiende la base de datos" textAlign="left" splitType="words" trigger="load" delay={60} />{" "}
+              <SplitText tag="span" text="y úsala desde Java" textAlign="left" splitType="words" trigger="load" delay={60} className="text-primary" />
             </h1>
             <TextType
               as="p"
-              text={site.tagline}
+              text="Qué es una base de datos y cómo la usa Java, sin ORM"
               loop={false}
               typingSpeed={45}
               initialDelay={700}
@@ -86,8 +88,7 @@ export default function Home() {
               className="font-mono text-lg text-muted-foreground"
             />
             <p className="max-w-xl text-lg leading-relaxed">
-              Antes de escribir tu primer repositorio, mira qué pasa entre una línea de Java y una fila en la tabla. Siete módulos cortos de
-              teoría y práctica, y un quiz final que arma el ranking de tu grupo.
+              Empieza con las tablas estudiante y matricula. Practica SQL y luego sigue el camino de una consulta hasta convertir una fila en un objeto Java. Seis módulos para aprender a tu ritmo, sin nota.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Link
@@ -97,10 +98,10 @@ export default function Home() {
                 Empezar por el módulo 1 <ArrowRight aria-hidden="true" className="size-4" />
               </Link>
               <a
-                href="#conceptos"
+                href="#basico"
                 className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-foreground px-6 font-medium outline-none hover:bg-muted focus-visible:ring-4 focus-visible:ring-ring/40"
               >
-                Ver los conceptos <ArrowDown aria-hidden="true" className="size-4" />
+                Ver lo básico <ArrowDown aria-hidden="true" className="size-4" />
               </a>
             </div>
             <dl className="flex flex-col gap-3 text-sm text-muted-foreground">
@@ -140,57 +141,63 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Concept 1: the four pieces */}
-      <section id="conceptos" aria-labelledby="piezas" className="scroll-mt-6 bg-card/60 py-16 lg:py-24">
+      {/* Database theory before the modules (author, 8 Nov 2026): concepts, then a table, then demos, then a real editor. */}
+      <section id="basico" aria-labelledby="basico-titulo" className="scroll-mt-6 py-16 lg:py-24">
+        <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
+          <Reveal>
+            <SectionHeading id="basico-titulo" title="1. Primero," accent="los conceptos">
+              Diez palabras que vas a oír toda la clase. Cada una en una línea, con un ejemplo.
+            </SectionHeading>
+          </Reveal>
+          <ConceptCards />
+        </div>
+      </section>
+
+      <section id="conceptos" aria-labelledby="tabla" className="scroll-mt-6 bg-card/60 py-16 lg:py-24">
+        <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
+          <Reveal>
+            <SectionHeading id="tabla" title="2. Así se ve" accent="una tabla">
+              Esta es la tabla estudiante: cada fila es un estudiante y cada columna un dato. Toca una columna, una fila o una celda.
+            </SectionHeading>
+          </Reveal>
+          <Reveal>
+            <TableAnatomy />
+          </Reveal>
+        </div>
+      </section>
+
+      <section aria-labelledby="demos" className="py-16 lg:py-24">
+        <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
+          <Reveal>
+            <SectionHeading id="demos" title="3. Míralos" accent="funcionar">
+              Los mismos conceptos, en movimiento. Toca los botones y mira qué pasa.
+            </SectionHeading>
+          </Reveal>
+          <DbBasics />
+        </div>
+      </section>
+
+      <section id="editor" aria-labelledby="editor-titulo" className="scroll-mt-6 bg-card/60 py-16 lg:py-24">
+        <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
+          <Reveal>
+            <SectionHeading id="editor-titulo" title="4. Pruébalo tú:" accent="un editor SQL">
+              Escribe una consulta o pulsa una de las preparadas. La respuesta la da un PostgreSQL real.
+            </SectionHeading>
+          </Reveal>
+          <LazySqlLab />
+        </div>
+      </section>
+
+      {/* The system journey follows the database basics. */}
+      <section aria-labelledby="piezas" className="py-16 lg:py-24">
         <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
           <Reveal className="grid items-end gap-8 lg:grid-cols-[1fr_auto]">
-            <SectionHeading id="piezas" title="Qué viaja entre tu código y" accent="la tabla">
-              Una línea de Java no lee la tabla: le pide los datos a otro programa. Entre los dos hay cuatro piezas. Pulsa cada una, o envía
-              una consulta y síguela de ida y vuelta.
+            <SectionHeading id="piezas" title="5. De Java al motor:" accent="el viaje de una consulta">
+              Java pide datos de estudiante. El driver lleva la petición al motor y trae las filas de vuelta. Envía una consulta para ver el recorrido.
             </SectionHeading>
-            <Image src="/ilustraciones/piezas-driver.webp" alt="" width={1222} height={844} sizes="288px" className="hidden w-72 lg:block" />
           </Reveal>
           <Reveal>
             <SystemMap />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Concept 2: connection and pool */}
-      <section aria-labelledby="pool" className="py-16 lg:py-24">
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2">
-          <Reveal className="space-y-8">
-            <SectionHeading id="pool" title="Abrir una conexión cuesta." accent="Prestarla, no.">
-              Conectarse exige abrir el canal TCP, negociar el protocolo y comprobar la clave. Un pool abre unas pocas al arrancar y las
-              presta, como las bicicletas compartidas del campus: se toman, se usan y se devuelven.
-            </SectionHeading>
-            <Image
-              src="/ilustraciones/pool-bicicletas.webp"
-              alt="Dos estudiantes en una estación de bicicletas compartidas: una toma una bicicleta y otro devuelve la suya."
-              width={1372}
-              height={591}
-              sizes="(min-width: 1152px) 528px, (min-width: 1024px) 46vw, 100vw"
-              className="w-full"
-            />
-          </Reveal>
-          <Reveal delay={0.1}>
-            <PoolDemo />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Concept 3: safe query */}
-      <section aria-labelledby="segura" className="bg-card/60 py-16 lg:py-24">
-        <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
-          <Reveal className="grid items-end gap-8 lg:grid-cols-[1fr_auto]">
-            <SectionHeading id="segura" title="Una comilla puede" accent="cambiar tu consulta">
-              Si pegas lo que escribe la persona dentro del SQL, su texto puede volverse parte de la orden. Con PreparedStatement, la orden
-              y el dato viajan por separado, como una tarjeta y un sobre sellado.
-            </SectionHeading>
-            <Image src="/ilustraciones/consulta-segura.webp" alt="" width={1267} height={1245} sizes="240px" className="hidden w-60 lg:block" />
-          </Reveal>
-          <Reveal>
-            <SafeQueryDemo />
           </Reveal>
         </div>
       </section>
@@ -201,14 +208,12 @@ export default function Home() {
           <Reveal className="grid items-center gap-10 lg:grid-cols-2">
             <div className="space-y-6">
               <SectionHeading id="clase" title="Así va" accent="la clase">
-                Cada módulo dura entre 10 y 15 minutos: primero la teoría, después practicas sin nota. Al terminar el último, entras a la
-                sala de tu grupo y respondes el quiz final.
+                Son seis módulos de 10 a 18 minutos. Primero entiendes una idea y luego la pruebas. Las actividades te ayudan a aprender; no se califican.
               </SectionHeading>
-              <ol className="grid gap-3 sm:grid-cols-3">
+              <ol className="grid gap-3 sm:grid-cols-2">
                 {[
                   { icon: BookOpen, title: "Teoría", text: "Conceptos con ejemplos y preguntas de repaso." },
                   { icon: PencilLine, title: "Práctica", text: "Ejercicios guiados, con pistas y sin nota." },
-                  { icon: ListChecks, title: "Quiz final", text: `${finalQuiz.questions} preguntas al final de la sesión.` },
                 ].map(({ icon: Icon, title, text }, i) => (
                   <li key={title} className="space-y-2 rounded-3xl border-2 border-foreground bg-card p-4">
                     <span className="flex items-center justify-between">
@@ -233,7 +238,7 @@ export default function Home() {
 
           <ProgressSummary lessonIds={stops.flatMap((s) => (s.lessonId && !s.optional ? [s.lessonId] : []))} />
           <Reveal>
-            <ol aria-label="Módulos de la sesión 1" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <ol aria-label="Módulos de la sesión 1" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {stops.map((stop, i) => {
                 const body = (
                   <>
@@ -282,19 +287,6 @@ export default function Home() {
             </ol>
           </Reveal>
 
-          <Reveal className="grid items-center gap-8 overflow-hidden rounded-[2.5rem] border-2 border-foreground bg-sun p-6 text-sun-foreground sm:p-10 lg:grid-cols-[1fr_auto]">
-            <div className="max-w-xl space-y-4">
-              <p className="inline-flex items-center gap-2 rounded-full bg-sun-foreground px-3 py-1 text-sm font-medium text-sun">
-                <ListChecks aria-hidden="true" className="size-4" /> Al final de la sesión
-              </p>
-              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Quiz final de {finalQuiz.questions} preguntas</h2>
-              <p className="text-lg leading-relaxed">
-                Lo abre el docente para tu sala y todos empiezan a la vez. Cuenta el primer intento de cada pregunta; si hay empate, gana quien
-                tardó menos en sus respuestas correctas.
-              </p>
-            </div>
-            <Image src="/ilustraciones/quiz-final.webp" alt="" width={793} height={912} sizes="(min-width: 640px) 240px, 192px" className="mx-auto w-48 sm:w-60" />
-          </Reveal>
         </div>
       </section>
 
@@ -307,7 +299,7 @@ export default function Home() {
             <h2 id="empezar" className="max-w-xl text-3xl font-semibold tracking-tight sm:text-5xl">
               El recorrido empieza en el módulo 1
             </h2>
-            <p className="max-w-lg text-lg leading-relaxed">Quince minutos para entender las cuatro piezas que vas a usar en todo el curso.</p>
+            <p className="max-w-lg text-lg leading-relaxed">Doce minutos para conocer filas, columnas y la llave que identifica a cada estudiante.</p>
             <Link
               href={startHref}
               className="inline-flex h-12 items-center gap-2 rounded-full bg-sun px-6 font-medium text-sun-foreground outline-none hover:brightness-95 focus-visible:ring-4 focus-visible:ring-sun/60"

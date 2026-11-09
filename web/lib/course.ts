@@ -1,4 +1,3 @@
-import { FINAL_QUIZ_QUESTIONS } from "@/lib/lesson-schema";
 /**
  * Session 1 outline for the landing (REQ-33 CA3, REQ-06 CA1). Published lessons come from
  * content/; modules not written yet appear as «Próximamente» with their planned title.
@@ -6,27 +5,18 @@ import { FINAL_QUIZ_QUESTIONS } from "@/lib/lesson-schema";
 
 export type PlannedModule = { module: number; title: string; minutes: number; optional?: boolean };
 
-/** Planned modules (specs/03-tasks.md). Titles are replaced by the lesson's own title once it exists. */
+/** Planned modules (specs/04-rumbo-teoria-bd.md §3). */
 export const sessionOneOutline: PlannedModule[] = [
-  { module: 1, title: "Qué viaja entre tu código y la tabla", minutes: 15 },
-  { module: 2, title: "Tu primera conexión: URL, driver y variables de entorno", minutes: 12 },
-  { module: 3, title: "Por qué abrir una conexión por consulta es lento: el pool", minutes: 15 },
-  { module: 4, title: "Por qué tu login deja entrar a cualquiera", minutes: 15 },
-  { module: 5, title: "Todo o nada: transacciones con commit y rollback", minutes: 12 },
-  { module: 6, title: "Del clic a la fila: las capas de tu aplicación", minutes: 12 },
-  { module: 7, title: "Lo que ves es lo que se guarda: el CRUD completo", minutes: 12 },
-  { module: 8, title: "Qué hace Spring Boot por ti", minutes: 15, optional: true },
+  { module: 1, title: "Dónde viven los datos cuando apagas el programa", minutes: 12 },
+  { module: 2, title: "Cuatro verbos para hablarle a una tabla", minutes: 18 },
+  { module: 3, title: "Tablas que se señalan: llaves y relaciones", minutes: 15 },
+  { module: 4, title: "El viaje de una consulta", minutes: 10 },
+  { module: 5, title: "De la tabla a la clase", minutes: 15 },
+  { module: 6, title: "Sin ORM: tú escribes el puente", minutes: 15 },
 ];
 
-/** Final quiz (REQ-29): 10 questions of 30–90 s each, about 8 min plus instructions. */
-export const finalQuiz = { questions: FINAL_QUIZ_QUESTIONS, minutes: 10 } as const;
-
-/**
- * Time budget of the core modules 1–7 (decision of 6 Nov 2026): under 100 minutes, so the
- * two-hour class keeps room for the final quiz and does not overload students. The build fails
- * if the published and planned minutes add up to more.
- */
-export const MODULES_BUDGET_MINUTES = 100;
+/** Maximum class time for the six modules; enforced by content validation. */
+export const MODULES_BUDGET_MINUTES = 90;
 
 export type CourseStop = {
   module: number;
@@ -46,12 +36,12 @@ export function courseStops(lessons: { id: string; module: number; title: string
   });
 }
 
-/** Minutes of the core modules 1–7 (no optional module, no quiz). */
+/** Minutes of the six modules. */
 export function modulesMinutes(stops: CourseStop[]): number {
   return stops.filter((s) => !s.optional).reduce((sum, s) => sum + s.minutes, 0);
 }
 
-/** Minutes of the core path (modules 1–7 plus the final quiz). */
+/** Minutes of the core path. */
 export function coreMinutes(stops: CourseStop[]): number {
-  return stops.filter((s) => !s.optional).reduce((sum, s) => sum + s.minutes, 0) + finalQuiz.minutes;
+  return modulesMinutes(stops);
 }

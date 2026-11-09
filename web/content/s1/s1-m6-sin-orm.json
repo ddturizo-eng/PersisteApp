@@ -1,0 +1,192 @@
+{
+  "id": "s1-m6-sin-orm",
+  "session": 1,
+  "module": 6,
+  "title": "Sin ORM: tú escribes el puente",
+  "summary": "Java envía el mismo SQL que ya conoces, convierte cada fila en un objeto y se conecta con variables de entorno y un pool.",
+  "estimatedMinutes": 13,
+  "source": {
+    "label": "Oracle Java Tutorials · PreparedStatement",
+    "url": "https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html"
+  },
+  "steps": [
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "crud-demo",
+      "title": "El SQL no cambia",
+      "caption": "Sin ORM, Java no inventa nada: envía **el mismo SQL** de los módulos 2 y 3. Recuerda los cuatro verbos con este simulador."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "code-explain",
+      "title": "Java envía un SELECT",
+      "caption": "Solo tres pasos. Toca cada línea.",
+      "props": {
+        "language": "java",
+        "lines": [
+          {
+            "code": "String sql = \"SELECT id, nombre FROM estudiante\";",
+            "say": "El SQL va como texto, igual que lo escribiste en el editor."
+          },
+          {
+            "code": "PreparedStatement ps = con.prepareStatement(sql);",
+            "say": "Prepara la consulta para enviarla por la conexión (con) hasta el motor."
+          },
+          {
+            "code": "ResultSet rs = ps.executeQuery();",
+            "say": "La envía y espera la respuesta. Las filas que vuelven quedan en rs."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "row-mapper",
+      "title": "De la fila al objeto",
+      "caption": "Las filas llegan a Java, pero Java trabaja con **objetos**. Sin ORM, tú copias cada dato de la fila al objeto. Pulsa **Reproducir**."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "code-explain",
+      "title": "Y para guardar, lo mismo",
+      "caption": "INSERT, UPDATE y DELETE se envían igual; solo cambia el método final.",
+      "props": {
+        "language": "java",
+        "lines": [
+          {
+            "code": "String sql = \"UPDATE estudiante SET correo = ? WHERE id = ?\";",
+            "say": "El mismo UPDATE de siempre. Cada ? es un espacio para un dato."
+          },
+          {
+            "code": "ps.setString(1, \"ana.t@unicesar.edu.co\");",
+            "say": "Llena el primer ? con el correo nuevo."
+          },
+          {
+            "code": "ps.setInt(2, 1);",
+            "say": "Llena el segundo ? con el id 1 (Ana)."
+          },
+          {
+            "code": "ps.executeUpdate();",
+            "say": "Lo envía. Para cambios se usa executeUpdate: no devuelve filas, solo cuántas cambió."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "text",
+      "stage": "theory",
+      "title": "¿De dónde sale la conexión?",
+      "image": "credenciales-entorno",
+      "body": "Para conectarse, Java necesita la dirección de la base de datos, un usuario y una clave. **No se escriben en el código**: si subes el código a GitHub, cualquiera vería la clave.\n\nSe guardan en **variables de entorno**, valores que el sistema le entrega al programa al arrancar, como `DB_URL=jdbc:postgresql://localhost:5432/universidad`."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "code-explain",
+      "title": "Variables de entorno → pool → main",
+      "caption": "Así arranca el programa. Recorre las líneas de arriba abajo.",
+      "props": {
+        "language": "java",
+        "lines": [
+          {
+            "code": "public static void main(String[] args) {",
+            "say": "main es donde empieza el programa. Aquí se prepara todo una sola vez."
+          },
+          {
+            "code": "  String url = System.getenv(\"DB_URL\");",
+            "say": "Lee la dirección de la base de datos desde la variable de entorno DB_URL."
+          },
+          {
+            "code": "  String clave = System.getenv(\"DB_PASSWORD\");",
+            "say": "Lee la clave de la misma forma. En el código nunca aparece la clave real."
+          },
+          {
+            "code": "  DataSource pool = Pool.crear(url, \"app\", clave);",
+            "say": "Crea el connection pool: un grupo de conexiones ya abiertas que se prestan y se devuelven, como bicicletas compartidas."
+          },
+          {
+            "code": "  Connection con = pool.getConnection();",
+            "say": "Pide prestada una conexión. Esta es la con que usan prepareStatement y executeQuery."
+          },
+          {
+            "code": "}",
+            "say": ""
+          }
+        ]
+      }
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "`rs` guarda las filas que llegaron del motor. Ahora está en la fila de Ana: `nombre` = «Ana Torres».",
+      "prompt": "El nombre es un texto. ¿Cómo se lo pides a `rs`?",
+      "options": [
+        {
+          "text": "`rs.getString(\"nombre\")`",
+          "correct": true,
+          "explanation": "getString = «dame el texto» de la columna \"nombre\"."
+        },
+        {
+          "text": "`rs.getInt(\"nombre\")`",
+          "correct": false,
+          "explanation": "getInt es para números, y el nombre es texto."
+        },
+        {
+          "text": "`rs.nombre`",
+          "correct": false,
+          "explanation": "Así no se lee: a rs siempre se le pide con get…(\"columna\")."
+        }
+      ]
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "Quieres guardar un estudiante nuevo con un `INSERT` desde Java.",
+      "prompt": "¿Qué método envía el INSERT?",
+      "options": [
+        {
+          "text": "`executeUpdate()`, porque cambia datos",
+          "correct": true,
+          "explanation": "INSERT, UPDATE y DELETE cambian datos: se envían con executeUpdate."
+        },
+        {
+          "text": "`executeQuery()`, porque es una consulta",
+          "correct": false,
+          "explanation": "executeQuery es para SELECT: espera filas de vuelta, y un INSERT no las devuelve."
+        },
+        {
+          "text": "`getString()`, porque el nombre es texto",
+          "correct": false,
+          "explanation": "getString lee datos de una fila; no envía nada al motor."
+        }
+      ]
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "Vas a subir tu proyecto a GitHub. El programa necesita la clave de PostgreSQL para conectarse.",
+      "prompt": "¿Dónde debe quedar la clave?",
+      "options": [
+        {
+          "text": "En una variable de entorno que lee el programa",
+          "correct": true,
+          "explanation": "Así la clave queda fuera del código y no se publica en GitHub."
+        },
+        {
+          "text": "Escrita en main, para que el código la encuentre",
+          "correct": false,
+          "explanation": "Funcionaría, pero cualquiera que vea el código vería la clave."
+        },
+        {
+          "text": "En un comentario al lado de la URL de conexión",
+          "correct": false,
+          "explanation": "Un comentario también es parte del código: se publica igual."
+        }
+      ]
+    }
+  ]
+}

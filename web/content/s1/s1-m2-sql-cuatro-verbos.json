@@ -1,0 +1,167 @@
+{
+  "id": "s1-m2-sql-cuatro-verbos",
+  "session": 1,
+  "module": 2,
+  "title": "Cuatro verbos para hablarle a una tabla",
+  "summary": "SELECT, INSERT, UPDATE y DELETE, primero animados y luego en PostgreSQL de verdad.",
+  "estimatedMinutes": 15,
+  "source": {
+    "label": "Documentación de PostgreSQL · Consultar una tabla",
+    "url": "https://www.postgresql.org/docs/current/tutorial-select.html"
+  },
+  "steps": [
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "crud-demo",
+      "title": "CRUD: cuatro verbos",
+      "caption": "Con los datos solo hacemos cuatro cosas: **leer, crear, cambiar y borrar**. Cada una es un verbo de SQL. Elige uno y pulsa Ejecutar."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "code-explain",
+      "title": "Cómo se lee un SELECT",
+      "caption": "Un SELECT se lee casi como una frase en español. Recorre las líneas.",
+      "props": {
+        "language": "sql",
+        "lines": [
+          {
+            "code": "SELECT nombre, correo",
+            "say": "SELECT = «muéstrame». Después van las columnas que quiero ver. Con * verías todas."
+          },
+          {
+            "code": "FROM estudiante",
+            "say": "FROM = «de la tabla». Aquí, la tabla estudiante."
+          },
+          {
+            "code": "WHERE nacimiento >= '2004-01-01'",
+            "say": "WHERE = «solo las filas que cumplan». Aquí, nacidos desde 2004."
+          },
+          {
+            "code": "ORDER BY nombre;",
+            "say": "ORDER BY = «ordénalas por». Alfabético de A a Z. Con DESC al final sería de Z a A."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "code-explain",
+      "title": "WHERE: el freno de mano",
+      "caption": "En UPDATE y DELETE, WHERE elige qué filas se tocan.",
+      "props": {
+        "language": "sql",
+        "lines": [
+          {
+            "code": "UPDATE estudiante",
+            "say": "Voy a cambiar datos de la tabla estudiante."
+          },
+          {
+            "code": "SET correo = 'ana.t@unicesar.edu.co'",
+            "say": "El dato nuevo: este correo."
+          },
+          {
+            "code": "WHERE id = 1;",
+            "say": "Solo en la fila con id 1. ¡Sin esta línea se cambian TODOS los estudiantes!"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
+      "component": "sql-lab",
+      "props": {
+        "queries": [
+          "select-all",
+          "select-where",
+          "select-order"
+        ],
+        "table": "estudiante"
+      },
+      "title": "Laboratorio 1 · Leer",
+      "caption": "Esto es PostgreSQL de verdad, en tu navegador. Pulsa un botón y luego **Ejecutar**. Después cambia el número del id y vuelve a ejecutar."
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "Quieres ver solo el nombre de los estudiantes nacidos desde 2005.",
+      "prompt": "¿Qué consulta lo hace?",
+      "options": [
+        {
+          "text": "`SELECT nombre FROM estudiante WHERE nacimiento >= '2005-01-01';`",
+          "correct": true,
+          "explanation": "SELECT elige la columna y WHERE filtra por la fecha."
+        },
+        {
+          "text": "`SELECT * FROM estudiante ORDER BY nacimiento >= '2005-01-01';`",
+          "correct": false,
+          "explanation": "ORDER BY solo ordena; no quita filas. Para filtrar se usa WHERE."
+        },
+        {
+          "text": "`SELECT nacimiento >= '2005-01-01' FROM estudiante nombre;`",
+          "correct": false,
+          "explanation": "Las columnas van tras SELECT y el filtro en WHERE; aquí están mezclados."
+        }
+      ]
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
+      "component": "sql-lab",
+      "props": {
+        "queries": [
+          "insert",
+          "update",
+          "update-no-where",
+          "delete"
+        ],
+        "table": "estudiante"
+      },
+      "title": "Laboratorio 2 · Escribir",
+      "caption": "Ejecuta cada verbo y mira la tabla de abajo: lo que cambió se pinta de amarillo. Prueba «UPDATE sin WHERE» y luego **Reiniciar datos**."
+    },
+    {
+      "kind": "code",
+      "stage": "practice",
+      "mode": "fill",
+      "language": "sql",
+      "title": "Completa el UPDATE",
+      "context": "Sara (id 3) cambió de correo.",
+      "prompt": "Elige las palabras que faltan para cambiar SOLO su correo.",
+      "variants": {
+        "postgresql": "UPDATE estudiante\n{{1}} correo = 'sara.g@unicesar.edu.co'\n{{2}} id = 3;"
+      },
+      "gaps": [
+        {
+          "id": 1,
+          "label": "Palabra que pone el dato nuevo",
+          "answers": [
+            "SET"
+          ],
+          "choices": [
+            "SET",
+            "VALUES",
+            "INTO"
+          ],
+          "hint": "En UPDATE, el dato nuevo va después de SET."
+        },
+        {
+          "id": 2,
+          "label": "Palabra que elige la fila",
+          "answers": [
+            "WHERE"
+          ],
+          "choices": [
+            "WHERE",
+            "FROM",
+            "ORDER BY"
+          ],
+          "hint": "La fila se elige con WHERE."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "s1-m4-el-viaje",
+  "session": 1,
+  "module": 4,
+  "title": "El viaje de una consulta",
+  "summary": "Sigue una petición de nombres desde Java hasta la tabla estudiante y de regreso.",
+  "estimatedMinutes": 10,
+  "source": { "label": "Oracle Java Tutorials · JDBC Basics", "url": "https://docs.oracle.com/javase/tutorial/jdbc/basics/" },
+  "steps": [
+    { "kind": "text", "stage": "theory", "title": "Pedir los nombres de clase", "body": "Imagina que la Unicesar quiere mostrar los nombres guardados en `estudiante`. Java hace la petición. Un **driver**, que es como un intérprete, la traduce para PostgreSQL. La red la lleva y el motor busca las filas." },
+    { "kind": "visual", "stage": "theory", "component": "system-map", "title": "Sigue la petición", "caption": "Toca las cuatro piezas y envía la consulta. Mira cómo los nombres vuelven a Java." },
+    { "kind": "visual", "stage": "theory", "component": "code-explain", "title": "La petición escrita en Java", "caption": "Toca cada línea para ver qué pide a la tabla estudiante.", "props": { "language": "java", "lines": [
+      { "code": "PreparedStatement ps = cn.prepareStatement(\"SELECT nombre FROM estudiante\");", "say": "cn es el canal abierto a PostgreSQL. prepareStatement prepara la orden; PreparedStatement la guarda, como un formulario listo para enviar." },
+      { "code": "ResultSet rs = ps.executeQuery();", "say": "executeQuery envía la orden y trae las filas. ResultSet es como una bandeja con las filas recibidas." },
+      { "code": "while (rs.next()) {", "say": "while repite la lectura; next pasa a la siguiente fila, como avanzar a la siguiente ficha." },
+      { "code": "    System.out.println(rs.getString(\"nombre\"));", "say": "getString lee el nombre como texto y lo muestra en pantalla." },
+      { "code": "}", "say": "" }
+    ] } },
+    { "kind": "trace", "stage": "practice", "title": "¿Dónde está la petición?", "intro": "Java pide los nombres de la tabla `estudiante`. Sigue el SELECT hasta PostgreSQL y acompaña las filas de regreso. En cada momento, elige la pieza que hace la acción.", "locations": [
+      { "id": "app", "label": "Programa Java", "kind": "class" },
+      { "id": "driver", "label": "Driver traductor", "kind": "file" },
+      { "id": "red", "label": "Red", "kind": "network" },
+      { "id": "db", "label": "Motor PostgreSQL", "kind": "db" }
+    ], "events": [
+      { "moment": "Java prepara el SELECT", "description": "Java tiene el texto `SELECT nombre FROM estudiante` y llama a `executeQuery()` para pedir esas filas.", "options": ["app", "driver", "db"], "answer": "app", "why": { "driver": "El driver recibirá la petición después de la llamada de Java.", "db": "PostgreSQL aún no ha recibido el SELECT." }, "explanation": "El programa Java inicia el viaje: entrega al driver la orden de leer nombres de estudiante.", "code": { "language": "java", "source": "ResultSet rs = ps.executeQuery(); // ps contiene SELECT nombre FROM estudiante" } },
+      { "moment": "El driver traduce", "description": "El driver recibe `SELECT nombre FROM estudiante` de Java y lo convierte en un mensaje que PostgreSQL entiende.", "options": ["app", "driver", "red"], "answer": "driver", "why": { "app": "Java ya entregó la orden; no conoce el idioma interno de PostgreSQL.", "red": "La red transportará el mensaje, pero no lo traduce." }, "explanation": "El driver hace de intérprete entre Java y PostgreSQL. Conserva la misma petición de nombres.", "code": { "language": "sql", "source": "SELECT nombre FROM estudiante;" } },
+      { "moment": "La red lleva la petición", "description": "El mensaje con `SELECT nombre FROM estudiante` sale del equipo de Java y viaja hasta el servidor de PostgreSQL.", "options": ["app", "red", "db"], "answer": "red", "why": { "app": "Java ya envió la orden al driver.", "db": "PostgreSQL la recibirá cuando termine este trayecto." }, "explanation": "La red es el camino entre los dos computadores; lleva el mensaje sin buscar filas ni cambiar la orden.", "code": { "language": "sql", "source": "SELECT nombre FROM estudiante;" } },
+      { "moment": "El motor busca las filas", "description": "PostgreSQL recibe `SELECT nombre FROM estudiante` y lee la columna `nombre` de las filas guardadas en `estudiante`.", "options": ["driver", "red", "db"], "answer": "db", "why": { "driver": "El driver no guarda la tabla estudiante.", "red": "La red solo llevó el SELECT hasta el servidor." }, "explanation": "El motor PostgreSQL ejecuta el SELECT sobre la tabla y prepara nombres como Ana Torres y Luis Pérez.", "code": { "language": "sql", "source": "SELECT nombre FROM estudiante;" } },
+      { "moment": "La red trae las filas", "description": "PostgreSQL devuelve filas con nombres como Ana Torres y Luis Pérez; la red las lleva al equipo donde corre Java.", "options": ["red", "driver", "app"], "answer": "red", "why": { "driver": "El driver todavía espera recibir la respuesta en el equipo de Java.", "app": "Java leerá las filas después de que lleguen." }, "explanation": "La red transporta las filas de regreso por el mismo camino usado para enviar el SELECT.", "code": { "language": "sql", "source": "-- respuesta que viaja: nombre\n-- Ana Torres\n-- Luis Pérez" } },
+      { "moment": "El driver arma el resultado", "description": "El driver recibe las filas con `nombre`, incluida Ana Torres, y las presenta a Java como un `ResultSet`.", "options": ["driver", "db", "app"], "answer": "driver", "why": { "db": "PostgreSQL ya envió las filas desde el servidor.", "app": "Java aún no ha recorrido el ResultSet." }, "explanation": "El driver organiza la respuesta en un ResultSet: una bandeja que Java puede recorrer fila por fila.", "code": { "language": "java", "source": "ResultSet rs = ps.executeQuery(); // rs contiene las filas recibidas" } },
+      { "moment": "Java lee cada fila", "description": "Java avanza por el `ResultSet` y lee `nombre`: primero puede encontrar Ana Torres y después Luis Pérez.", "options": ["app", "driver", "db"], "answer": "app", "why": { "driver": "El driver ya entregó las filas en el ResultSet.", "db": "PostgreSQL terminó de buscar y enviar los nombres." }, "explanation": "El programa Java llama a next para avanzar y a getString para sacar el texto de cada fila y mostrarlo.", "code": { "language": "java", "source": "while (rs.next()) { System.out.println(rs.getString(\"nombre\")); }" } }
+    ] },
+    { "kind": "visual", "stage": "practice", "component": "system-map", "title": "Ahora mira el regreso", "caption": "Avanza paso a paso desde PostgreSQL hasta Java. Observa quién lleva las filas de vuelta." },
+    { "kind": "question", "stage": "practice", "context": "PostgreSQL encontró las filas de `estudiante` y las devuelve.", "prompt": "¿Qué pieza las entrega a Java en una forma que puede leer?", "options": [
+      { "text": "El driver traductor", "correct": true, "explanation": "El driver presenta las filas recibidas para que Java pueda leerlas." },
+      { "text": "La red de clase", "correct": false, "explanation": "La red lleva los datos, pero no los prepara para Java." },
+      { "text": "La tabla estudiante", "correct": false, "explanation": "La tabla guarda las filas; el driver entrega la respuesta." }
+    ] }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "id": "s1-m1-que-es-una-base-de-datos",
+  "session": 1,
+  "module": 1,
+  "title": "Dónde viven los datos cuando apagas el programa",
+  "summary": "Qué es una base de datos, qué es una tabla y para qué sirve la llave primaria.",
+  "estimatedMinutes": 10,
+  "source": {
+    "label": "Documentación de PostgreSQL · Conceptos",
+    "url": "https://www.postgresql.org/docs/current/tutorial-concepts.html"
+  },
+  "steps": [
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "memory-disk",
+      "title": "Tu programa olvida; la base de datos no",
+      "caption": "Una lista en Java vive en la memoria RAM: se borra al cerrar el programa. Una **base de datos** guarda los datos en el disco. Pulsa «Apagar el programa»."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "table-anatomy",
+      "title": "Los datos se guardan en tablas",
+      "caption": "Una **tabla** es como una hoja de Excel: cada **fila** es un estudiante y cada **columna** es un dato. Toca cada parte, empezando por `id`."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "engines",
+      "title": "SQL es el idioma; el motor, quien lo entiende",
+      "caption": "El **motor** es el programa que cuida la base de datos. Le pides cosas en **SQL**. PostgreSQL y Oracle hablan SQL casi igual: compara."
+    },
+    {
+      "kind": "visual",
+      "stage": "theory",
+      "component": "code-explain",
+      "title": "Así se crea la tabla estudiante",
+      "caption": "Toca cada línea o usa «Siguiente línea». Es PostgreSQL.",
+      "props": {
+        "language": "sql",
+        "lines": [
+          {
+            "code": "CREATE TABLE estudiante (",
+            "say": "Crea una tabla nueva llamada estudiante."
+          },
+          {
+            "code": "  id SERIAL PRIMARY KEY,",
+            "say": "La columna id es la llave primaria. SERIAL hace que el motor ponga el número solo: 1, 2, 3…"
+          },
+          {
+            "code": "  nombre VARCHAR(80),",
+            "say": "La columna nombre guarda texto de hasta 80 letras."
+          },
+          {
+            "code": "  correo VARCHAR(120),",
+            "say": "La columna correo también guarda texto."
+          },
+          {
+            "code": "  nacimiento DATE",
+            "say": "La columna nacimiento guarda una fecha."
+          },
+          {
+            "code": ");",
+            "say": "Fin de la tabla. Ya se le pueden agregar filas."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "Hay dos estudiantes llamadas «Ana Torres» en la tabla `estudiante`.",
+      "prompt": "¿Con qué columna eliges a UNA de las dos sin tocar a la otra?",
+      "options": [
+        {
+          "text": "Con `id`, porque en cada fila es distinto",
+          "correct": true,
+          "explanation": "El id es la llave primaria: cada fila tiene uno distinto."
+        },
+        {
+          "text": "Con `nombre`, porque es lo que conocemos",
+          "correct": false,
+          "explanation": "Las dos se llaman igual: elegirías a las dos."
+        },
+        {
+          "text": "Con `nacimiento`, porque casi nunca coincide",
+          "correct": false,
+          "explanation": "«Casi nunca» no basta. Solo el id está garantizado."
+        }
+      ]
+    },
+    {
+      "kind": "question",
+      "stage": "practice",
+      "context": "Agregas un estudiante nuevo sin escribir su `id`.",
+      "prompt": "¿Quién le pone el `id`?",
+      "options": [
+        {
+          "text": "El motor, con el siguiente número",
+          "correct": true,
+          "explanation": "Con SERIAL (en Oracle, IDENTITY) el motor numera solo."
+        },
+        {
+          "text": "Java, antes de enviar la consulta",
+          "correct": false,
+          "explanation": "Java no lo calcula: lo pone la base de datos al guardar."
+        },
+        {
+          "text": "Nadie: la fila queda sin número",
+          "correct": false,
+          "explanation": "La llave primaria siempre tiene valor; el motor se encarga."
+        }
+      ]
+    }
+  ]
+}

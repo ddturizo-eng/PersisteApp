@@ -10,47 +10,47 @@ type PieceId = "app" | "driver" | "red" | "motor";
 const pieces: { id: PieceId; name: string; short: string; icon: typeof Coffee; detail: string; example: string }[] = [
   {
     id: "app",
-    name: "Tu aplicación Java",
-    short: "Decide qué pedir",
+    name: "Tu programa Java",
+    short: "Pide los datos",
     icon: Coffee,
-    detail: "Tus clases (Main, ProductRepository…) deciden qué datos pedir y qué hacer con ellos. Solo conocen la API de JDBC: Connection, PreparedStatement y ResultSet.",
-    example: "ResultSet rs = ps.executeQuery();",
+    detail: "El programa de la Unicesar pide los nombres guardados en estudiante. También decide cómo mostrarlos cuando vuelven.",
+    example: "Pide: nombres de estudiante",
   },
   {
     id: "driver",
-    name: "Driver JDBC",
-    short: "Traduce",
+    name: "Driver de la base de datos",
+    short: "Hace de traductor",
     icon: Plug,
-    detail: "Un .jar del fabricante del motor (postgresql.jar, ojdbc11.jar). Traduce cada llamada de JDBC al protocolo propio de ese motor, como un adaptador de enchufe.",
-    example: "jdbc:postgresql://localhost:5432/tienda",
+    detail: "El driver es una pieza de software que traduce lo que pide Java al idioma de PostgreSQL u Oracle, como un intérprete entre dos personas.",
+    example: "Traduce la petición de Java",
   },
   {
     id: "red",
     name: "Red",
     short: "Transporta",
     icon: Network,
-    detail: "Una conexión TCP entre tu equipo y el servidor. PostgreSQL escucha en el puerto 5432 y Oracle en el 1521. Aunque todo esté en tu portátil, los datos viajan por TCP.",
-    example: "localhost:52114 → localhost:5432 (TCP)",
+    detail: "La red lleva la petición hasta el computador que guarda la base de datos. Después trae la respuesta de vuelta, como una carretera de ida y regreso.",
+    example: "Lleva la petición y trae las filas",
   },
   {
     id: "motor",
     name: "Motor de base de datos",
     short: "Ejecuta",
     icon: Database,
-    detail: "El servidor PostgreSQL u Oracle: comprueba usuario y clave, ejecuta el SQL, lee y escribe las tablas en disco y devuelve las filas.",
-    example: "SELECT name FROM products;",
+    detail: "PostgreSQL u Oracle guarda las tablas. Busca las filas de estudiante que se pidieron y prepara la respuesta, como quien consulta un archivo.",
+    example: "Busca filas en estudiante",
   },
 ];
 
 /** The round trip of one query: where it is and what travels (REQ-33 CA2). */
 const trip: { at: PieceId; carrying: string; text: string; back?: boolean }[] = [
-  { at: "app", carrying: "executeQuery()", text: "Tu código llama a executeQuery()." },
-  { at: "driver", carrying: "mensaje", text: "El driver convierte la llamada en un mensaje del protocolo del motor." },
-  { at: "red", carrying: "bytes →", text: "El mensaje viaja por TCP hasta el servidor." },
-  { at: "motor", carrying: "SELECT …", text: "El motor ejecuta el SQL y arma las filas." },
+  { at: "app", carrying: "petición →", text: "Java pide los nombres de la tabla estudiante." },
+  { at: "driver", carrying: "petición →", text: "El driver traduce la petición para que la base de datos la entienda." },
+  { at: "red", carrying: "petición →", text: "La red lleva la petición al computador de la base de datos." },
+  { at: "motor", carrying: "filas", text: "PostgreSQL busca los nombres en estudiante y prepara las filas." },
   { at: "red", carrying: "← filas", text: "Las filas vuelven por la misma conexión.", back: true },
-  { at: "driver", carrying: "ResultSet", text: "El driver las entrega como un ResultSet.", back: true },
-  { at: "app", carrying: "rs.next()", text: "Tu código recorre el resultado fila por fila.", back: true },
+  { at: "driver", carrying: "← filas", text: "El driver entrega las filas en una forma que Java puede leer.", back: true },
+  { at: "app", carrying: "← nombres", text: "Java lee las filas y muestra los nombres de los estudiantes.", back: true },
 ];
 
 const STEP_MS = 1400;
@@ -186,7 +186,7 @@ export function SystemMap() {
               <p className="text-xl font-semibold">{piece.name}</p>
               <p className="mt-1 max-w-prose leading-relaxed text-muted-foreground">{piece.detail}</p>
             </div>
-            <code className="justify-self-start rounded-xl bg-code px-3 py-2 font-mono text-sm text-code-foreground md:justify-self-end">{piece.example}</code>
+            <p className="justify-self-start rounded-xl bg-secondary px-3 py-2 text-sm font-medium text-secondary-foreground md:justify-self-end">{piece.example}</p>
           </>
         )}
       </div>
