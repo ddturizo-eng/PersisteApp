@@ -258,8 +258,12 @@ describe("loadLessons", () => {
     write("s1-m4-demo.json", { ...validLesson, id: "s1-m4-demo", module: 4 });
     write("s1-m6-demo.json", { ...validLesson, id: "s1-m6-demo", module: 6 });
     const [m1, m4, m6] = loadLessons(dir);
-    expect(nextAfter(m1, dir)).toEqual({ href: "/s1/s1-m4-demo", label: "Siguiente módulo" });
-    expect(nextAfter(m4, dir)).toEqual({ href: "/s1/s1-m6-demo", label: "Siguiente módulo" });
+    expect(nextAfter(m1, dir)).toEqual({
+      href: "/s1/s1-m4-demo",
+      label: "Siguiente módulo",
+      upcoming: { module: 4, title: m4.title, minutes: m4.estimatedMinutes },
+    });
+    expect(nextAfter(m4, dir)).toMatchObject({ href: "/s1/s1-m6-demo", label: "Siguiente módulo", upcoming: { module: 6 } });
     expect(nextAfter(m6, dir)).toEqual({ href: "/", label: "Volver al inicio" });
   });
 });

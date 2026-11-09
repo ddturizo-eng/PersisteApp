@@ -46,7 +46,8 @@ export function canAdvance(
   solved: SolvedExercises = {}
 ): boolean {
   const step = lesson.steps[index];
-  if (step === undefined || index >= lesson.steps.length - 1) return false;
+  // From the last step, «Terminar módulo» leads to the closing screen once the step is solved.
+  if (step === undefined) return false;
   if (isExercise(step)) return solved[index] === true;
   return isSolved(step, attempts[index]);
 }

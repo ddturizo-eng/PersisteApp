@@ -183,10 +183,17 @@ export function loadQuiz(session: 1 | 2, dir: string = CONTENT_DIR): Quiz {
 }
 
 /** Where «Continuar» leads after a module. */
-export function nextAfter(lesson: Lesson, dir?: string): { href: string; label: string } {
+export function nextAfter(
+  lesson: Lesson,
+  dir?: string
+): { href: string; label: string; upcoming?: { module: number; title: string; minutes: number } } {
   if (lesson.optional) return { href: "/", label: "Volver al inicio" };
   const next = lessonsForSession(lesson.session, dir).find((l) => !l.optional && l.module > lesson.module);
   return next
-    ? { href: `/s${lesson.session}/${next.id}`, label: "Siguiente módulo" }
+    ? {
+        href: `/s${lesson.session}/${next.id}`,
+        label: "Siguiente módulo",
+        upcoming: { module: next.module, title: next.title, minutes: next.estimatedMinutes },
+      }
     : { href: "/", label: "Volver al inicio" };
 }
