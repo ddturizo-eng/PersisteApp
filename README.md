@@ -7,14 +7,14 @@
 
 <h3>Lo que registras, queda guardado.</h3>
 
-Plataforma interactiva para aprender cómo una aplicación Java se conecta a una base de datos:<br/>
-JDBC, pool de conexiones, consultas seguras, transacciones y arquitectura en capas.
+Plataforma interactiva para entender qué es una base de datos y cómo Java se conecta a ella **sin ORM**:<br/>
+tablas, SQL, llaves, transacciones, JDBC y el paso de filas a objetos, con PostgreSQL y Oracle.
 
 [![Producción](https://img.shields.io/badge/demo-persisteapp.vercel.app-1E7B34?style=flat-square)](https://persisteapp.vercel.app)
 
-<a href="#stack"><img src="https://skillicons.dev/icons?i=ts,nextjs,react,tailwind,supabase,postgres,java,maven,vitest,vercel&perline=10" alt="TypeScript, Next.js, React, Tailwind CSS, Supabase, PostgreSQL, Java, Maven, Vitest y Vercel" /></a>
+<a href="#stack"><img src="https://skillicons.dev/icons?i=ts,nextjs,react,tailwind,postgres,java,maven,vitest,vercel&perline=9" alt="TypeScript, Next.js, React, Tailwind CSS, PostgreSQL, Java, Maven, Vitest y Vercel" /></a>
 
-[**Abrir la app**](https://persisteapp.vercel.app) · [Requisitos](specs/01-requirements.md) · [Diseño](specs/02-design.md) · [CRUD Java](crud/README.md)
+[**Abrir la app**](https://persisteapp.vercel.app) · [Rumbo actual](specs/04-rumbo-teoria-bd.md) · [Requisitos](specs/01-requirements.md) · [CRUD Java](crud/README.md)
 
 </div>
 
@@ -24,7 +24,9 @@ JDBC, pool de conexiones, consultas seguras, transacciones y arquitectura en cap
 
 ## Contexto
 
-PersisteApp acompaña la **sesión 1 de persistencia** de *Programación de Computadores III* (Ingeniería de Sistemas, Universidad Popular del Cesar). Reemplaza las diapositivas por un recorrido que el estudiante sigue en su teléfono o portátil mientras el docente lo proyecta, y cierra con un quiz en vivo que arma el ranking del grupo.
+PersisteApp acompaña la **sesión 1 de persistencia** de *Programación de Computadores III* (Ingeniería de Sistemas, Universidad Popular del Cesar). Reemplaza las diapositivas por un recorrido que el docente proyecta y el estudiante sigue en su teléfono o portátil.
+
+La sesión **empieza por la teoría**: qué es una base de datos, cómo se le habla con SQL, cómo se relacionan las tablas y qué es una transacción. Después muestra cómo Java llega a esa tabla **sin ORM**: el viaje de una consulta, la equivalencia tabla ↔ clase y el código que copia cada fila a un objeto.
 
 - **Docente:** Ing. Esp. Alfredo David Bautista Romero
 - **Autor:** [Daniel David Turizo Chacón](https://github.com/ddturizo-eng)
@@ -33,13 +35,11 @@ PersisteApp acompaña la **sesión 1 de persistencia** de *Programación de Comp
 
 | | |
 |---|---|
-| **7 módulos, 98 minutos** | Cada módulo va de la teoría a la práctica, una idea por pantalla. El build falla si el plan pasa de 100 minutos. |
-| **Simuladores interactivos** | Pool de conexiones, inyección SQL frente a `PreparedStatement` y un espejo app ↔ base de datos para ver `commit` y `rollback`. Todos se rotulan como **Simulación**. |
-| **«¿Dónde ocurre?»** | Recorridos que preguntan en qué archivo, clase, red o base de datos ocurre cada paso de una petición. |
-| **«Ver código»** | Las preguntas que dependen de código abren el fragmento exacto del CRUD de referencia, verificado contra el archivo real en las pruebas. |
-| **Quiz final en vivo** | 10 preguntas calificadas en el servidor, tiempo por pregunta según lo que hay que leer, nota de 0 a 5 y ranking por grupo. |
-| **Panel docente** | Salas por grupo, vista en vivo, resultados por pregunta y por estudiante, rehabilitación de bloqueos y exportación a CSV. |
-| **Integridad** | Aviso y bloqueo por salir de la pestaña, sin copiar ni menú contextual, marca de agua con el nombre del estudiante. |
+| **6 módulos, 78 minutos** | 3 de teoría de bases de datos y 3 de Java sin ORM. Cada módulo va de la teoría a la práctica, una idea por pantalla. |
+| **Conceptos primero** | La portada define tabla, fila, columna, consulta, llaves y transacción antes de mostrar código. |
+| **Editor SQL real** | PostgreSQL corre en el navegador con [PGlite](https://pglite.dev): `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `JOIN` y transacciones sobre las tablas `curso`, `estudiante` y `matricula`, con errores traducidos y las filas cambiadas resaltadas. |
+| **Visuales interactivos** | Memoria frente a disco, anatomía de una tabla, PostgreSQL frente a Oracle, los cuatro verbos, una tabla gigante frente a tablas separadas, mapa de relaciones, todo o nada y de la fila al objeto. |
+| **Código explicado** | Ningún código va solo: cada línea se toca y dice en palabras simples qué hace. |
 | **Modo Exposición** | Tecla `P`: oculta la navegación y agranda el contenido para el proyector, con cronómetro. |
 | **Accesible** | Teclado completo, contraste WCAG AA en tema claro y oscuro, 375 px sin scroll horizontal, progreso local por módulo. |
 
@@ -47,43 +47,43 @@ PersisteApp acompaña la **sesión 1 de persistencia** de *Programación de Comp
 
 | # | Módulo | Min |
 |---|---|---|
-| 1 | Qué viaja entre tu código y la tabla | 15 |
-| 2 | Tu primera conexión: driver, URL y clave fuera del código | 12 |
-| 3 | Por qué abrir una conexión por consulta es lento: el pool | 15 |
-| 4 | Por qué tu login deja entrar a cualquiera | 20 |
-| 5 | Todo o nada: transacciones con commit y rollback | 12 |
-| 6 | Del clic a la fila: las capas de tu aplicación | 12 |
-| 7 | Lo que ves es lo que se guarda: el CRUD completo | 12 |
-| 8 | Qué hace Spring Boot por ti *(opcional, estudio autónomo; no entra en el quiz)* | 15 |
+| 1 | Dónde viven los datos cuando apagas el programa | 10 |
+| 2 | Cuatro verbos para hablarle a una tabla | 15 |
+| 3 | Tablas que se señalan: llaves y relaciones | 15 |
+| 4 | El viaje de una consulta | 10 |
+| 5 | De la tabla a la clase | 15 |
+| 6 | Sin ORM: tú escribes el puente | 13 |
 
 <table>
   <tr>
-    <td width="62%"><img src="docs/capturas/simulador-inyeccion.jpg" alt="Módulo 4: simulador de inyección SQL con el rótulo «Simulación»." /></td>
-    <td rowspan="2"><img src="docs/capturas/movil-espejo.jpg" alt="Módulo 5 en el teléfono: espejo app y base de datos para vender con y sin transacción." /></td>
+    <td width="50%"><img src="docs/capturas/conceptos.jpg" alt="Portada: tarjetas con los conceptos básicos de una base de datos." /></td>
+    <td width="50%"><img src="docs/capturas/editor-sql.jpg" alt="Editor SQL con PostgreSQL en el navegador: un UPDATE con «1 fila actualizada» y la fila resaltada." /></td>
   </tr>
   <tr>
-    <td><img src="docs/capturas/ver-codigo.jpg" alt="Modal «Ver código» con pestañas y el código exacto del CRUD de referencia." /></td>
+    <td colspan="2"><img src="docs/capturas/codigo-explicado.jpg" alt="Módulo 3: CREATE TABLE matricula explicado línea por línea, con REFERENCES." /></td>
   </tr>
 </table>
+
+> **Versión anterior.** La primera versión (8 módulos de JDBC, pool, inyección SQL, quiz en vivo y panel docente) quedó en la rama [`respaldo/main-quiz-v1`](https://github.com/ddturizo-eng/PersisteApp/tree/respaldo/main-quiz-v1). El código del quiz y del panel sigue en el repositorio, pero la portada ya no lo enlaza: esta sesión no se califica.
 
 ## Arquitectura
 
 ```mermaid
 flowchart LR
   E["Estudiante<br/>teléfono o portátil"] --> V
-  D["Docente<br/>panel /docente"] --> V
   subgraph V["Vercel · Next.js 16"]
     L["Lecciones<br/>JSON validado con Zod"]
-    S["Server Actions<br/>calificación del quiz"]
   end
-  S -- "secret key, solo servidor" --> B[("Supabase<br/>PostgreSQL")]
-  J["CRUD Java v0 / v1<br/>equipo del docente"] -- "JDBC · Session pooler" --> B
+  V --> N
+  subgraph N["Navegador"]
+    P[("PGlite<br/>PostgreSQL en WebAssembly")]
+  end
+  J["CRUD Java de referencia"] -- "JDBC" --> B[("PostgreSQL u Oracle")]
 ```
 
 - **Contenido como datos.** Cada lección es un JSON tipado en `web/content/s1/`; un solo reproductor dibuja todos los pasos. El esquema se valida en el build.
-- **Sin servidor propio.** Todo lo dinámico corre en funciones serverless de Vercel contra Supabase. El panel docente consulta cada 5 s.
-- **Ranking justo.** Las respuestas correctas nunca viajan al navegador: el servidor califica, cuenta solo el primer intento y aplica el límite de tiempo.
-- **Sin credenciales en el cliente.** La clave de Supabase vive solo en variables de entorno del servidor.
+- **Base de datos en el navegador.** El editor SQL carga PGlite solo cuando se abre: cada estudiante tiene su propia copia de las tablas de ejemplo y no hay servidor de base de datos.
+- **Simulación rotulada.** Lo que corre en PostgreSQL real dice **Ejecución real**; lo animado dice **Simulación**.
 
 Las reglas completas están en [`specs/00-constitution.md`](specs/00-constitution.md).
 
@@ -95,7 +95,7 @@ Las reglas completas están en [`specs/00-constitution.md`](specs/00-constitutio
 | Interfaz | React Aria Components, lucide-react, GSAP |
 | Código resaltado | Shiki (temas GitHub claro y oscuro, ajustados a contraste AA) |
 | Validación | Zod |
-| Datos | Supabase (PostgreSQL) |
+| Base de datos en el navegador | PGlite (PostgreSQL en WebAssembly) |
 | Pruebas | Vitest |
 | Despliegue | Vercel |
 | CRUD de referencia | Java 17, Maven, JDBC, HikariCP; PostgreSQL u Oracle |
@@ -105,16 +105,17 @@ Las reglas completas están en [`specs/00-constitution.md`](specs/00-constitutio
 ```
 PersisteApp/
 ├── web/                  App Next.js
-│   ├── app/              Rutas: landing, /s1/[lección], /s1/quiz, /sala, /docente
-│   ├── components/       Reproductor de lecciones, simuladores, quiz y panel docente
-│   ├── content/s1/       Lecciones, quiz y fragmentos de código (JSON)
-│   ├── lib/              Lógica pura: esquema, calificación, tiempos, pool, reportes
-│   ├── supabase/         SQL del quiz y del ranking
+│   ├── app/              Rutas: portada y /s1/[lección] (/s1/quiz, /sala y /docente quedan ocultas)
+│   ├── components/db/    Editor SQL, tablas, relaciones, código explicado y demás visuales
+│   ├── components/       Reproductor de lecciones y componentes de interfaz
+│   ├── content/s1/       Lecciones (JSON)
+│   ├── lib/              Lógica pura: esquema de lecciones y base de datos de ejemplo
+│   ├── supabase/         SQL del quiz (versión anterior)
 │   └── tests/            Pruebas con Vitest
 ├── crud/                 CRUD Java de referencia (v0 desordenado y v1 en capas)
-├── specs/                Constitución, requisitos, diseño y tareas (SDD)
+├── specs/                Constitución, requisitos, diseño, tareas y rumbo actual (SDD)
 ├── roadmap/              Roadmap estilo Jira e importación CSV
-└── docs/                 Handoff, investigación de UI e ilustraciones
+└── docs/                 Capturas, logo, investigación de UI e ilustraciones
 ```
 
 ## Empezar
@@ -128,25 +129,11 @@ npm install
 npm run dev
 ```
 
-Abre <http://localhost:3000>. Sin variables de entorno, las lecciones funcionan completas y el quiz queda en **modo práctica**: califica, pero no guarda ni arma ranking.
-
-### Quiz en vivo y panel docente
-
-1. Crea un proyecto en [Supabase](https://supabase.com).
-2. En el SQL editor ejecuta, en orden, `web/supabase/001_quiz.sql` y `web/supabase/002_quiz_live.sql`. Los dos se pueden repetir sin perder datos.
-3. Copia `web/.env.example` como `web/.env.local` y completa:
-
-| Variable | Qué es |
-|---|---|
-| `SUPABASE_URL` | Project Settings → Data API → Project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Secret key (`sb_secret_…`). Solo servidor: nunca con prefijo `NEXT_PUBLIC_` |
-| `TEACHER_PASSCODE` | Clave para entrar a `/docente` |
-
-En Vercel, define las mismas variables en el proyecto.
+Abre <http://localhost:3000>. No hace falta ninguna variable de entorno ni base de datos: el editor SQL corre en el navegador.
 
 ### CRUD Java
 
-La tienda de consola que usan los módulos 3 a 7 tiene su propia guía: [`crud/README.md`](crud/README.md).
+El CRUD de consola de referencia tiene su propia guía: [`crud/README.md`](crud/README.md).
 
 ## Scripts
 
@@ -161,13 +148,13 @@ Desde `web/`:
 | `npm run lint` | ESLint |
 | `npm run validate:content` | Solo valida las lecciones |
 
-Las pruebas cubren el esquema de las lecciones, la calidad de las preguntas (longitud de opciones, orden barajado), que cada fragmento de «Ver código» sea idéntico a su archivo en `crud/`, la calificación y los tiempos del quiz, el modelo del pool y los reportes del docente.
+Las pruebas cubren el esquema de las lecciones, la calidad de las preguntas (longitud de opciones, orden barajado) y la base de datos de ejemplo: las llaves foráneas son válidas y cada consulta del editor corre en PGlite (solo fallan, a propósito, las que rompen una llave).
 
 ## Cómo se construyó
 
-El proyecto sigue **Spec-Driven Development**: constitución → requisitos (`REQ-xx` con criterios de aceptación) → diseño → tareas (`T-xx`) → código → verificación. Se construyó en tres días, del 6 al 8 de noviembre de 2026, para la sesión del 9 de noviembre.
+El proyecto sigue **Spec-Driven Development**: constitución → requisitos (`REQ-xx` con criterios de aceptación) → diseño → tareas (`T-xx`) → código → verificación. Se construyó en tres días, del 6 al 8 de noviembre de 2026, para la sesión del 9 de noviembre. El 8 de noviembre el rumbo cambió hacia la teoría de bases de datos ([spec 04](specs/04-rumbo-teoria-bd.md)).
 
-- [Constitución](specs/00-constitution.md) · [Requisitos](specs/01-requirements.md) · [Diseño](specs/02-design.md) · [Tareas](specs/03-tasks.md) · [Roadmap](roadmap/ROADMAP.md)
+- [Constitución](specs/00-constitution.md) · [Requisitos](specs/01-requirements.md) · [Diseño](specs/02-design.md) · [Tareas](specs/03-tasks.md) · [Rumbo teoría de BD](specs/04-rumbo-teoria-bd.md) · [Roadmap](roadmap/ROADMAP.md)
 
 ## Apoya el proyecto
 
