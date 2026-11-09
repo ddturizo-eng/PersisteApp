@@ -4,7 +4,7 @@
   "module": 3,
   "title": "Tablas que se señalan: llaves y relaciones",
   "summary": "Llaves foráneas, JOIN y transacciones: cómo las tablas se conectan y cómo se guardan varios cambios juntos.",
-  "estimatedMinutes": 15,
+  "estimatedMinutes": 13,
   "source": {
     "label": "Documentación de PostgreSQL · Llaves foráneas",
     "url": "https://www.postgresql.org/docs/current/tutorial-fk.html"
@@ -14,33 +14,41 @@
       "kind": "text",
       "stage": "theory",
       "title": "¿Por qué no una sola tabla gigante?",
-      "body": "Podrías guardar cada matrícula como «Ana Torres, ana@…, Bases de Datos, 4 créditos, 4.5». Pero si el curso cambia de nombre, tendrías que corregirlo en cientos de filas.\n\nMejor: cada cosa en su tabla (`estudiante`, `curso`) y una tabla `matricula` que solo guarda **a quién** y **a qué** apunta, usando sus `id`."
+      "body": "Si cada matrícula copiara el nombre del curso, cambiarlo exigiría corregir cientos de filas.\n\nMejor: cada cosa en su tabla, y `matricula` solo guarda los `id` de **a quién** y **a qué** apunta."
     },
     {
       "kind": "visual",
       "stage": "theory",
       "component": "relations",
       "title": "La llave foránea señala",
-      "caption": "`matricula.estudiante_id` es una **llave foránea** (FK): guarda la PK de otra tabla. Toca una matrícula para ver a quién señala, o toca un estudiante para ver sus matrículas."
+      "caption": "Una **llave foránea** (FK) guarda la PK de otra tabla. Toca una matrícula o un estudiante."
     },
     {
       "kind": "text",
       "stage": "theory",
       "title": "Tipos de relación",
-      "body": "**Uno a muchos (1:N):** un estudiante tiene muchas matrículas; cada matrícula es de un solo estudiante. La FK va en el lado «muchos».\n\n**Muchos a muchos (N:M):** un estudiante ve muchos cursos y un curso tiene muchos estudiantes. Se resuelve con una tabla intermedia: `matricula` tiene dos FK.\n\nLa FK también es una **regla**: el motor no deja matricular a un estudiante que no existe ni borrar a uno que tiene matrículas."
+      "body": "**1 a muchos:** un estudiante, muchas matrículas; la FK va en el lado «muchos».\n\n**Muchos a muchos:** estudiantes y cursos se unen con una tabla intermedia (`matricula`, con dos FK)."
     },
     {
       "kind": "text",
       "stage": "theory",
       "title": "Transacciones: todo o nada",
-      "body": "A veces dos cambios deben ir juntos: subir la nota **y** registrar el cambio. Si el segundo falla, el primero no debe quedar a medias.\n\nUna **transacción** agrupa cambios: `BEGIN` la abre, `COMMIT` guarda todo y `ROLLBACK` deshace todo. Es la «A» de ACID: atomicidad, todo o nada.",
+      "body": "Cambios que van juntos se agrupan en una **transacción**: `BEGIN` la abre, `COMMIT` guarda todo y `ROLLBACK` deshace todo.",
       "image": "todo-o-nada"
     },
     {
       "kind": "visual",
       "stage": "practice",
       "component": "sql-lab",
-      "props": { "queries": ["join", "count", "insert-fk", "delete-fk"], "table": "matricula" },
+      "props": {
+        "queries": [
+          "join",
+          "count",
+          "insert-fk",
+          "delete-fk"
+        ],
+        "table": "matricula"
+      },
       "title": "Laboratorio 3 · Relaciones",
       "caption": "`JOIN` une las tablas siguiendo las llaves. Luego intenta romper la FK: el error que ves es el mensaje real de PostgreSQL."
     },
@@ -50,16 +58,34 @@
       "context": "La tabla `matricula` tiene `estudiante_id INTEGER REFERENCES estudiante(id)`. No existe ningún estudiante con `id` 99.",
       "prompt": "¿Qué pasa con `INSERT INTO matricula (estudiante_id, curso_id) VALUES (99, 1);`?",
       "options": [
-        { "text": "El motor la rechaza por la llave foránea", "correct": true, "explanation": "La FK exige que el 99 exista en `estudiante.id`. Como no existe, el INSERT falla." },
-        { "text": "Se guarda y el estudiante 99 se crea solo", "correct": false, "explanation": "El motor nunca inventa filas. La FK solo comprueba que el padre exista." },
-        { "text": "Se guarda con `estudiante_id` en NULL", "correct": false, "explanation": "El motor no cambia tus valores: o guarda el 99 o rechaza la fila. Aquí la rechaza." }
+        {
+          "text": "El motor la rechaza por la llave foránea",
+          "correct": true,
+          "explanation": "La FK exige que el 99 exista en `estudiante.id`. Como no existe, el INSERT falla."
+        },
+        {
+          "text": "Se guarda y el estudiante 99 se crea solo",
+          "correct": false,
+          "explanation": "El motor nunca inventa filas. La FK solo comprueba que el padre exista."
+        },
+        {
+          "text": "Se guarda con `estudiante_id` en NULL",
+          "correct": false,
+          "explanation": "El motor no cambia tus valores: o guarda el 99 o rechaza la fila. Aquí la rechaza."
+        }
       ]
     },
     {
       "kind": "visual",
       "stage": "practice",
       "component": "sql-lab",
-      "props": { "queries": ["tx-rollback", "tx-commit"], "table": "matricula" },
+      "props": {
+        "queries": [
+          "tx-rollback",
+          "tx-commit"
+        ],
+        "table": "matricula"
+      },
       "title": "Laboratorio 4 · Todo o nada",
       "caption": "Con ROLLBACK, el DELETE que borró todo se deshace. Con COMMIT, los dos UPDATE quedan guardados juntos."
     },
@@ -69,9 +95,21 @@
       "context": "Ejecutas `BEGIN;`, luego `UPDATE matricula SET nota = 5.0 WHERE id = 1;` y por último `ROLLBACK;`.",
       "prompt": "¿Qué nota tiene al final la matrícula 1?",
       "options": [
-        { "text": "La que tenía antes del BEGIN", "correct": true, "explanation": "ROLLBACK deshace todo lo hecho desde BEGIN; la nota vuelve a su valor original." },
-        { "text": "5.0, porque el UPDATE ya corrió", "correct": false, "explanation": "Corrió dentro de la transacción, pero ROLLBACK la descartó: nunca se confirmó." },
-        { "text": "NULL, porque ROLLBACK la vacía", "correct": false, "explanation": "ROLLBACK no borra valores: devuelve los datos a como estaban antes de BEGIN." }
+        {
+          "text": "La que tenía antes del BEGIN",
+          "correct": true,
+          "explanation": "ROLLBACK deshace todo lo hecho desde BEGIN; la nota vuelve a su valor original."
+        },
+        {
+          "text": "5.0, porque el UPDATE ya corrió",
+          "correct": false,
+          "explanation": "Corrió dentro de la transacción, pero ROLLBACK la descartó: nunca se confirmó."
+        },
+        {
+          "text": "NULL, porque ROLLBACK la vacía",
+          "correct": false,
+          "explanation": "ROLLBACK no borra valores: devuelve los datos a como estaban antes de BEGIN."
+        }
       ]
     }
   ]
