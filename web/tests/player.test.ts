@@ -52,8 +52,9 @@ describe("canAdvance", () => {
     expect(canAdvance(lesson, 2, {}, { 2: true })).toBe(true);
   });
 
-  it("never advances past the last step", () => {
-    expect(canAdvance(lesson, 3, {})).toBe(false);
+  it("lets the last step finish the module, but nothing past it", () => {
+    expect(canAdvance(lesson, 3, {})).toBe(true);
+    expect(canAdvance(lesson, 4, {})).toBe(false);
   });
 });
 

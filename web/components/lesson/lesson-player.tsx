@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button, LinkButton } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { ExpositionTimer, ExpositionToggle } from "@/components/exposition";
 import { StageIndicator } from "@/components/lesson/stage-indicator";
 import { StepOverview } from "@/components/lesson/step-overview";
+import { ModuleDone } from "@/components/lesson/module-done";
 import { TraceStep } from "@/components/lesson/trace-step";
 import { SnippetsProvider } from "@/components/lesson/code-refs";
 import { useMarkDone } from "@/components/progress";
@@ -61,7 +63,7 @@ export function LessonPlayerFromUrl({
 }
 
 /** Where the last step leads: the next module, or the final quiz after the last one (REQ-26 CA4). */
-export type NextStop = { href: string; label: string };
+export type NextStop = { href: string; label: string; upcoming?: { module: number; title: string; minutes: number } };
 
 /** One idea per screen with Continue/Back and ← → shortcuts (REQ-02, REQ-03). */
 export function LessonPlayer({
@@ -80,6 +82,9 @@ export function LessonPlayer({
   const [attempts, setAttempts] = useState<Attempts>({});
   const [solved, setSolved] = useState<SolvedExercises>({});
   const [overviewOpen, setOverviewOpen] = useState(false);
+  // After the last step, a closing screen says the module ended and what comes next.
+  const [finished, setFinished] = useState(false);
+  const router = useRouter();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
 
@@ -91,10 +96,12 @@ export function LessonPlayer({
   const step = lesson.steps[index];
   const stepRefs = lesson.steps.map((s) => ({ refs: "refs" in s ? s.refs : undefined }));
   const isLast = index === total - 1;
+  const atEnd = isLast && !innerNav?.advance;
+  const nextLabel = nextStop.upcoming ? `Ir al módulo ${nextStop.upcoming.module}` : nextStop.label;
   const stepDone = canAdvance(lesson, index, attempts, solved);
   const advanceAllowed = innerNav ? innerNav.canAdvance : stepDone;
   // Finished = reaching the last step, where «Siguiente módulo» appears (T-22: landing and menu marks).
-  useMarkDone(lesson.id, isLast && !innerNav?.advance);
+  useMarkDone(lesson.id, atEnd || finished);
 
   const goTo = useCallback(
     (next: number) => {
@@ -107,8 +114,9 @@ export function LessonPlayer({
 
   const next = useCallback(() => {
     if (innerNav?.advance) innerNav.advance();
+    else if (index === total - 1) setFinished(true);
     else goTo(index + 1);
-  }, [goTo, index, innerNav]);
+  }, [goTo, index, innerNav, total]);
 
   // Move focus to the new step's heading so keyboard and screen-reader users start there.
   useEffect(() => {
@@ -118,7 +126,7 @@ export function LessonPlayer({
     }
     headingRef.current?.focus();
     headingRef.current?.scrollIntoView({ block: "nearest" });
-  }, [index]);
+  }, [index, finished]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -130,7 +138,17 @@ export function LessonPlayer({
         setOverviewOpen(true);
         return;
       }
-      if (event.key === "ArrowRight" && advanceAllowed && !(isLast && !innerNav?.advance)) {
+      if (finished) {
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          router.push(nextStop.href);
+        } else if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          setFinished(false);
+        }
+        return;
+      }
+      if (event.key === "ArrowRight" && advanceAllowed) {
         event.preventDefault();
         next();
       } else if (event.key === "ArrowLeft" && index > 0) {
@@ -140,7 +158,7 @@ export function LessonPlayer({
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [advanceAllowed, goTo, index, overviewOpen, next, isLast, innerNav]);
+  }, [advanceAllowed, goTo, index, overviewOpen, next, finished, router, nextStop.href]);
 
   function pick(option: number) {
     setAttempts((current) => {
@@ -166,7 +184,7 @@ export function LessonPlayer({
               className="rounded-md text-sm font-medium tabular-nums underline-offset-4 hover:underline"
               aria-live="polite"
             >
-              Paso {index + 1} de {total}
+              {finished ? "Módulo terminado" : `Paso ${index + 1} de ${total}`}
               <span className="sr-only">. Ver todos los pasos (tecla O)</span>
             </button>
             <ExpositionToggle className="hidden sm:inline-flex" />
@@ -174,20 +192,23 @@ export function LessonPlayer({
         </div>
         <h1 className="line-clamp-2 text-base font-semibold tracking-tight text-balance sm:text-lg exposition:sr-only">{lesson.title}</h1>
         <div className="hidden sm:block">
-          <StageIndicator states={stageStates(lesson, index)} />
+          <StageIndicator
+            states={stageStates(lesson, index).map((s) => (finished ? { ...s, state: "complete" as const } : s))}
+          />
         </div>
         <div aria-hidden="true" className="h-1 overflow-hidden rounded-full bg-muted exposition:hidden">
           <div
             className="h-full rounded-full bg-primary transition-[width] duration-150"
-            style={{ width: `${((index + 1) / total) * 100}%` }}
+            style={{ width: `${finished ? 100 : ((index + 1) / total) * 100}%` }}
           />
         </div>
       </header>
 
-      <section aria-label={`Paso ${index + 1}`} className="flex-1 py-6 sm:py-10 exposition:py-5">
-        {step.kind === "text" && <TextStep key={index} step={step} headingRef={headingRef} />}
-        {step.kind === "visual" && <VisualStep key={index} step={step} headingRef={headingRef} />}
-        {step.kind === "question" && (
+      <section aria-label={finished ? "Módulo terminado" : `Paso ${index + 1}`} className="flex-1 py-6 sm:py-10 exposition:py-5">
+        {finished && <ModuleDone lesson={lesson} next={nextStop} headingRef={headingRef} />}
+        {!finished && step.kind === "text" && <TextStep key={index} step={step} headingRef={headingRef} />}
+        {!finished && step.kind === "visual" && <VisualStep key={index} step={step} headingRef={headingRef} />}
+        {!finished && step.kind === "question" && (
           <QuestionStep
             key={index}
             step={step}
@@ -197,7 +218,7 @@ export function LessonPlayer({
             headingRef={headingRef}
           />
         )}
-        {step.kind === "code" && (
+        {!finished && step.kind === "code" && (
           <CodeStep
             key={index}
             step={step}
@@ -209,7 +230,7 @@ export function LessonPlayer({
             laterSteps={step.mode === "read" && step.snippet ? laterUses(stepRefs, index, step.snippet) : []}
           />
         )}
-        {step.kind === "trace" && (
+        {!finished && step.kind === "trace" && (
           <TraceStep
             key={index}
             step={step}
@@ -224,7 +245,7 @@ export function LessonPlayer({
 
       <footer className="sticky bottom-0 -mx-4 border-t bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 exposition:py-2">
         <div className="flex items-center justify-between gap-3">
-          <Button variant="outline" isDisabled={index === 0} onPress={() => goTo(index - 1)}>
+          <Button variant="outline" isDisabled={index === 0 && !finished} onPress={() => (finished ? setFinished(false) : goTo(index - 1))}>
             <ArrowLeft data-icon="inline-start" aria-hidden="true" />
             Volver
           </Button>
@@ -239,18 +260,23 @@ export function LessonPlayer({
             <ExpositionTimer />
           </div>
           <div className="flex flex-col items-end gap-1">
-            {isLast && !innerNav?.advance ? (
+            {finished ? (
               <LinkButton href={nextStop.href}>
-                {nextStop.label}
+                {nextLabel}
                 <ArrowRight data-icon="inline-end" aria-hidden="true" />
               </LinkButton>
+            ) : atEnd ? (
+              <Button isDisabled={!advanceAllowed} onPress={next}>
+                Terminar módulo
+                <Check data-icon="inline-end" aria-hidden="true" />
+              </Button>
             ) : (
               <Button isDisabled={!advanceAllowed} onPress={next}>
                 Continuar
                 <ArrowRight data-icon="inline-end" aria-hidden="true" />
               </Button>
             )}
-            {!advanceAllowed && (
+            {!finished && !advanceAllowed && (
               <p className="text-xs text-muted-foreground">
                 {innerNav?.hint ??
                   (step.kind === "code" || step.kind === "trace"
