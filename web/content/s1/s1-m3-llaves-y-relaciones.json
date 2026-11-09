@@ -4,7 +4,7 @@
   "module": 3,
   "title": "Tablas que se señalan: llaves y relaciones",
   "summary": "Por qué separar los datos en tablas, cómo se unen con llaves y qué es una transacción.",
-  "estimatedMinutes": 13,
+  "estimatedMinutes": 15,
   "source": {
     "label": "Documentación de PostgreSQL · Llaves foráneas",
     "url": "https://www.postgresql.org/docs/current/tutorial-fk.html"
@@ -70,6 +70,38 @@
     {
       "kind": "visual",
       "stage": "practice",
+      "component": "code-explain",
+      "title": "JOIN: juntar dos tablas",
+      "caption": "La matrícula solo tiene números. JOIN busca el nombre que corresponde a cada número.",
+      "props": {
+        "language": "sql",
+        "lines": [
+          {
+            "code": "SELECT e.nombre AS estudiante, m.nota",
+            "say": "Muéstrame el nombre del estudiante y la nota. AS le pone un nombre más claro a la columna del resultado."
+          },
+          {
+            "code": "FROM matricula m",
+            "say": "Empieza en la tabla matricula. La m es un apodo corto para no escribir «matricula» cada vez."
+          },
+          {
+            "code": "JOIN estudiante e",
+            "say": "Júntala con la tabla estudiante (apodo e)."
+          },
+          {
+            "code": "  ON e.id = m.estudiante_id",
+            "say": "ON dice cómo se unen: la PK del estudiante igual a la FK de la matrícula."
+          },
+          {
+            "code": "ORDER BY e.nombre;",
+            "say": "Ordena el resultado por el nombre del estudiante."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
       "component": "sql-lab",
       "props": {
         "queries": [
@@ -80,7 +112,7 @@
         "table": "matricula"
       },
       "title": "Laboratorio 3 · Relaciones",
-      "caption": "**JOIN** junta las tablas siguiendo las llaves y muestra nombres en vez de números. Luego intenta romper una llave: el motor no te deja."
+      "caption": "Ejecuta «JOIN»: ahora ves nombres en vez de números. Luego intenta matricular a un estudiante que no existe: el motor no te deja."
     },
     {
       "kind": "question",
@@ -104,6 +136,34 @@
           "explanation": "No: la FK impide guardar una matrícula que apunte a nadie."
         }
       ]
+    },
+    {
+      "kind": "visual",
+      "stage": "practice",
+      "component": "code-explain",
+      "title": "BEGIN, COMMIT y ROLLBACK",
+      "caption": "Tres palabras para la transacción del paso 4.",
+      "props": {
+        "language": "sql",
+        "lines": [
+          {
+            "code": "BEGIN;",
+            "say": "Abre la transacción: «lo que siga, guárdalo todo junto o nada»."
+          },
+          {
+            "code": "UPDATE matricula SET nota = 5.0 WHERE id = 1;",
+            "say": "Un cambio. Todavía no es definitivo: está «en borrador»."
+          },
+          {
+            "code": "ROLLBACK;",
+            "say": "Deshace todo desde BEGIN. La nota vuelve a como estaba."
+          },
+          {
+            "code": "-- o bien: COMMIT;",
+            "say": "COMMIT, en cambio, guarda todo de forma definitiva."
+          }
+        ]
+      }
     },
     {
       "kind": "visual",

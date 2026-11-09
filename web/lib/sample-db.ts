@@ -117,19 +117,19 @@ export type PresetQuery = {
 };
 
 export const presetQueries: PresetQuery[] = [
-  { id: "select-all", label: "SELECT *", sql: "SELECT * FROM estudiante;", explain: "Trae todas las filas y todas las columnas.", shows: "estudiante" },
-  { id: "select-where", label: "SELECT … WHERE", sql: "SELECT nombre, correo\nFROM estudiante\nWHERE id = 2;", explain: "WHERE filtra las filas; después de SELECT eliges las columnas.", shows: "estudiante" },
-  { id: "select-order", label: "ORDER BY", sql: "SELECT nombre, creditos\nFROM curso\nORDER BY creditos DESC;", explain: "ORDER BY ordena el resultado; DESC es de mayor a menor.", shows: "curso" },
-  { id: "insert", label: "INSERT", sql: "INSERT INTO estudiante (nombre, correo, nacimiento)\nVALUES ('Mario Ruiz', 'mario@unicesar.edu.co', '2004-09-15');", explain: "No escribimos el id: SERIAL lo genera el motor.", shows: "estudiante" },
+  { id: "select-all", label: "SELECT *", sql: "SELECT * FROM estudiante;", explain: "El * significa «todas las columnas». Sin WHERE, trae todas las filas.", shows: "estudiante" },
+  { id: "select-where", label: "SELECT … WHERE", sql: "SELECT nombre, correo\nFROM estudiante\nWHERE id = 2;", explain: "Solo las columnas nombre y correo, y solo la fila con id 2.", shows: "estudiante" },
+  { id: "select-order", label: "ORDER BY", sql: "SELECT nombre, creditos\nFROM curso\nORDER BY creditos DESC;", explain: "ORDER BY ordena el resultado. DESC = de mayor a menor.", shows: "curso" },
+  { id: "insert", label: "INSERT", sql: "INSERT INTO estudiante (nombre, correo, nacimiento)\nVALUES ('Mario Ruiz', 'mario@unicesar.edu.co', '2004-09-15');", explain: "No escribimos el id: el motor lo pone solo.", shows: "estudiante" },
   { id: "update", label: "UPDATE", sql: "UPDATE estudiante\nSET correo = 'ana.torres@unicesar.edu.co'\nWHERE id = 1;", explain: "SET cambia el valor; WHERE decide qué filas cambian.", shows: "estudiante" },
   { id: "update-no-where", label: "UPDATE sin WHERE", sql: "UPDATE curso\nSET creditos = 0;", explain: "Sin WHERE cambian TODAS las filas. Pulsa «Reiniciar datos» para deshacerlo.", shows: "curso" },
   { id: "delete", label: "DELETE", sql: "DELETE FROM matricula\nWHERE id = 5;", explain: "Borra la fila cuyo id es 5. Sin WHERE borraría todas.", shows: "matricula" },
   { id: "delete-fk", label: "DELETE con hijos", sql: "DELETE FROM estudiante\nWHERE id = 1;", explain: "Ana tiene matrículas que la señalan: el motor no deja borrarla y deja las filas como estaban.", shows: "estudiante" },
   { id: "insert-fk", label: "FK inválida", sql: "INSERT INTO matricula (estudiante_id, curso_id, nota)\nVALUES (99, 1, 4.0);", explain: "No existe el estudiante 99: la llave foránea lo impide.", shows: "matricula" },
-  { id: "join", label: "JOIN", sql: "SELECT e.nombre AS estudiante, c.nombre AS curso, m.nota\nFROM matricula m\nJOIN estudiante e ON e.id = m.estudiante_id\nJOIN curso c ON c.id = m.curso_id\nORDER BY e.nombre;", explain: "JOIN une filas cuyas llaves coinciden: la FK de matricula con la PK de cada tabla.", shows: "matricula" },
-  { id: "count", label: "COUNT + GROUP BY", sql: "SELECT c.nombre, COUNT(*) AS inscritos\nFROM matricula m\nJOIN curso c ON c.id = m.curso_id\nGROUP BY c.nombre;", explain: "GROUP BY junta las filas por curso y COUNT las cuenta.", shows: "matricula" },
-  { id: "tx-rollback", label: "BEGIN … ROLLBACK", sql: "BEGIN;\nDELETE FROM matricula;\nSELECT COUNT(*) AS quedan FROM matricula;\nROLLBACK;", explain: "Dentro de la transacción quedan 0; ROLLBACK deshace todo y las 5 vuelven.", shows: "matricula" },
-  { id: "tx-commit", label: "BEGIN … COMMIT", sql: "BEGIN;\nUPDATE matricula SET nota = nota + 0.2 WHERE curso_id = 1;\nUPDATE curso SET creditos = 5 WHERE id = 1;\nCOMMIT;", explain: "Los dos cambios se guardan juntos o ninguno: todo o nada.", shows: "matricula" },
+  { id: "join", label: "JOIN", sql: "SELECT e.nombre AS estudiante, c.nombre AS curso, m.nota\nFROM matricula m\nJOIN estudiante e ON e.id = m.estudiante_id\nJOIN curso c ON c.id = m.curso_id\nORDER BY e.nombre;", explain: "JOIN junta las tablas donde las llaves coinciden. AS renombra la columna del resultado; e, c y m son apodos de las tablas.", shows: "matricula" },
+  { id: "count", label: "COUNT + GROUP BY", sql: "SELECT c.nombre, COUNT(*) AS inscritos\nFROM matricula m\nJOIN curso c ON c.id = m.curso_id\nGROUP BY c.nombre;", explain: "Cuenta cuántos estudiantes hay en cada curso.", shows: "matricula" },
+  { id: "tx-rollback", label: "BEGIN … ROLLBACK", sql: "BEGIN;\nDELETE FROM matricula;\nSELECT COUNT(*) AS quedan FROM matricula;\nROLLBACK;", explain: "BEGIN abre la transacción. Dentro se borra todo (quedan 0), pero ROLLBACK lo deshace y las 5 vuelven.", shows: "matricula" },
+  { id: "tx-commit", label: "BEGIN … COMMIT", sql: "BEGIN;\nUPDATE matricula SET nota = nota + 0.2 WHERE curso_id = 1;\nUPDATE curso SET creditos = 5 WHERE id = 1;\nCOMMIT;", explain: "BEGIN abre, dos cambios, COMMIT los guarda juntos de forma definitiva.", shows: "matricula" },
 ];
 
 export const presetById = Object.fromEntries(presetQueries.map((q) => [q.id, q])) as Record<string, PresetQuery>;

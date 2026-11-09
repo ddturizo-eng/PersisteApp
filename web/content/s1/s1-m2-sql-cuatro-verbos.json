@@ -22,25 +22,25 @@
       "stage": "theory",
       "component": "code-explain",
       "title": "Cómo se lee un SELECT",
-      "caption": "SELECT pide filas. Recorre las líneas.",
+      "caption": "Un SELECT se lee casi como una frase en español. Recorre las líneas.",
       "props": {
         "language": "sql",
         "lines": [
           {
             "code": "SELECT nombre, correo",
-            "say": "Qué columnas quiero ver."
+            "say": "SELECT = «muéstrame». Después van las columnas que quiero ver. Con * verías todas."
           },
           {
             "code": "FROM estudiante",
-            "say": "De qué tabla."
+            "say": "FROM = «de la tabla». Aquí, la tabla estudiante."
           },
           {
-            "code": "WHERE id = 2",
-            "say": "Qué filas: solo la del estudiante con id 2."
+            "code": "WHERE nacimiento >= '2004-01-01'",
+            "say": "WHERE = «solo las filas que cumplan». Aquí, nacidos desde 2004."
           },
           {
             "code": "ORDER BY nombre;",
-            "say": "En qué orden: alfabético por nombre."
+            "say": "ORDER BY = «ordénalas por». Alfabético de A a Z. Con DESC al final sería de Z a A."
           }
         ]
       }
